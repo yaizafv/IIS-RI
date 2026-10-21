@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,77 +21,61 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public void add(InvoiceRecord t) throws PersistenceException {
-        PreparedStatement pst = null;
-        try {
-            Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TINVOICES_ADD"));
-
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TINVOICES_ADD"))) {
             pst.setString(1, t.id);
-            pst.setBigDecimal(2, t.total); 
-            pst.setDate(3, t.date == null ? null : Date.valueOf(t.date));
-            pst.setLong(4, t.number);
+            pst.setLong(2, t.version);
+            pst.setLong(3, t.number);
+            pst.setDate(4, t.date == null ? null : Date.valueOf(t.date));
             pst.setString(5, t.state);
-            pst.setBigDecimal(6, t.vatamount);
-            pst.setLong(7, t.version);
-
+            pst.setBoolean(6, false);
+            pst.setBigDecimal(7, t.subtotal);
+            pst.setBigDecimal(8, t.total);
+            pst.setBigDecimal(9, t.vatamount);
+            pst.setBigDecimal(10, t.vatrate);
+            pst.setTimestamp(11, t.createdAt == null ? null
+                    : Timestamp.valueOf(t.createdAt));
+            pst.setTimestamp(12, t.updatedAt == null ? null
+                    : Timestamp.valueOf(t.updatedAt));
+            pst.setString(13, t.entityState);
             pst.executeUpdate();
-
         } catch (SQLException e) {
             throw new PersistenceException(e);
-        } finally {
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-            } catch (SQLException ignored) {}
         }
     }
 
     @Override
     public void remove(String id) throws PersistenceException {
-        PreparedStatement pst = null;
-        try {
-            Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TINVOICES_DELETE"));
-
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TINVOICES_REMOVE"))) {
             pst.setString(1, id);
             pst.executeUpdate();
-
         } catch (SQLException e) {
             throw new PersistenceException(e);
-        } finally {
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-            } catch (SQLException ignored) {}
         }
     }
 
     @Override
     public void update(InvoiceRecord t) throws PersistenceException {
-        PreparedStatement pst = null;
-        try {
-            Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TINVOICES_UPDATE"));
-
-            // Corregido: se usa t.total o t.subtotal en lugar de t.amount
-            pst.setBigDecimal(1, t.total);
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TINVOICES_UPDATE"))) {
+            pst.setLong(1, t.number);
             pst.setDate(2, t.date == null ? null : Date.valueOf(t.date));
             pst.setString(3, t.state);
-            pst.setBigDecimal(4, t.vatamount);
-            pst.setString(5, t.id);
-
-            pst.executeUpdate();
-
+            pst.setBigDecimal(4, t.subtotal);
+            pst.setBigDecimal(5, t.total);
+            pst.setBigDecimal(6, t.vatamount);
+            pst.setBigDecimal(7, t.vatrate);
+            pst.setTimestamp(8, t.updatedAt == null ? null
+                    : Timestamp.valueOf(t.updatedAt));
+            pst.setString(9, t.id);
+            pst.setLong(10, t.version);
+            if (pst.executeUpdate() != 1) {
+                throw new PersistenceException(
+                        new SQLException("Invoice was not updated because its version has changed"));
+            }
         } catch (SQLException e) {
             throw new PersistenceException(e);
-        } finally {
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-            } catch (SQLException ignored) {}
         }
     }
 

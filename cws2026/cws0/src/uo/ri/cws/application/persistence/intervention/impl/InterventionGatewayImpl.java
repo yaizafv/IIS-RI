@@ -38,7 +38,7 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
     @Override
     public void remove(String id) throws PersistenceException {
-        executeUpdate("TINTERVENTIONS_DELETE", id);
+        executeUpdate("TINTERVENTIONS_REMOVE", id);
     }
 
     @Override

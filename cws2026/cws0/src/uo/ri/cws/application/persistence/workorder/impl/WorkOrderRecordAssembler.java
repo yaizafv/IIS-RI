@@ -2,6 +2,7 @@ package uo.ri.cws.application.persistence.workorder.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,8 @@ public class WorkOrderRecordAssembler extends BaseRecordAssembler<WorkOrderRecor
         result.version = rs.getLong("version");
         result.vehicleId = rs.getString("vehicle_id");
         result.description = rs.getString("description");
-        result.date = rs.getTimestamp("date").toLocalDateTime();
+        Timestamp date = rs.getTimestamp("date");
+        result.date = date == null ? null : date.toLocalDateTime();
         result.amount = rs.getDouble("total_amount");
         result.state = rs.getString("state");
         result.mechanicId = rs.getString("mechanic_id");

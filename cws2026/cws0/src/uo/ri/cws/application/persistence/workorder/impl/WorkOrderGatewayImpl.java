@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,15 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public Optional<WorkOrderRecord> findById(String id) throws PersistenceException {
-        return null;
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TWORKORDERS_FIND_BY_ID"))) {
+            pst.setString(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                return assembler.toWorkOrderRecord(rs);
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
@@ -42,7 +51,7 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public List<WorkOrderRecord> findNotInvoicedByClientNif(String nif) {
-        return null;
+        return findNotInvoicedWorkOrdersByClientNif(nif);
     }
 
     @Override
@@ -95,7 +104,8 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
         ResultSet rs = null;
         try {
             Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TWORKORDERS_FIND_NOT_INVOICED_BY_CLIENT_NIF"));
+            pst = c.prepareStatement(Queries.getSQLSentence(
+                    "TWORKORDERS_FIND_NOT_INVOICED_WORK_ORDERS_BY_CLIENT_NIF"));
             pst.setString(1, nif);
             rs = pst.executeQuery();
             workOrders = assembler.toWorkOrderRecordList(rs);
@@ -120,23 +130,17 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public void setInvoiced(String workOrderId, String invoiceId) {
-        PreparedStatement pst = null;
-        try {
-            Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TWORKORDERS_UPDATE_INVOICED_BY_ID"));
-            pst.setString(1, "INVOICED");
-            pst.setString(2, invoiceId);
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TWORKORDERS_SET_INVOICED"))) {
+            pst.setString(1, invoiceId);
+            pst.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             pst.setString(3, workOrderId);
-            pst.executeUpdate();
+            if (pst.executeUpdate() != 1) {
+                throw new PersistenceException(
+                        new SQLException("Work order was not invoiced: " + workOrderId));
+            }
         } catch (SQLException e) {
             throw new PersistenceException(e);
-        } finally {
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-            } catch (SQLException ignored) {
-            }
         }
     }
 }

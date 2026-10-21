@@ -53,7 +53,7 @@ public class MechanicGatewayImpl implements MechanicGateway {
         PreparedStatement pst = null;
         try {
             Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence("TMECHANICS_DELETE"));
+            pst = c.prepareStatement(Queries.getSQLSentence("TMECHANICS_REMOVE"));
 
             pst.setString(1, id);
             pst.executeUpdate();

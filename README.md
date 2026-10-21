@@ -531,8 +531,7 @@ La implementación del módulo JDBC debe cumplir ese contrato.
 ### 3.3. Servicios JDBC
 
 La implementación de servicios y persistencia JDBC está en el código del
-proyecto que se entrega como `cws_services_jdbc`. En esta copia de trabajo la
-carpeta histórica de la implementación aparece como `cws0`.
+proyecto que se entrega como `cws_services_jdbc`.
 
 Dentro se encuentran:
 
@@ -1141,8 +1140,8 @@ Contiene los contratos públicos de los servicios y sus DTOs.
 Contiene la implementación JDBC de los servicios, gateways, commands,
 records, factories y UI propia.
 
-En esta copia concreta, la carpeta física histórica de esta implementación es
-`cws0`.
+En esta copia concreta, la carpeta física de esta implementación es
+`cws_services_jdbc`.
 
 ### `cws_service_tests`
 

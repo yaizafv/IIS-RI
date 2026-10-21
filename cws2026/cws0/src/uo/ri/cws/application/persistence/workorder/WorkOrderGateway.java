@@ -1,19 +1,13 @@
 package uo.ri.cws.application.persistence.workorder;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.Gateway;
 import uo.ri.util.exception.PersistenceException;
 
 public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderRecord> {
-
-    /**
-     * @param nif, the client nif
-     * @return a list of all work orders not invoiced for a specific client
-     * @throws PersistenceException
-     */
-    List<WorkOrderRecord> findNotInvoicedByClientNif(String nif);
 
     /**
      * @param workorder Ids, list of workorders to retrieve
@@ -51,7 +45,7 @@ public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderReco
         public String vehicleId;
         public String description;
         public LocalDateTime date;
-        public double amount;
+        public BigDecimal amount;
         public String state;
 
         public String mechanicId;
@@ -59,6 +53,8 @@ public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderReco
     }
 
     List<WorkOrderRecord> findNotInvoicedWorkOrdersByClientNif(String nif);
+
+    List<WorkOrderRecord> findByClientNif(String nif);
 
     void setInvoiced(String workOrderId, String invoiceId);
 }

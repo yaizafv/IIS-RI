@@ -9,7 +9,10 @@ import uo.ri.cws.application.persistence.util.command.CommandExecutor;
 import uo.ri.cws.application.service.invoice.InvoicingService;
 import uo.ri.cws.application.service.invoice.FindNotInvoicedWorkOrdersByClientNif;
 import uo.ri.cws.application.service.invoice.create.commands.CreateInvoice;
+import uo.ri.cws.application.service.invoice.create.commands.FindInvoiceByNumber;
+import uo.ri.cws.application.service.invoice.create.commands.FindPaymentMeansByClientNif;
 import uo.ri.cws.application.service.invoice.create.commands.FindWorkOrdersByClientNif;
+import uo.ri.cws.application.service.invoice.create.commands.SettleInvoice;
 import uo.ri.util.exception.BusinessException;
 
 public class InvoicingServiceImpl implements InvoicingService {
@@ -39,20 +42,17 @@ public class InvoicingServiceImpl implements InvoicingService {
 
     @Override
     public Optional<InvoiceDto> findInvoiceByNumber(Long number) throws BusinessException {
-        // TODO Auto-generated method stub
-        return Optional.empty();
+        return executor.execute(new FindInvoiceByNumber(number));
     }
 
     @Override
     public List<PaymentMeanDto> findPayMeansByClientNif(String nif) throws BusinessException {
-        // TODO Auto-generated method stub
-        return null;
+        return executor.execute(new FindPaymentMeansByClientNif(nif));
     }
 
     @Override
     public void settleInvoice(String invoiceId, Map<String, BigDecimal> charges) throws BusinessException {
-        // TODO Auto-generated method stub
-        
+        executor.execute(new SettleInvoice(invoiceId, charges));
     }
 
 }

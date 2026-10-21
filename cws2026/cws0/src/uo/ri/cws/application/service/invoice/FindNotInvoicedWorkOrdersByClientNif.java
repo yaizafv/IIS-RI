@@ -1,6 +1,5 @@
 package uo.ri.cws.application.service.invoice;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
-import uo.ri.util.assertion.ArgumentChecks;
+import uo.ri.cws.application.service.invoice.create.commands.FindPaymentMeansByClientNif;
 import uo.ri.util.exception.BusinessException;
 
 public class FindNotInvoicedWorkOrdersByClientNif
@@ -20,7 +19,7 @@ public class FindNotInvoicedWorkOrdersByClientNif
     private final String nif;
 
     public FindNotInvoicedWorkOrdersByClientNif(String nif) {
-        ArgumentChecks.isNotBlank(nif, "El NIF no puede estar vacío");
+        FindPaymentMeansByClientNif.validateNif(nif);
         this.nif = nif;
     }
 
@@ -29,14 +28,16 @@ public class FindNotInvoicedWorkOrdersByClientNif
         List<WorkOrderRecord> records =
                 workOrderGateway.findNotInvoicedWorkOrdersByClientNif(nif);
         List<InvoicingWorkOrderDto> workOrders = new ArrayList<>();
-
         for (WorkOrderRecord record : records) {
+            if (!"APPROVED".equals(record.state)) {
+                continue;
+            }
             InvoicingWorkOrderDto dto = new InvoicingWorkOrderDto();
             dto.id = record.id;
             dto.date = record.date;
             dto.description = record.description;
             dto.state = record.state;
-            dto.amount = BigDecimal.valueOf(record.amount);
+            dto.amount = record.amount;
             workOrders.add(dto);
         }
         return workOrders;

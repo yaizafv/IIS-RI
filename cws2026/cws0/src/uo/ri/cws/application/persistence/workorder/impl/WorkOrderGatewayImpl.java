@@ -50,11 +50,6 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
     }
 
     @Override
-    public List<WorkOrderRecord> findNotInvoicedByClientNif(String nif) {
-        return findNotInvoicedWorkOrdersByClientNif(nif);
-    }
-
-    @Override
     public List<WorkOrderRecord> findByIds(List<String> workOrderIds) {
         return null;
     }
@@ -126,6 +121,19 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
             }
         }
         return workOrders;
+    }
+
+    @Override
+    public List<WorkOrderRecord> findByClientNif(String nif) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TWORKORDERS_FIND_BY_CLIENT_NIF"))) {
+            pst.setString(1, nif);
+            try (ResultSet rs = pst.executeQuery()) {
+                return assembler.toWorkOrderRecordList(rs);
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override

@@ -20,6 +20,10 @@ public class InvoiceRecordAssembler extends BaseRecordAssembler<InvoiceRecord> {
         if (!rs.next()) {
             return null;
         }
+        return toCurrentRecord(rs);
+    }
+
+    private InvoiceRecord toCurrentRecord(ResultSet rs) throws SQLException {
         var record = super.toRecord(rs);
         
         Date date = rs.getDate("date");
@@ -37,7 +41,7 @@ public class InvoiceRecordAssembler extends BaseRecordAssembler<InvoiceRecord> {
     public List<InvoiceRecord> toInvoiceRecordList(ResultSet rs) throws SQLException {
         List<InvoiceRecord> res = new ArrayList<>();
         while (rs.next()) {
-            res.add(toRecord(rs));
+            res.add(toCurrentRecord(rs));
         }
         return res;
     }

@@ -53,7 +53,9 @@ public class CreateInvoice implements Command<InvoiceDto> {
                         "La orden de trabajo no se puede facturar en estado: " + workOrder.state);
             }
 
-            subtotal = subtotal.add(BigDecimal.valueOf(workOrder.amount));
+            if (workOrder.amount != null) {
+                subtotal = subtotal.add(workOrder.amount);
+            }
         }
 
         dto.number = invoiceGateway.findLastNumber().orElse(0L) + 1;

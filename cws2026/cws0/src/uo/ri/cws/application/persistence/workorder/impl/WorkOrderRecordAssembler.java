@@ -25,7 +25,7 @@ public class WorkOrderRecordAssembler extends BaseRecordAssembler<WorkOrderRecor
         result.description = rs.getString("description");
         Timestamp date = rs.getTimestamp("date");
         result.date = date == null ? null : date.toLocalDateTime();
-        result.amount = rs.getDouble("total_amount");
+        result.amount = rs.getBigDecimal("total_amount");
         result.state = rs.getString("state");
         result.mechanicId = rs.getString("mechanic_id");
         result.invoiceId = rs.getString("invoice_id");

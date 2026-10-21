@@ -20,7 +20,8 @@ public class UpdateMechanicAction implements Action {
         // Comprobar si existe usando findById del servicio
         Optional<MechanicDto> opt = mechanicService.findById(id);
         if (!opt.isPresent()) {
-            throw new BusinessException("Mechanic does not exist");
+            Console.println("Mechanic does not exist");
+            return;
         }
 
         // Pedir los nuevos datos

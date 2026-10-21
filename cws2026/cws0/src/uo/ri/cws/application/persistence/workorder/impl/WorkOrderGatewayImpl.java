@@ -13,6 +13,7 @@ import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.util.exception.PersistenceException;
+import uo.ri.util.exception.NotYetImplementedException;
 
 public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
@@ -20,15 +21,17 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public void add(WorkOrderRecord record) throws PersistenceException {
+        throw new NotYetImplementedException();
     }
 
     @Override
     public void remove(String id) throws PersistenceException {
+        throw new NotYetImplementedException();
     }
 
     @Override
     public void update(WorkOrderRecord record) throws PersistenceException {
-
+        throw new NotYetImplementedException();
     }
 
     @Override
@@ -46,17 +49,17 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public List<WorkOrderRecord> findAll() throws PersistenceException {
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<WorkOrderRecord> findByIds(List<String> workOrderIds) {
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<WorkOrderRecord> findByVehicleId(String id) {
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @Override
@@ -89,7 +92,7 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public List<WorkOrderRecord> findByState(String state) {
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @Override

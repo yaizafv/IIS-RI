@@ -28,7 +28,7 @@ public class InterventionGatewayImpl implements InterventionGateway {
             pst.setString(5, t.entityState);
             pst.setString(6, t.mechanicId);
             pst.setString(7, t.workorderId);
-            pst.setTimestamp(8, t.date == null ? null : new Timestamp(t.date.getTime()));
+            pst.setTimestamp(8, t.date == null ? null : Timestamp.valueOf(t.date));
             pst.setInt(9, t.minutes);
             pst.executeUpdate();
         } catch (SQLException e) {
@@ -47,7 +47,7 @@ public class InterventionGatewayImpl implements InterventionGateway {
                 Queries.getSQLSentence("TINTERVENTIONS_UPDATE"))) {
             pst.setString(1, t.mechanicId);
             pst.setString(2, t.workorderId);
-            pst.setTimestamp(3, t.date == null ? null : new Timestamp(t.date.getTime()));
+            pst.setTimestamp(3, t.date == null ? null : Timestamp.valueOf(t.date));
             pst.setInt(4, t.minutes);
             pst.setTimestamp(5, t.updatedAt == null ? null : Timestamp.valueOf(t.updatedAt));
             pst.setString(6, t.id);

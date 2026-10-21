@@ -31,8 +31,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
             pst.setBoolean(6, false);
             pst.setBigDecimal(7, t.subtotal);
             pst.setBigDecimal(8, t.total);
-            pst.setBigDecimal(9, t.vatamount);
-            pst.setBigDecimal(10, t.vatrate);
+            pst.setBigDecimal(9, t.vatAmount);
+            pst.setBigDecimal(10, t.vatRate);
             pst.setTimestamp(11, t.createdAt == null ? null
                     : Timestamp.valueOf(t.createdAt));
             pst.setTimestamp(12, t.updatedAt == null ? null
@@ -64,8 +64,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
             pst.setString(3, t.state);
             pst.setBigDecimal(4, t.subtotal);
             pst.setBigDecimal(5, t.total);
-            pst.setBigDecimal(6, t.vatamount);
-            pst.setBigDecimal(7, t.vatrate);
+            pst.setBigDecimal(6, t.vatAmount);
+            pst.setBigDecimal(7, t.vatRate);
             pst.setTimestamp(8, t.updatedAt == null ? null
                     : Timestamp.valueOf(t.updatedAt));
             pst.setString(9, t.id);
@@ -176,6 +176,7 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                 long lastNumber = rs.getLong(1);
                 return rs.wasNull() ? Optional.empty() : Optional.of(lastNumber);
             }
+
             return Optional.empty();
 
         } catch (SQLException e) {
@@ -191,6 +192,20 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                     pst.close();
                 }
             } catch (SQLException ignored) {}
+        }
+    }
+
+    @Override
+    public void setPaid(String id) throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TINVOICES_SET_PAID"))) {
+            pst.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            pst.setString(2, id);
+            if (pst.executeUpdate() != 1) {
+                throw new PersistenceException(new SQLException("Invoice was not marked as paid"));
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 

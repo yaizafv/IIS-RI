@@ -27,7 +27,8 @@ public class InterventionRecordAssembler extends BaseRecordAssembler<Interventio
 
         record.mechanicId = rs.getString("mechanic_id");
         record.workorderId = rs.getString("workorder_id");
-        record.date = rs.getDate("date");
+        record.date = rs.getTimestamp("date") == null
+                ? null : rs.getTimestamp("date").toLocalDateTime();
         record.minutes = rs.getInt("minutes");
 
         return record;

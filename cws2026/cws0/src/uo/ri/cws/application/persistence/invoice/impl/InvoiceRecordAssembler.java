@@ -32,8 +32,8 @@ public class InvoiceRecordAssembler extends BaseRecordAssembler<InvoiceRecord> {
         record.state = rs.getString("state");
         record.subtotal = rs.getBigDecimal("subtotal");
         record.total = rs.getBigDecimal("total");
-        record.vatamount = rs.getBigDecimal("vatamount");
-        record.vatrate = rs.getBigDecimal("vatrate");
+        record.vatAmount = rs.getBigDecimal("vatAmount");
+        record.vatRate = rs.getBigDecimal("vatRate");
 
         return record;
     }

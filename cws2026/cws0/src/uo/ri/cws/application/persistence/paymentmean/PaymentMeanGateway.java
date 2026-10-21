@@ -26,12 +26,6 @@ public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMe
 
     boolean hasCharges(String id) throws PersistenceException;
 
-    void addCard(CardRecord record) throws PersistenceException;
-
-    void addVoucher(VoucherRecord record) throws PersistenceException;
-
-    void removeSubtype(PaymentMeanRecord record) throws PersistenceException;
-
     void addAccumulated(String id, BigDecimal amount) throws PersistenceException;
 
     void decreaseVoucherAvailable(String id, BigDecimal amount)

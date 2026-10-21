@@ -26,7 +26,7 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
         var record = super.toRecord(rs);
         record.code = rs.getString("code");
         record.description = rs.getString("description");
-        record.availableMoney = rs.getBigDecimal("availableMoney");
+        record.available = rs.getBigDecimal("available");
 
         return record;
     }

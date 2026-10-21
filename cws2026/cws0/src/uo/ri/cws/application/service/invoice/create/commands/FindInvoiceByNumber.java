@@ -35,8 +35,8 @@ public class FindInvoiceByNumber implements Command<Optional<InvoiceDto>> {
         dto.state = record.state;
         dto.subtotal = record.subtotal;
         dto.total = record.total;
-        dto.vatAmount = record.vatamount;
-        dto.vatPercentage = record.vatrate;
+        dto.vatAmount = record.vatAmount;
+        dto.vatPercentage = record.vatRate;
         return dto;
     }
 }

@@ -13,13 +13,15 @@ public interface InvoiceGateway extends Gateway<InvoiceGateway.InvoiceRecord> {
 
     Optional<Long> findLastNumber() throws PersistenceException;
 
+    void setPaid(String id) throws PersistenceException;
+
     class InvoiceRecord extends Gateway.BaseRecord {
         public LocalDate date;
         public long number;
         public String state;
         public BigDecimal subtotal;
         public BigDecimal total;
-        public BigDecimal vatamount;
-        public BigDecimal vatrate;
+        public BigDecimal vatAmount;
+        public BigDecimal vatRate;
     }
 }

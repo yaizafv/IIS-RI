@@ -2,23 +2,19 @@ package uo.ri.cws.application.service.invoice.create.commands;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.charge.ChargeGateway;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway.InvoiceRecord;
+import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
+import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.CardRecord;
+import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.VoucherRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
-import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 import uo.ri.util.exception.PersistenceException;
@@ -26,6 +22,8 @@ import uo.ri.util.exception.PersistenceException;
 public class SettleInvoice implements Command<Void> {
 
     private final InvoiceGateway invoiceGateway = Factories.persistence.forInvoice();
+    private final PaymentMeanGateway paymentMeanGateway = Factories.persistence.forPaymentMean();
+    private final ChargeGateway chargeGateway = Factories.persistence.forCharge();
     private final String invoiceId;
     private final Map<String, BigDecimal> charges;
 
@@ -60,106 +58,29 @@ public class SettleInvoice implements Command<Void> {
             throw new BusinessException("El importe de los cargos no coincide con la factura");
         }
 
-        try {
-            for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
-                settlePaymentMean(charge.getKey(), charge.getValue());
-            }
-            try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                    Queries.getSQLSentence("TCHARGES_ADD"))) {
-                Timestamp now = Timestamp.valueOf(java.time.LocalDateTime.now());
-                for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
-                    pst.setString(1, UUID.randomUUID().toString());
-                    pst.setTimestamp(2, now);
-                    pst.setString(3, "ENABLED");
-                    pst.setTimestamp(4, now);
-                    pst.setLong(5, 1);
-                    pst.setBigDecimal(6, charge.getValue());
-                    pst.setString(7, invoiceId);
-                    pst.setString(8, charge.getKey());
-                    pst.addBatch();
-                }
-                pst.executeBatch();
-            }
-            try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                    Queries.getSQLSentence("TINVOICES_SET_PAID"))) {
-                pst.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
-                pst.setString(2, invoiceId);
-                if (pst.executeUpdate() != 1) {
-                    throw new BusinessException("No se pudo actualizar el estado de la factura");
-                }
-            }
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
+        for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
+            settlePaymentMean(charge.getKey(), charge.getValue());
+            chargeGateway.add(invoiceId, charge.getKey(), charge.getValue());
         }
+        invoiceGateway.setPaid(invoiceId);
         return null;
     }
 
     private void settlePaymentMean(String id, BigDecimal amount)
-            throws SQLException, BusinessException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_FIND_BY_ID"))) {
-            pst.setString(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (!rs.next()) {
-                    throw new BusinessException("No existe el medio de pago");
-                }
-                String type = rs.getString("dtype");
-                if ("CreditCard".equals(type)) {
-                    checkCardValid(id);
-                } else if ("Voucher".equals(type)) {
-                    checkVoucherBalance(id, amount);
-                    debitVoucher(id, amount);
-                }
+            throws BusinessException {
+        PaymentMeanGateway.PaymentMeanRecord record = paymentMeanGateway.findById(id)
+                .orElseThrow(() -> new BusinessException("No existe el medio de pago"));
+        if (record instanceof CardRecord card) {
+            if (card.validThru != null
+                    && card.validThru.isBefore(YearMonth.from(LocalDate.now()))) {
+                throw new BusinessException("La tarjeta está caducada");
             }
-        }
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_ADD_ACCUMULATED"))) {
-            pst.setBigDecimal(1, amount);
-            pst.setString(2, id);
-            pst.executeUpdate();
-        }
-    }
-
-    private void checkCardValid(String id) throws SQLException, BusinessException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TCREDITCARDS_FIND_BY_ID"))) {
-            pst.setString(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (!rs.next()) {
-                    throw new BusinessException("No existe la tarjeta");
-                }
-                Date validThru = rs.getDate("validThru");
-                if (validThru != null
-                        && YearMonth.from(validThru.toLocalDate())
-                                .isBefore(YearMonth.from(LocalDate.now()))) {
-                    throw new BusinessException("La tarjeta está caducada");
-                }
+        } else if (record instanceof VoucherRecord voucher) {
+            if (voucher.available.compareTo(amount) < 0) {
+                throw new BusinessException("El vale no tiene saldo suficiente");
             }
+            paymentMeanGateway.decreaseVoucherAvailable(id, amount);
         }
-    }
-
-    private void checkVoucherBalance(String id, BigDecimal amount)
-            throws SQLException, BusinessException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_FIND_BY_ID"))) {
-            pst.setString(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (!rs.next()) {
-                    throw new BusinessException("No existe el vale");
-                }
-                if (rs.getBigDecimal("available").compareTo(amount) < 0) {
-                    throw new BusinessException("El vale no tiene saldo suficiente");
-                }
-            }
-        }
-    }
-
-    private void debitVoucher(String id, BigDecimal amount) throws SQLException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_DECREASE_AVAILABLE"))) {
-            pst.setBigDecimal(1, amount);
-            pst.setString(2, id);
-            pst.executeUpdate();
-        }
+        paymentMeanGateway.addAccumulated(id, amount);
     }
 }

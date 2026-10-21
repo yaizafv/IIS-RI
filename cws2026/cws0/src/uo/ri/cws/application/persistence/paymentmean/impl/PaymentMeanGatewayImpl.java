@@ -21,15 +21,6 @@ import uo.ri.util.exception.PersistenceException;
 
 public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
 
-    private static final String FULL_SELECT =
-            "SELECT pm.id, pm.version, pm.createdAt, pm.updatedAt, pm.entityState, "
-                    + "pm.client_id, pm.accumulated, pm.dtype, cc.number AS card_number, "
-                    + "cc.validThru AS card_valid_thru, cc.type AS card_type, "
-                    + "v.code AS voucher_code, v.description AS voucher_description, "
-                    + "v.available AS voucher_available "
-                    + "FROM TPaymentMeans pm LEFT JOIN TCreditCards cc ON cc.id = pm.id "
-                    + "LEFT JOIN TVouchers v ON v.id = pm.id ";
-
     @Override
     public void add(PaymentMeanRecord record) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
@@ -42,47 +33,8 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public void addCard(CardRecord record) throws PersistenceException {
-        add(record);
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TCREDITCARDS_ADD"))) {
-            pst.setString(1, record.id);
-            pst.setString(2, record.type);
-            pst.setDate(3, Date.valueOf(record.validThru.atEndOfMonth()));
-            pst.setString(4, record.number);
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public void addVoucher(VoucherRecord record) throws PersistenceException {
-        add(record);
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_ADD"))) {
-            pst.setString(1, record.id);
-            pst.setString(2, record.description);
-            pst.setBigDecimal(3, record.available);
-            pst.setString(4, record.code);
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
     public void remove(String id) throws PersistenceException {
         execute("TPAYMENTMEANS_DELETE", id);
-    }
-
-    @Override
-    public void removeSubtype(PaymentMeanRecord record) throws PersistenceException {
-        if ("CreditCard".equals(record.dtype)) {
-            execute("TCREDITCARDS_DELETE", record.id);
-        } else if ("Voucher".equals(record.dtype)) {
-            execute("TVOUCHERS_DELETE", record.id);
-        }
     }
 
     @Override
@@ -103,13 +55,13 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
 
     @Override
     public Optional<PaymentMeanRecord> findById(String id) throws PersistenceException {
-        return findOne(FULL_SELECT + "WHERE pm.id = ?", id);
+        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_ID"), id);
     }
 
     @Override
     public List<PaymentMeanRecord> findAll() throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                FULL_SELECT);
+                Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL"));
              ResultSet rs = pst.executeQuery()) {
             return readAll(rs);
         } catch (SQLException e) {
@@ -120,22 +72,22 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     @Override
     public List<PaymentMeanRecord> findByClientNif(String nif)
             throws PersistenceException {
-        return findMany(FULL_SELECT
-                + "JOIN TClients c ON c.id = pm.client_id WHERE c.nif = ?", nif);
+        return findMany(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CLIENT_NIF"),
+                nif);
     }
 
     @Override
     public Optional<PaymentMeanRecord> findByVoucherCode(String code)
             throws PersistenceException {
-        return findOne(FULL_SELECT
-                + "WHERE v.code = ? AND pm.id = v.id", code);
+        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_VOUCHER_CODE"),
+                code);
     }
 
     @Override
     public Optional<PaymentMeanRecord> findByCardNumber(String number)
             throws PersistenceException {
-        return findOne(FULL_SELECT
-                + "WHERE cc.number = ? AND pm.id = cc.id", number);
+        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CARD_NUMBER"),
+                number);
     }
 
     @Override

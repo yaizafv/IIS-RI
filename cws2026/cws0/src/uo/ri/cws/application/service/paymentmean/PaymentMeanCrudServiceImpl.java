@@ -9,10 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import uo.ri.cws.application.persistence.PersistenceFactory;
+import uo.ri.cws.application.persistence.card.CardGateway;
+import uo.ri.cws.application.persistence.card.CardGateway.CardRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.CardRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.PaymentMeanRecord;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.VoucherRecord;
+import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.CardDto;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.CashDto;
@@ -46,13 +47,11 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
             }
             CardRecord record = new CardRecord();
             record.id = UUID.randomUUID().toString();
-            record.dtype = "CreditCard";
-            record.clientId = card.clientId;
-            record.accumulated = BigDecimal.ZERO;
             record.number = card.cardNumber;
             record.validThru = card.cardExpiration;
             record.type = card.cardType;
-            gateway.addCard(record);
+            gateway.add(toPaymentMean(record, card.clientId));
+            persistence.forCard().add(record);
             card.id = record.id;
             card.version = record.version;
             card.accumulatedAmount = BigDecimal.ZERO;
@@ -77,19 +76,25 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
             if (gateway.existsVoucherCode(voucher.code)) {
                 throw new BusinessException("Ya existe un vale con ese código");
             }
-            VoucherRecord record = new VoucherRecord();
+            VoucherGateway.VoucherRecord record = new VoucherGateway.VoucherRecord();
             record.id = UUID.randomUUID().toString();
-            record.dtype = "Voucher";
             record.clientId = voucher.clientId;
             record.code = voucher.code;
             record.description = voucher.description;
             record.available = voucher.availableAmount;
             record.accumulated = voucher.accumulatedAmount == null
                     ? BigDecimal.ZERO : voucher.accumulatedAmount;
-            gateway.addVoucher(record);
+            PaymentMeanRecord parent = new PaymentMeanRecord();
+            parent.id = record.id;
+            parent.dtype = "Voucher";
+            parent.clientId = voucher.clientId;
+            parent.accumulated = voucher.accumulatedAmount == null
+                    ? BigDecimal.ZERO : voucher.accumulatedAmount;
+            gateway.add(parent);
+            persistence.forVoucher().add(record);
             voucher.id = record.id;
             voucher.version = record.version;
-            voucher.accumulatedAmount = record.accumulated;
+            voucher.accumulatedAmount = parent.accumulated;
             return voucher;
         });
     }
@@ -110,7 +115,11 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
             if (gateway.hasCharges(id)) {
                 throw new BusinessException("El medio de pago tiene cargos asociados");
             }
-            gateway.removeSubtype(record);
+            if ("CreditCard".equals(record.dtype)) {
+                persistence.forCard().remove(record.id);
+            } else if ("Voucher".equals(record.dtype)) {
+                persistence.forVoucher().remove(record.id);
+            }
             gateway.remove(id);
             return null;
         });
@@ -157,13 +166,13 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
 
     private static PaymentMeanDto toDto(PaymentMeanRecord record) {
         PaymentMeanDto dto;
-        if (record instanceof CardRecord card) {
+        if (record instanceof PaymentMeanGateway.CardRecord card) {
             CardDto result = new CardDto();
             result.cardNumber = card.number;
             result.cardExpiration = card.validThru;
             result.cardType = card.type;
             dto = result;
-        } else if (record instanceof VoucherRecord voucher) {
+        } else if (record instanceof PaymentMeanGateway.VoucherRecord voucher) {
             VoucherDto result = new VoucherDto();
             result.code = voucher.code;
             result.description = voucher.description;
@@ -180,14 +189,23 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
     }
 
     private static Optional<VoucherDto> toVoucher(Optional<PaymentMeanRecord> record) {
-        return record.filter(VoucherRecord.class::isInstance)
+        return record.filter(r -> "Voucher".equals(r.dtype))
                 .map(PaymentMeanCrudServiceImpl::toDto)
                 .map(VoucherDto.class::cast);
     }
 
     private static Optional<CardDto> toCard(Optional<PaymentMeanRecord> record) {
-        return record.filter(CardRecord.class::isInstance)
+        return record.filter(r -> "CreditCard".equals(r.dtype))
                 .map(PaymentMeanCrudServiceImpl::toDto)
                 .map(CardDto.class::cast);
+    }
+
+    private static PaymentMeanRecord toPaymentMean(CardRecord record, String clientId) {
+        PaymentMeanRecord parent = new PaymentMeanRecord();
+        parent.id = record.id;
+        parent.dtype = "CreditCard";
+        parent.clientId = clientId;
+        parent.accumulated = BigDecimal.ZERO;
+        return parent;
     }
 }

@@ -1,6 +1,6 @@
 package uo.ri.cws.application.persistence.intervention;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.Gateway;
@@ -23,7 +23,7 @@ public interface InterventionGateway extends Gateway<InterventionGateway.Interve
 
         public String workorderId;
         public String mechanicId;
-        public Date date;
+        public LocalDateTime date;
         public int minutes;
     }
 

@@ -72,8 +72,8 @@ public class CreateInvoice implements Command<InvoiceDto> {
         invoice.state = dto.state;
         invoice.subtotal = dto.subtotal;
         invoice.total = dto.total;
-        invoice.vatamount = dto.vatAmount;
-        invoice.vatrate = dto.vatPercentage;
+        invoice.vatAmount = dto.vatAmount;
+        invoice.vatRate = dto.vatPercentage;
         invoice.createdAt = LocalDateTime.now();
         invoice.updatedAt = invoice.createdAt;
         invoiceGateway.add(invoice);

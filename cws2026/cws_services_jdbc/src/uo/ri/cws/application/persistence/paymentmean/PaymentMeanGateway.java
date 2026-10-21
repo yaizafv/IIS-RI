@@ -31,6 +31,8 @@ public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMe
     void decreaseVoucherAvailable(String id, BigDecimal amount)
             throws PersistenceException;
 
+    void removeForClient(String clientId) throws PersistenceException;
+
     class PaymentMeanRecord extends Gateway.BaseRecord {
         public String clientId;
         public BigDecimal accumulated;

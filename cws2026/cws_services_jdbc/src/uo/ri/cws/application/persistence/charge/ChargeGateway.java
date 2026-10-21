@@ -17,4 +17,6 @@ public interface ChargeGateway extends Gateway<ChargeGateway.ChargeRecord> {
 
     void add(String invoiceId, String paymentMeanId, BigDecimal amount)
             throws PersistenceException;
+
+    void removeForClient(String clientId) throws PersistenceException;
 }

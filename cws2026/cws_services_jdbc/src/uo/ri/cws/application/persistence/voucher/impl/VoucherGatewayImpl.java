@@ -84,6 +84,11 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     @Override
+    public void removeForClient(String clientId) {
+        execute("TVOUCHERS_DELETE_FOR_CLIENT", clientId);
+    }
+
+    @Override
     public List<SummaryRecord> findSummary() throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
                 Queries.getSQLSentence("TVOUCHERS_SUMMARY"));

@@ -41,6 +41,9 @@ public class CardGatewayImpl implements CardGateway {
     @Override public Optional<CardRecord> findByNumber(String number) {
         return find("TCREDITCARDS_FIND_BY_NUMBER", number);
     }
+    @Override public void removeForClient(String clientId) {
+        execute("TCREDITCARDS_DELETE_FOR_CLIENT", clientId);
+    }
     @Override public List<CardRecord> findAll() { throw new PersistenceException(
             new UnsupportedOperationException("Use findById or findByNumber")); }
     private Optional<CardRecord> find(String key, String value) {

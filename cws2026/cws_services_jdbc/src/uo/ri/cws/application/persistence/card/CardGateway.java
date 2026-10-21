@@ -9,6 +9,8 @@ public interface CardGateway extends Gateway<CardGateway.CardRecord> {
 
     Optional<CardRecord> findByNumber(String number) throws PersistenceException;
 
+    void removeForClient(String clientId) throws PersistenceException;
+
     class CardRecord extends Gateway.BaseRecord {
         public String number;
         public String type;

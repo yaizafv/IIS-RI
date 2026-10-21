@@ -16,6 +16,12 @@ import uo.ri.cws.application.persistence.card.CardGateway;
 import uo.ri.cws.application.persistence.card.impl.CardGatewayImpl;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.impl.WorkOrderGatewayImpl;
+import uo.ri.cws.application.persistence.client.ClientGateway;
+import uo.ri.cws.application.persistence.client.impl.ClientGatewayImpl;
+import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
+import uo.ri.cws.application.persistence.recommendation.impl.RecommendationGatewayImpl;
+import uo.ri.cws.application.persistence.cash.CashGateway;
+import uo.ri.cws.application.persistence.cash.impl.CashGatewayImpl;
 
 public class PersistenceFactoryImpl implements PersistenceFactory {
 
@@ -57,6 +63,21 @@ public class PersistenceFactoryImpl implements PersistenceFactory {
     @Override
     public CardGateway forCard() {
         return new CardGatewayImpl();
+    }
+
+    @Override
+    public ClientGateway forClient() {
+        return new ClientGatewayImpl();
+    }
+
+    @Override
+    public RecommendationGateway forRecommendation() {
+        return new RecommendationGatewayImpl();
+    }
+
+    @Override
+    public CashGateway forCash() {
+        return new CashGatewayImpl();
     }
 
 }

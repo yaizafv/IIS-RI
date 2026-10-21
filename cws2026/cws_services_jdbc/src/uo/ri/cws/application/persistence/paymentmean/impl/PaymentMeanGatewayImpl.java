@@ -136,6 +136,11 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
         }
     }
 
+    @Override
+    public void removeForClient(String clientId) {
+        execute("TPAYMENTMEANS_DELETE_FOR_CLIENT", clientId);
+    }
+
     private Optional<PaymentMeanRecord> findOne(String sql, String value) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(sql)) {
             pst.setString(1, value);

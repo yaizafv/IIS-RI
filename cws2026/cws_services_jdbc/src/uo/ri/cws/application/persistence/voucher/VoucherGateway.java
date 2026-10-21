@@ -13,6 +13,8 @@ public interface VoucherGateway extends Gateway<VoucherGateway.VoucherRecord> {
 
     List<VoucherRecord> findByClientNif(String nif) throws PersistenceException;
 
+    void removeForClient(String clientId) throws PersistenceException;
+
     List<SummaryRecord> findSummary() throws PersistenceException;
 
     List<EligibleRecord> findEligibleWorkOrders() throws PersistenceException;

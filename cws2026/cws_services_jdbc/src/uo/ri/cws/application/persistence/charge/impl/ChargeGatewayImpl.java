@@ -40,6 +40,15 @@ public class ChargeGatewayImpl implements ChargeGateway {
     @Override public void update(ChargeRecord t) { throw unsupported(); }
     @Override public Optional<ChargeRecord> findById(String id) { throw unsupported(); }
     @Override public List<ChargeRecord> findAll() { throw unsupported(); }
+    @Override public void removeForClient(String clientId) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
+                Queries.getSQLSentence("TCHARGES_DELETE_FOR_CLIENT"))) {
+            pst.setString(1, clientId);
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
 
     private static PersistenceException unsupported() {
         return new PersistenceException(new UnsupportedOperationException(

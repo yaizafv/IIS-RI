@@ -8,6 +8,9 @@ import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.cws.application.persistence.charge.ChargeGateway;
 import uo.ri.cws.application.persistence.card.CardGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
+import uo.ri.cws.application.persistence.client.ClientGateway;
+import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
+import uo.ri.cws.application.persistence.cash.CashGateway;
 
 public interface PersistenceFactory {
 		 
@@ -19,6 +22,9 @@ public interface PersistenceFactory {
 		VoucherGateway forVoucher();
 		ChargeGateway forCharge();
 		CardGateway forCard();
+		ClientGateway forClient();
+		RecommendationGateway forRecommendation();
+		CashGateway forCash();
 		
 //		SparePartGateway forSparePart();
 //		SubstitutionGateway forSubstitutionsGateway();

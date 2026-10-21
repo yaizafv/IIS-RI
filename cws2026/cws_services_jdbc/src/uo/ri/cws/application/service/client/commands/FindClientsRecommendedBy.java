@@ -3,6 +3,10 @@ package uo.ri.cws.application.service.client.commands;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.util.command.Command;
+import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.client.ClientGateway;
+import uo.ri.cws.application.service.client.crud.ClientDtoAssembler;
+import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.util.exception.BusinessException;
 
@@ -10,13 +14,18 @@ public class FindClientsRecommendedBy
         implements Command<List<ClientDto>> {
 
     private final String recommenderNif;
+    private final ClientGateway clients = Factories.persistence.forClient();
 
     public FindClientsRecommendedBy(String recommenderNif) {
+        ArgumentChecks.isNotBlank(recommenderNif,
+                "El NIF del recomendador no puede estar vacío");
         this.recommenderNif = recommenderNif;
     }
 
     @Override
     public List<ClientDto> execute() throws BusinessException {
-        return ClientCommandSupport.findRecommendedBy(recommenderNif);
+        return clients.findRecommendedBy(recommenderNif).stream()
+                .map(ClientDtoAssembler::toDto)
+                .toList();
     }
 }

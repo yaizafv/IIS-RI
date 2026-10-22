@@ -2,6 +2,7 @@ package uo.ri.cws.application.ui.cashier.paymentmean.action;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
@@ -19,7 +20,12 @@ public class AddCreditCardAction implements Action {
 
     @Override
     public void execute() throws BusinessException {
-        ClientDto client = PaymentMeanActionSupport.findClientByNif();
+        Optional<ClientDto> result = PaymentMeanActionSupport.findClientByNif();
+        if (result.isEmpty()) {
+            Console.println("There is no client with that nif");
+            return;
+        }
+        ClientDto client = result.get();
         CardDto card = new CardDto();
         card.clientId = client.id;
         card.cardNumber = Console.readString("Credit card number");

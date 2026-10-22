@@ -10,13 +10,9 @@ import uo.ri.util.exception.BusinessException;
 
 class PaymentMeanActionSupport {
 
-    static ClientDto findClientByNif() throws BusinessException {
+    static Optional<ClientDto> findClientByNif() throws BusinessException {
         String nif = Console.readString("Client nif");
         ClientCrudService service = Factories.service.forClientCrudService();
-        Optional<ClientDto> result = service.findClientByNif(nif);
-        if (!result.isPresent()) {
-            throw new BusinessException("There is no client with that nif");
-        }
-        return result.get();
+        return service.findClientByNif(nif);
     }
 }

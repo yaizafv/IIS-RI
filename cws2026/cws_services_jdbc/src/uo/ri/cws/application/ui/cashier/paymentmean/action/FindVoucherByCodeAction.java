@@ -19,7 +19,8 @@ public class FindVoucherByCodeAction implements Action {
                 .forPaymentMeanCrudService();
         Optional<VoucherDto> result = service.findVoucherByCode(code);
         if (!result.isPresent()) {
-            throw new BusinessException("There is no voucher with that code");
+            Console.println("There is no voucher with that code");
+            return;
         }
         Printer.printPaymentMean(result.get());
     }

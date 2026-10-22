@@ -23,14 +23,16 @@ public class SettleInvoiceAction implements Action {
         Long number = Console.readLong("Invoice number");
         Optional<InvoiceDto> invoice = service.findInvoiceByNumber(number);
         if (invoice.isEmpty()) {
-            throw new BusinessException("There is no such invoice");
+            Console.println("There is no such invoice");
+            return;
         }
 
         Printer.printInvoice(invoice.get());
         String nif = Console.readString("Client nif");
         List<PaymentMeanDto> means = service.findPayMeansByClientNif(nif);
         if (means.isEmpty()) {
-            throw new BusinessException("The client has no payment means or the nif is wrong");
+            Console.println("The client has no payment means or the nif is wrong");
+            return;
         }
 
         Map<String, BigDecimal> charges = new HashMap<>();

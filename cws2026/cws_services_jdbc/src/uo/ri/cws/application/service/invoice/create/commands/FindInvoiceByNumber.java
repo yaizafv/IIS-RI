@@ -23,7 +23,10 @@ public class FindInvoiceByNumber implements Command<Optional<InvoiceDto>> {
     @Override
     public Optional<InvoiceDto> execute() throws BusinessException {
         Optional<InvoiceRecord> record = invoiceGateway.findByNumber(number);
-        return record.map(FindInvoiceByNumber::toDto);
+        if (record.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(toDto(record.get()));
     }
 
     private static InvoiceDto toDto(InvoiceRecord record) {

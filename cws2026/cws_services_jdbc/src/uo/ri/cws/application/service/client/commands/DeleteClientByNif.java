@@ -36,15 +36,14 @@ public class DeleteClientByNif implements Command<Void> {
         var client = clients.findByNif(nif);
         BusinessChecks.exists(client, "No existe el cliente");
         String clientId = client.get().id;
-        BusinessChecks.doesNotExist(
-                clients.hasVehicles(clientId) ? java.util.Optional.of(true)
-                        : java.util.Optional.empty(),
-                "No se puede eliminar un cliente con vehículos");
-        BusinessChecks.doesNotExist(
-                clients.hasPaidInvoices(clientId)
-                        ? java.util.Optional.of(true)
-                        : java.util.Optional.empty(),
-                "No se puede eliminar un cliente con facturas pagadas");
+        if (clients.hasVehicles(clientId)) {
+            throw new BusinessException(
+                    "No se puede eliminar un cliente con vehículos");
+        }
+        if (clients.hasPaidInvoices(clientId)) {
+            throw new BusinessException(
+                    "No se puede eliminar un cliente con facturas pagadas");
+        }
         recommendations.removeForClient(clientId);
         charges.removeForClient(clientId);
         cash.removeForClient(clientId);

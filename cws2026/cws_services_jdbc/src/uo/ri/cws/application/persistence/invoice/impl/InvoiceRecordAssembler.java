@@ -12,7 +12,11 @@ import uo.ri.cws.application.persistence.util.assembler.BaseRecordAssembler;
 public class InvoiceRecordAssembler extends BaseRecordAssembler<InvoiceRecord> {
 
     public InvoiceRecordAssembler() {
-        super(InvoiceRecord::new);
+    }
+
+    @Override
+    protected InvoiceRecord createRecord() {
+        return new InvoiceRecord();
     }
 
     @Override

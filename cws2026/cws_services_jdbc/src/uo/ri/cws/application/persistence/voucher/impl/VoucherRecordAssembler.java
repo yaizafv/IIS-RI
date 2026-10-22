@@ -11,7 +11,11 @@ import uo.ri.cws.application.persistence.voucher.VoucherGateway.VoucherRecord;
 public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
 
     public VoucherRecordAssembler() {
-        super(VoucherRecord::new);
+    }
+
+    @Override
+    protected VoucherRecord createRecord() {
+        return new VoucherRecord();
     }
     
     @Override

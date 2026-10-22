@@ -20,7 +20,9 @@ public class ListMechanic {
     public List<MechanicDto> execute() throws BusinessException {
         List<MechanicDto> mechanics = new ArrayList<>();
         Optional<MechanicDto> mechanic = new FindByNif(nif).execute();
-        mechanic.ifPresent(mechanics::add);
+        if (mechanic.isPresent()) {
+            mechanics.add(mechanic.get());
+        }
         return mechanics;
     }
 }

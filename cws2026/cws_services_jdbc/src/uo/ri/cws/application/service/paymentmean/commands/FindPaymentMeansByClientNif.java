@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.PaymentMeanDto;
 import uo.ri.util.assertion.ArgumentChecks;
@@ -21,8 +22,11 @@ public class FindPaymentMeansByClientNif implements Command<List<PaymentMeanDto>
     @Override
     public List<PaymentMeanDto> execute() {
         List<PaymentMeanDto> result = new ArrayList<>();
-        Factories.persistence.forPaymentMean().findByClientNif(nif)
-                .forEach(record -> result.add(PaymentMeanDtoAssembler.toDto(record)));
+        List<PaymentMeanGateway.PaymentMeanRecord> records =
+                Factories.persistence.forPaymentMean().findByClientNif(nif);
+        for (PaymentMeanGateway.PaymentMeanRecord record : records) {
+            result.add(PaymentMeanDtoAssembler.toDto(record));
+        }
         return result;
     }
 }

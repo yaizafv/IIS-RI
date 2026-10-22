@@ -11,7 +11,11 @@ import uo.ri.cws.application.persistence.util.assembler.BaseRecordAssembler;
 public class InterventionRecordAssembler extends BaseRecordAssembler<InterventionRecord> {
 
     public InterventionRecordAssembler() {
-        super(InterventionRecord::new);
+    }
+
+    @Override
+    protected InterventionRecord createRecord() {
+        return new InterventionRecord();
     }
 
     @Override

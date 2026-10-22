@@ -19,9 +19,12 @@ public class DeletePaymentMean implements Command<Void> {
     @Override
     public Void execute() throws BusinessException {
         PaymentMeanGateway paymentMeans = Factories.persistence.forPaymentMean();
-        PaymentMeanGateway.PaymentMeanRecord record =
-                paymentMeans.findById(id).orElseThrow(
-                        () -> new BusinessException("No existe el medio de pago"));
+        java.util.Optional<PaymentMeanGateway.PaymentMeanRecord> result =
+                paymentMeans.findById(id);
+        if (result.isEmpty()) {
+            throw new BusinessException("No existe el medio de pago");
+        }
+        PaymentMeanGateway.PaymentMeanRecord record = result.get();
         if ("Cash".equals(record.dtype)) {
             throw new BusinessException(
                     "No se puede eliminar el medio de pago en efectivo");

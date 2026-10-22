@@ -22,6 +22,10 @@ public class FindClientByNif implements Command<Optional<ClientDto>> {
 
     @Override
     public Optional<ClientDto> execute() throws BusinessException {
-        return clients.findByNif(nif).map(ClientDtoAssembler::toDto);
+        Optional<ClientGateway.ClientRecord> record = clients.findByNif(nif);
+        if (record.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(ClientDtoAssembler.toDto(record.get()));
     }
 }

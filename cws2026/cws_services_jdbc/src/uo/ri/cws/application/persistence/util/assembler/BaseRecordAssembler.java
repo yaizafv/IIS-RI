@@ -4,18 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import uo.ri.cws.application.persistence.Gateway.BaseRecord;
 
-public class BaseRecordAssembler<T extends BaseRecord> {
+public abstract class BaseRecordAssembler<T extends BaseRecord> {
 
-    private Supplier<T> supplier; // Supplier to create new instances of T
-
-    public BaseRecordAssembler(Supplier<T> supplier) {
-        this.supplier = Objects.requireNonNull(supplier);
-    }
+    protected abstract T createRecord();
 
     public List<T> toRecordList(ResultSet rs) throws SQLException {
         List<T> res = new ArrayList<>();
@@ -26,7 +19,7 @@ public class BaseRecordAssembler<T extends BaseRecord> {
     }
 
     public T toRecord(ResultSet m) throws SQLException {
-        T dto = supplier.get(); // Create a new instance of T using the supplier
+        T dto = createRecord();
         dto.id = m.getString("id");
         dto.version = m.getLong("version");
         dto.entityState = m.getString("entityState");

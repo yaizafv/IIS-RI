@@ -46,10 +46,11 @@ public class AddClient implements Command<ClientDto> {
                 throw new BusinessException(
                         "Un cliente no puede recomendarse a sí mismo");
             }
-            recommenderId = clients.findByNif(recommenderNif)
-                    .map(record -> record.id).orElseThrow(
-                            () -> new BusinessException(
-                                    "No existe el cliente recomendador"));
+            var recommender = clients.findByNif(recommenderNif);
+            if (recommender.isEmpty()) {
+                throw new BusinessException("No existe el cliente recomendador");
+            }
+            recommenderId = recommender.get().id;
         }
 
         ClientRecord record = ClientDtoAssembler.toRecord(client);

@@ -15,8 +15,10 @@ public class FindAllClients implements Command<List<ClientDto>> {
 
     @Override
     public List<ClientDto> execute() throws BusinessException {
-        return clients.findAll().stream()
-                .map(ClientDtoAssembler::toDto)
-                .toList();
+        List<ClientDto> result = new java.util.ArrayList<>();
+        for (var record : clients.findAll()) {
+            result.add(ClientDtoAssembler.toDto(record));
+        }
+        return result;
     }
 }

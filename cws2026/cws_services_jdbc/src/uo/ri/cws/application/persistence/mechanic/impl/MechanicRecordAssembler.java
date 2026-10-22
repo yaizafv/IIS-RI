@@ -11,7 +11,11 @@ import uo.ri.cws.application.persistence.util.assembler.BaseRecordAssembler;
 public class MechanicRecordAssembler extends BaseRecordAssembler<MechanicRecord> {
 
     public MechanicRecordAssembler() {
-        super(MechanicRecord::new);
+    }
+
+    @Override
+    protected MechanicRecord createRecord() {
+        return new MechanicRecord();
     }
 
     @Override

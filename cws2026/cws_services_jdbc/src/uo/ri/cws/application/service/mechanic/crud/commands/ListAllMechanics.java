@@ -17,8 +17,9 @@ public class ListAllMechanics implements Command<List<MechanicDto>> {
     @Override
     public List<MechanicDto> execute() throws BusinessException {
         List<MechanicDto> mechanics = new ArrayList<>();
-        mg.findAll().forEach(record ->
-                mechanics.add(MechanicDtoAssembler.toDtoOpt(record).orElseThrow()));
+        for (var record : mg.findAll()) {
+            mechanics.add(MechanicDtoAssembler.toDtoOpt(record).orElseThrow());
+        }
         return mechanics;
     }
 }

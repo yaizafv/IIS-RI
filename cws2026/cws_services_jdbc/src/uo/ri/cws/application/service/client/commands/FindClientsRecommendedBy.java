@@ -24,8 +24,10 @@ public class FindClientsRecommendedBy
 
     @Override
     public List<ClientDto> execute() throws BusinessException {
-        return clients.findRecommendedBy(recommenderNif).stream()
-                .map(ClientDtoAssembler::toDto)
-                .toList();
+        List<ClientDto> result = new java.util.ArrayList<>();
+        for (var record : clients.findRecommendedBy(recommenderNif)) {
+            result.add(ClientDtoAssembler.toDto(record));
+        }
+        return result;
     }
 }

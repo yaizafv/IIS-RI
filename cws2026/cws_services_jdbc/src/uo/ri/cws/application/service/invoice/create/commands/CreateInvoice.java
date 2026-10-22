@@ -45,9 +45,13 @@ public class CreateInvoice implements Command<InvoiceDto> {
 
         BigDecimal subtotal = BigDecimal.ZERO;
         for (String workOrderId : workOrderIds) {
-            WorkOrderRecord workOrder = workOrderGateway.findById(workOrderId)
-                    .orElseThrow(() -> new BusinessException(
-                            "La orden de trabajo no existe: " + workOrderId));
+            java.util.Optional<WorkOrderRecord> result =
+                    workOrderGateway.findById(workOrderId);
+            if (result.isEmpty()) {
+                throw new BusinessException(
+                        "La orden de trabajo no existe: " + workOrderId);
+            }
+            WorkOrderRecord workOrder = result.get();
             if (!"APPROVED".equals(workOrder.state) || workOrder.invoiceId != null) {
                 throw new BusinessException(
                         "La orden de trabajo no se puede facturar en estado: " + workOrder.state);

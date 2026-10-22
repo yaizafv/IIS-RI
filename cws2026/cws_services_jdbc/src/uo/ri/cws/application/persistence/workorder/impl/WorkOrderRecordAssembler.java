@@ -13,7 +13,11 @@ import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRec
 public class WorkOrderRecordAssembler extends BaseRecordAssembler<WorkOrderRecord> {
 
     public WorkOrderRecordAssembler() {
-        super(WorkOrderRecord::new);
+    }
+
+    @Override
+    protected WorkOrderRecord createRecord() {
+        return new WorkOrderRecord();
     }
 
     public WorkOrderRecord resultSetToWorkOrderRecord(ResultSet rs) throws SQLException {

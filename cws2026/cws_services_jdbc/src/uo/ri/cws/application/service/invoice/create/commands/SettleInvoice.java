@@ -40,20 +40,28 @@ public class SettleInvoice implements Command<Void> {
         }
         this.invoiceId = invoiceId;
         this.charges = new LinkedHashMap<>();
-        charges.forEach((id, amount) ->
-                this.charges.put(id, amount.setScale(2, RoundingMode.HALF_EVEN)));
+        for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
+            this.charges.put(charge.getKey(),
+                    charge.getValue().setScale(2, RoundingMode.HALF_EVEN));
+        }
     }
 
     @Override
     public Void execute() throws BusinessException {
-        InvoiceRecord invoice = invoiceGateway.findById(invoiceId)
-                .orElseThrow(() -> new BusinessException("No existe la factura"));
+        java.util.Optional<InvoiceRecord> invoiceResult =
+                invoiceGateway.findById(invoiceId);
+        if (invoiceResult.isEmpty()) {
+            throw new BusinessException("No existe la factura");
+        }
+        InvoiceRecord invoice = invoiceResult.get();
         if ("PAID".equals(invoice.state)) {
             throw new BusinessException("La factura ya está pagada");
         }
 
-        BigDecimal total = charges.values().stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = BigDecimal.ZERO;
+        for (BigDecimal amount : charges.values()) {
+            total = total.add(amount);
+        }
         if (total.compareTo(invoice.total.setScale(2, RoundingMode.HALF_EVEN)) != 0) {
             throw new BusinessException("El importe de los cargos no coincide con la factura");
         }
@@ -68,8 +76,12 @@ public class SettleInvoice implements Command<Void> {
 
     private void settlePaymentMean(String id, BigDecimal amount)
             throws BusinessException {
-        PaymentMeanGateway.PaymentMeanRecord record = paymentMeanGateway.findById(id)
-                .orElseThrow(() -> new BusinessException("No existe el medio de pago"));
+        java.util.Optional<PaymentMeanGateway.PaymentMeanRecord> result =
+                paymentMeanGateway.findById(id);
+        if (result.isEmpty()) {
+            throw new BusinessException("No existe el medio de pago");
+        }
+        PaymentMeanGateway.PaymentMeanRecord record = result.get();
         if (record instanceof CardRecord card) {
             if (card.validThru != null
                     && card.validThru.isBefore(YearMonth.from(LocalDate.now()))) {

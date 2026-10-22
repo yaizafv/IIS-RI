@@ -19,7 +19,8 @@ public class FindCreditCardByNumberAction implements Action {
                 .forPaymentMeanCrudService();
         Optional<CardDto> result = service.findCreditCardByNumber(number);
         if (!result.isPresent()) {
-            throw new BusinessException("There is no credit card with that number");
+            Console.println("There is no credit card with that number");
+            return;
         }
         Printer.printPaymentMean(result.get());
     }

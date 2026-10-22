@@ -17,7 +17,8 @@ public class UpdateClientAction implements Action {
         ClientCrudService service = Factories.service.forClientCrudService();
         Optional<ClientDto> result = service.findClientByNif(Console.readString("Client nif"));
         if (result.isEmpty()) {
-            throw new BusinessException("There is no client with that nif");
+            Console.println("There is no client with that nif");
+            return;
         }
 
         ClientDto client = result.get();

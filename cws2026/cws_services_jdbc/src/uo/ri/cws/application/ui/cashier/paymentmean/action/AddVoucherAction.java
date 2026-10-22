@@ -1,6 +1,7 @@
 package uo.ri.cws.application.ui.cashier.paymentmean.action;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
@@ -15,7 +16,12 @@ public class AddVoucherAction implements Action {
 
     @Override
     public void execute() throws BusinessException {
-        ClientDto client = PaymentMeanActionSupport.findClientByNif();
+        Optional<ClientDto> result = PaymentMeanActionSupport.findClientByNif();
+        if (result.isEmpty()) {
+            Console.println("There is no client with that nif");
+            return;
+        }
+        ClientDto client = result.get();
         VoucherDto voucher = new VoucherDto();
         voucher.clientId = client.id;
         voucher.code = Console.readString("Voucher code");

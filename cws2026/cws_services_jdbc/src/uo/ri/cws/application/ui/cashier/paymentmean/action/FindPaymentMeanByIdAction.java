@@ -19,7 +19,8 @@ public class FindPaymentMeanByIdAction implements Action {
                 .forPaymentMeanCrudService();
         Optional<PaymentMeanDto> result = service.findById(id);
         if (!result.isPresent()) {
-            throw new BusinessException("There is no payment mean with that id");
+            Console.println("There is no payment mean with that id");
+            return;
         }
         Printer.printPaymentMean(result.get());
     }

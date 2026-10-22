@@ -14,7 +14,7 @@ public class FindClientByNifAction implements Action {
     @Override
     public void execute() throws BusinessException {
         Optional<ClientDto> client = Factories.service.forClientCrudService()
-                .findClientByNif(Console.readString("Client nif"));
+            .findClientByNif(Console.readString("Client nif"));
         if (client.isEmpty()) {
             throw new BusinessException("There is no client with that nif");
         }

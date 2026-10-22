@@ -14,7 +14,7 @@ public class FindWorkOrdersByPlateAction implements Action {
     @Override
     public void execute() throws BusinessException {
         List<InvoicingWorkOrderDto> workOrders = Factories.service.forCreateInvoiceService()
-                .findWorkOrdersByPlateNumber(Console.readString("Plate number"));
+            .findWorkOrdersByPlateNumber(Console.readString("Plate number"));
         Console.println("\nWork orders for the vehicle\n");
         for (InvoicingWorkOrderDto workOrder : workOrders) {
             Printer.printWorkOrder(workOrder);

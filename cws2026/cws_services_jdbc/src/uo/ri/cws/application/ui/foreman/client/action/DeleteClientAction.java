@@ -9,8 +9,7 @@ public class DeleteClientAction implements Action {
 
     @Override
     public void execute() throws BusinessException {
-        Factories.service.forClientCrudService()
-                .deleteClientByNif(Console.readString("Client nif"));
+        Factories.service.forClientCrudService().deleteClientByNif(Console.readString("Client nif"));
         Console.println("The client has been deleted");
     }
 }

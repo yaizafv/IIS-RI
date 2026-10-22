@@ -14,7 +14,7 @@ public class FindRecommendedClientsAction implements Action {
     @Override
     public void execute() throws BusinessException {
         List<ClientDto> clients = Factories.service.forClientCrudService()
-                .findClientsRecommendedBy(Console.readString("Recommender nif"));
+            .findClientsRecommendedBy(Console.readString("Recommender nif"));
         Console.println("\nList of recommended clients\n");
         for (ClientDto client : clients) {
             Printer.printClient(client);

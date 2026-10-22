@@ -19,6 +19,8 @@ import uo.ri.util.exception.PersistenceException;
 
 public class VoucherGatewayImpl implements VoucherGateway {
 
+    private final VoucherRecordAssembler assembler = new VoucherRecordAssembler();
+
     @Override
     public void add(VoucherRecord record) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
@@ -74,7 +76,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
             try (ResultSet rs = pst.executeQuery()) {
                 List<VoucherRecord> result = new ArrayList<>();
                 while (rs.next()) {
-                    result.add(toRecord(rs));
+                    result.add(assembler.toCurrentRecord(rs));
                 }
                 return result;
             }
@@ -171,7 +173,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
              ResultSet rs = pst.executeQuery()) {
             List<VoucherRecord> result = new ArrayList<>();
             while (rs.next()) {
-                result.add(toRecord(rs));
+                result.add(assembler.toCurrentRecord(rs));
             }
             return result;
         } catch (SQLException e) {
@@ -184,26 +186,12 @@ public class VoucherGatewayImpl implements VoucherGateway {
                 Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
-                return rs.next() ? Optional.of(toRecord(rs)) : Optional.empty();
+                VoucherRecord record = assembler.toRecord(rs);
+                return record == null ? Optional.empty() : Optional.of(record);
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
-    }
-
-    private static VoucherRecord toRecord(ResultSet rs) throws SQLException {
-        VoucherRecord record = new VoucherRecord();
-        record.id = rs.getString("id");
-        record.version = rs.getLong("version");
-        record.createdAt = rs.getTimestamp("createdAt").toLocalDateTime();
-        record.updatedAt = rs.getTimestamp("updatedAt").toLocalDateTime();
-        record.entityState = rs.getString("entityState");
-        record.clientId = rs.getString("client_id");
-        record.accumulated = rs.getBigDecimal("accumulated");
-        record.code = rs.getString("code");
-        record.description = rs.getString("description");
-        record.available = rs.getBigDecimal("available");
-        return record;
     }
 
     private List<EligibleRecord> findEligible(String key) {

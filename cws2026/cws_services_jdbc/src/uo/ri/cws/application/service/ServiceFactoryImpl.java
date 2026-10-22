@@ -8,7 +8,6 @@ import uo.ri.cws.application.service.invoice.create.InvoicingServiceImpl;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService;
 import uo.ri.cws.application.service.mechanic.crud.MechanicCrudServiceImpl;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService;
-import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudServiceImpl;
 import uo.ri.cws.application.service.paymentmean.VoucherGenerationService;
 import uo.ri.cws.application.service.paymentmean.VoucherGenerationServiceImpl;
 import uo.ri.cws.application.service.spare.SparePartCrudService;
@@ -78,7 +77,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     @Override
     public PaymentMeanCrudService forPaymentMeanCrudService() {
-        return new PaymentMeanCrudServiceImpl();
+        throw new NotYetImplementedException();
     }
 
 }

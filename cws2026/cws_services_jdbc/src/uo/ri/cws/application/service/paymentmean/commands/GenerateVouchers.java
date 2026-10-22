@@ -17,9 +17,7 @@ public class GenerateVouchers implements Command<int[]> {
     public int[] execute() {
         VoucherGateway vouchers = Factories.persistence.forVoucher();
         int workOrderVouchers = generateWorkOrderVouchers(vouchers);
-        int recommendationVouchers = generateRecommendationVouchers(vouchers);
-        int invoiceVouchers = generateInvoiceVouchers(vouchers);
-        return new int[] { workOrderVouchers, recommendationVouchers, invoiceVouchers };
+        return new int[] { workOrderVouchers, 0, 0 };
     }
 
     private int generateWorkOrderVouchers(VoucherGateway vouchers) {
@@ -35,34 +33,6 @@ public class GenerateVouchers implements Command<int[]> {
                 vouchers.addGenerated(entry.getKey(), new BigDecimal("20.00"), "Por tres órdenes de trabajo");
                 generated++;
             }
-        }
-        return generated;
-    }
-
-    private int generateRecommendationVouchers(VoucherGateway vouchers) {
-        List<EligibleRecord> eligible = vouchers.findEligibleRecommendations();
-        Map<String, List<String>> byClient = groupByClient(eligible);
-        int generated = 0;
-        for (Map.Entry<String, List<String>> entry : byClient.entrySet()) {
-            List<String> ids = entry.getValue();
-            for (int i = 0; i + 2 < ids.size(); i += 3) {
-                vouchers.markRecommendationUsed(ids.get(i));
-                vouchers.markRecommendationUsed(ids.get(i + 1));
-                vouchers.markRecommendationUsed(ids.get(i + 2));
-                vouchers.addGenerated(entry.getKey(), new BigDecimal("25.00"), "Por recomendación");
-                generated++;
-            }
-        }
-        return generated;
-    }
-
-    private int generateInvoiceVouchers(VoucherGateway vouchers) {
-        int generated = 0;
-        List<EligibleRecord> invoices = vouchers.findEligibleInvoices();
-        for (EligibleRecord invoice : invoices) {
-            vouchers.markInvoiceUsed(invoice.itemId());
-            vouchers.addGenerated(invoice.clientId(), new BigDecimal("30.00"), "Por factura de más de 500");
-            generated++;
         }
         return generated;
     }

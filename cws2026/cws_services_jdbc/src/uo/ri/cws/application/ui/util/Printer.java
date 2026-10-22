@@ -7,6 +7,7 @@ import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.PaymentMeanDto;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.service.vehicletype.VehicleTypeCrudService.VehicleTypeDto;
 import uo.ri.cws.application.service.workorder.WorkOrderCrudService.WorkOrderDto;
@@ -31,27 +32,56 @@ public class Printer {
 		Console.printf("\tState: %s\n", 				invoice.state );
 	}
 
-	public static void printPaymentMeans(List<PaymentMeanDto> medios) {
+	public static void printPaymentMeans(List<?> medios) {
 		Console.println();
 		Console.println("Available payment means");
 
 		Console.printf("\t%s \t%-15.15s \t%s \t%s\n",
 		        "Id", "Type", "Accumulated", "Details");
-		for (PaymentMeanDto medio : medios) {
+		for (Object medio : medios) {
 			String details = "";
 			if (medio instanceof InvoicingService.VoucherDto) {
 				InvoicingService.VoucherDto voucher =
 				        (InvoicingService.VoucherDto) medio;
 				details = "available " + voucher.availableAmount;
+			} else if (medio instanceof PaymentMeanCrudService.VoucherDto) {
+				PaymentMeanCrudService.VoucherDto voucher =
+				        (PaymentMeanCrudService.VoucherDto) medio;
+				details = "available " + voucher.availableAmount;
 			} else if (medio instanceof InvoicingService.CardDto) {
 				InvoicingService.CardDto card =
 				        (InvoicingService.CardDto) medio;
 				details = "expiration " + card.cardExpiration;
+			} else if (medio instanceof PaymentMeanCrudService.CardDto) {
+				PaymentMeanCrudService.CardDto card =
+				        (PaymentMeanCrudService.CardDto) medio;
+				details = "expiration " + card.cardExpiration;
 			}
 			Console.printf("\t%s \t%-15.15s \t%s \t%s\n",
-			        medio.id, medio.getClass().getSimpleName(),
-			        medio.accumulated, details);
+			        paymentMeanId(medio), medio.getClass().getSimpleName(),
+			        accumulatedAmount(medio), details);
 		}
+	}
+
+	public static void printPaymentMean(
+	        PaymentMeanCrudService.PaymentMeanDto medio) {
+		Console.printf("\t%s \t%-15.15s \t%s\n",
+		        medio.id, medio.getClass().getSimpleName(),
+		        medio.accumulatedAmount);
+	}
+
+	private static String paymentMeanId(Object medio) {
+		if (medio instanceof InvoicingService.PaymentMeanDto) {
+			return ((InvoicingService.PaymentMeanDto) medio).id;
+		}
+		return ((PaymentMeanCrudService.PaymentMeanDto) medio).id;
+	}
+
+	private static Object accumulatedAmount(Object medio) {
+		if (medio instanceof InvoicingService.PaymentMeanDto) {
+			return ((InvoicingService.PaymentMeanDto) medio).accumulated;
+		}
+		return ((PaymentMeanCrudService.PaymentMeanDto) medio).accumulatedAmount;
 	}
 
 	public static void printWorkOrder(WorkOrderDto rep) {

@@ -4,6 +4,7 @@ package uo.ri.cws.application.ui.manager;
 import uo.ri.cws.application.ui.manager.mechanic.MechanicMenu;
 import uo.ri.cws.application.ui.manager.voucher.VouchersMenu;
 import uo.ri.util.menu.BaseMenu;
+import uo.ri.util.menu.NotYetImplementedAction;
 
 public class MainMenu extends BaseMenu {
 
@@ -11,8 +12,8 @@ public class MainMenu extends BaseMenu {
         menuOptions = new Object[][] { { "Manager", null },
 
                 { "Mechanics management", MechanicMenu.class },
-                { "Spare parts management", UnsupportedOperationException.class },
-                { "Vehicle types management", UnsupportedOperationException.class },
+                { "Spare parts management", NotYetImplementedAction.class },
+                { "Vehicle types management", NotYetImplementedAction.class },
                 { "Voucher management", VouchersMenu.class }, };
     }
 

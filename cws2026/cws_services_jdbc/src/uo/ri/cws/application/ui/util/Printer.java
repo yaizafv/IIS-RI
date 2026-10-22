@@ -39,9 +39,13 @@ public class Printer {
 		        "Id", "Type", "Accumulated", "Details");
 		for (PaymentMeanDto medio : medios) {
 			String details = "";
-			if (medio instanceof InvoicingService.VoucherDto voucher) {
+			if (medio instanceof InvoicingService.VoucherDto) {
+				InvoicingService.VoucherDto voucher =
+				        (InvoicingService.VoucherDto) medio;
 				details = "available " + voucher.availableAmount;
-			} else if (medio instanceof InvoicingService.CardDto card) {
+			} else if (medio instanceof InvoicingService.CardDto) {
+				InvoicingService.CardDto card =
+				        (InvoicingService.CardDto) medio;
 				details = "expiration " + card.cardExpiration;
 			}
 			Console.printf("\t%s \t%-15.15s \t%s \t%s\n",

@@ -16,12 +16,15 @@ public class FindVouchersByClientNifAction implements Action {
         List<VoucherDto> vouchers = Factories.service.forVoucherService()
                 .findVouchersByClientNif(Console.readString("Client nif"));
         Console.println("\nClient vouchers\n");
-        vouchers.forEach(v -> Console.printf("\t%s \t%s \t%s \t%s\n",
-                v.id, v.code, v.availableAmount, v.accumulatedAmount));
-        BigDecimal available = vouchers.stream().map(v -> v.availableAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal consumed = vouchers.stream().map(v -> v.accumulatedAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal available = BigDecimal.ZERO;
+        BigDecimal consumed = BigDecimal.ZERO;
+        for (VoucherDto voucher : vouchers) {
+            Console.printf("\t%s \t%s \t%s \t%s\n",
+                    voucher.id, voucher.code, voucher.availableAmount,
+                    voucher.accumulatedAmount);
+            available = available.add(voucher.availableAmount);
+            consumed = consumed.add(voucher.accumulatedAmount);
+        }
         Console.printf("Vouchers: %d, total: %s, consumed: %s, available: %s\n",
                 vouchers.size(), available.add(consumed), consumed, available);
     }

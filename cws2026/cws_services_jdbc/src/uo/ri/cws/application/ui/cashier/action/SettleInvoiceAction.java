@@ -41,7 +41,10 @@ public class SettleInvoiceAction implements Action {
             String id = Console.readString("Payment mean id");
             BigDecimal amount = Console.readBigDecimal("Amount to charge");
             charges.put(id, charges.getOrDefault(id, BigDecimal.ZERO).add(amount));
-            total = charges.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+            total = BigDecimal.ZERO;
+            for (BigDecimal charge : charges.values()) {
+                total = total.add(charge);
+            }
         }
 
         service.settleInvoice(invoice.get().id, charges);

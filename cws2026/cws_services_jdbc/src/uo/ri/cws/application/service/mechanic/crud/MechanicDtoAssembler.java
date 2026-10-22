@@ -15,14 +15,14 @@ public class MechanicDtoAssembler {
         mr.name = dto.name;
         mr.surname = dto.surname;
         mr.id = (dto.id != null) ? dto.id : UUID.randomUUID().toString();
-        mr.version = (dto.version != 0) ? dto.version : 1L;;
+        mr.version = (dto.version != 0) ? dto.version : 1L;
         mr.createdAt = LocalDateTime.now();
         mr.updatedAt = LocalDateTime.now();
         mr.entityState = "ENABLED";
 
         return mr;
     }
-    
+
     public static Optional<MechanicDto> toDtoOpt(MechanicRecord record) {
         if (record == null) {
             return Optional.empty();

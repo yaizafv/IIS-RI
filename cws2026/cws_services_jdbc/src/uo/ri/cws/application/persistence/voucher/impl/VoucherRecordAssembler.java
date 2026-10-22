@@ -17,7 +17,7 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
     protected VoucherRecord createRecord() {
         return new VoucherRecord();
     }
-    
+
     @Override
     public VoucherRecord toRecord(ResultSet rs) throws SQLException {
         if (!rs.next()) {
@@ -37,8 +37,7 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
         return record;
     }
 
-    public List<VoucherRecord> toVoucherRecordList(ResultSet rs)
-        throws SQLException {
+    public List<VoucherRecord> toVoucherRecordList(ResultSet rs) throws SQLException {
         List<VoucherRecord> res = new ArrayList<>();
         while (rs.next()) {
             res.add(toCurrentRecord(rs));

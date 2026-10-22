@@ -1,5 +1,7 @@
 package uo.ri.cws.application.service.paymentmean.commands;
 
+import java.util.Optional;
+
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
@@ -11,23 +13,20 @@ public class DeletePaymentMean implements Command<Void> {
     private final String id;
 
     public DeletePaymentMean(String id) {
-        ArgumentChecks.isNotBlank(id,
-                "El identificador del medio de pago no puede estar vacío");
+        ArgumentChecks.isNotBlank(id, "El identificador del medio de pago no puede estar vacío");
         this.id = id;
     }
 
     @Override
     public Void execute() throws BusinessException {
         PaymentMeanGateway paymentMeans = Factories.persistence.forPaymentMean();
-        java.util.Optional<PaymentMeanGateway.PaymentMeanRecord> result =
-                paymentMeans.findById(id);
+        Optional<PaymentMeanGateway.PaymentMeanRecord> result = paymentMeans.findById(id);
         if (result.isEmpty()) {
             throw new BusinessException("No existe el medio de pago");
         }
         PaymentMeanGateway.PaymentMeanRecord record = result.get();
         if ("Cash".equals(record.dtype)) {
-            throw new BusinessException(
-                    "No se puede eliminar el medio de pago en efectivo");
+            throw new BusinessException("No se puede eliminar el medio de pago en efectivo");
         }
         if (paymentMeans.hasCharges(id)) {
             throw new BusinessException("El medio de pago tiene cargos asociados");

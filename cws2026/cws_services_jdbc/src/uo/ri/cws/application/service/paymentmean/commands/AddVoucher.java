@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
-import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
+import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.VoucherDto;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
@@ -17,16 +17,11 @@ public class AddVoucher implements Command<VoucherDto> {
 
     public AddVoucher(VoucherDto voucher) {
         ArgumentChecks.isNotNull(voucher, "El vale no puede ser nulo");
-        ArgumentChecks.isNotBlank(voucher.code,
-                "El código del vale no puede estar vacío");
-        ArgumentChecks.isNotBlank(voucher.description,
-                "La descripción no puede estar vacía");
-        ArgumentChecks.isNotBlank(voucher.clientId,
-                "El identificador del cliente no puede estar vacío");
-        ArgumentChecks.isNotNull(voucher.availableAmount,
-                "El importe disponible no puede ser nulo");
-        ArgumentChecks.isTrue(voucher.availableAmount.signum() >= 0,
-                "El importe disponible no puede ser negativo");
+        ArgumentChecks.isNotBlank(voucher.code, "El código del vale no puede estar vacío");
+        ArgumentChecks.isNotBlank(voucher.description, "La descripción no puede estar vacía");
+        ArgumentChecks.isNotBlank(voucher.clientId, "El identificador del cliente no puede estar vacío");
+        ArgumentChecks.isNotNull(voucher.availableAmount, "El importe disponible no puede ser nulo");
+        ArgumentChecks.isTrue(voucher.availableAmount.signum() >= 0, "El importe disponible no puede ser negativo");
         this.voucher = voucher;
     }
 
@@ -39,8 +34,7 @@ public class AddVoucher implements Command<VoucherDto> {
         if (paymentMeans.existsVoucherCode(voucher.code)) {
             throw new BusinessException("Ya existe un vale con ese código");
         }
-        BigDecimal accumulated = voucher.accumulatedAmount == null
-                ? BigDecimal.ZERO : voucher.accumulatedAmount;
+        BigDecimal accumulated = voucher.accumulatedAmount == null ? BigDecimal.ZERO : voucher.accumulatedAmount;
         VoucherGateway.VoucherRecord record = new VoucherGateway.VoucherRecord();
         record.id = UUID.randomUUID().toString();
         record.clientId = voucher.clientId;
@@ -48,8 +42,7 @@ public class AddVoucher implements Command<VoucherDto> {
         record.description = voucher.description;
         record.available = voucher.availableAmount;
         record.accumulated = accumulated;
-        PaymentMeanGateway.PaymentMeanRecord parent =
-                new PaymentMeanGateway.PaymentMeanRecord();
+        PaymentMeanGateway.PaymentMeanRecord parent = new PaymentMeanGateway.PaymentMeanRecord();
         parent.id = record.id;
         parent.dtype = "Voucher";
         parent.clientId = voucher.clientId;

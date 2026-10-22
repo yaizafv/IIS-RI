@@ -11,10 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import uo.ri.cws.application.persistence.voucher.VoucherGateway;
-import uo.ri.cws.application.persistence.voucher.VoucherGateway.VoucherRecord;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.util.exception.PersistenceException;
 
 public class VoucherGatewayImpl implements VoucherGateway {
@@ -23,8 +22,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
 
     @Override
     public void add(VoucherRecord record) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_ADD"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_ADD"))) {
             pst.setString(1, record.id);
             pst.setString(2, record.description);
             pst.setBigDecimal(3, record.available);
@@ -42,8 +41,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
 
     @Override
     public void update(VoucherRecord record) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_UPDATE"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_UPDATE"))) {
             pst.setString(1, record.description);
             pst.setBigDecimal(2, record.available);
             pst.setString(3, record.code);
@@ -70,8 +69,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
 
     @Override
     public List<VoucherRecord> findByClientNif(String nif) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_FIND_FULL_BY_CLIENT_NIF"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_FIND_FULL_BY_CLIENT_NIF"))) {
             pst.setString(1, nif);
             try (ResultSet rs = pst.executeQuery()) {
                 List<VoucherRecord> result = new ArrayList<>();
@@ -92,15 +91,15 @@ public class VoucherGatewayImpl implements VoucherGateway {
 
     @Override
     public List<SummaryRecord> findSummary() throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_SUMMARY"));
-             ResultSet rs = pst.executeQuery()) {
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TVOUCHERS_SUMMARY"));
+            ResultSet rs = pst.executeQuery()) {
             List<SummaryRecord> result = new ArrayList<>();
             while (rs.next()) {
-                result.add(new SummaryRecord(rs.getString("nif"), rs.getString("name"),
-                        rs.getString("surname"), rs.getLong("issuedQty"),
-                        rs.getBigDecimal("totalAmount"), rs.getBigDecimal("availableAmount"),
-                        rs.getBigDecimal("consumedAmount")));
+                result.add(new SummaryRecord(rs.getString("nif"), rs.getString("name"), rs.getString("surname"),
+                    rs.getLong("issuedQty"), rs.getBigDecimal("totalAmount"), rs.getBigDecimal("availableAmount"),
+                    rs.getBigDecimal("consumedAmount")));
             }
             return result;
         } catch (SQLException e) {
@@ -139,14 +138,14 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     @Override
-    public void addGenerated(String clientId, BigDecimal amount, String description)
-            throws PersistenceException {
+    public void addGenerated(String clientId, BigDecimal amount, String description) throws PersistenceException {
         String id = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
-        try (PreparedStatement parent = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_ADD_GENERATED"));
-             PreparedStatement voucher = Jdbc.getCurrentConnection().prepareStatement(
-                     Queries.getSQLSentence("TVOUCHERS_ADD"))) {
+        try (
+            PreparedStatement parent = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_ADD_GENERATED"));
+            PreparedStatement voucher = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TVOUCHERS_ADD"))) {
             parent.setString(1, id);
             parent.setTimestamp(2, Timestamp.valueOf(now));
             parent.setTimestamp(3, Timestamp.valueOf(now));
@@ -168,9 +167,10 @@ public class VoucherGatewayImpl implements VoucherGateway {
 
     @Override
     public List<VoucherRecord> findAll() throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_FIND_FULL"));
-             ResultSet rs = pst.executeQuery()) {
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TVOUCHERS_FIND_FULL"));
+            ResultSet rs = pst.executeQuery()) {
             List<VoucherRecord> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(assembler.toCurrentRecord(rs));
@@ -182,8 +182,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     private Optional<VoucherRecord> findOne(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
                 VoucherRecord record = assembler.toRecord(rs);
@@ -195,9 +194,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     private List<EligibleRecord> findEligible(String key) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(key));
-             ResultSet rs = pst.executeQuery()) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key));
+            ResultSet rs = pst.executeQuery()) {
             List<EligibleRecord> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(new EligibleRecord(rs.getString(1), rs.getString(2)));
@@ -209,8 +207,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     private static void execute(String key, String id) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {

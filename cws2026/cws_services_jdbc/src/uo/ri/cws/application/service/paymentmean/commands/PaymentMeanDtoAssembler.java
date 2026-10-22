@@ -15,8 +15,7 @@ final class PaymentMeanDtoAssembler {
     private PaymentMeanDtoAssembler() {
     }
 
-    static Optional<PaymentMeanDto> toDto(
-            Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
+    static Optional<PaymentMeanDto> toDto(Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
         if (record.isEmpty()) {
             return Optional.empty();
         }
@@ -47,16 +46,14 @@ final class PaymentMeanDtoAssembler {
         return dto;
     }
 
-    static Optional<VoucherDto> toVoucher(
-            Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
+    static Optional<VoucherDto> toVoucher(Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
         if (record.isEmpty() || !"Voucher".equals(record.get().dtype)) {
             return Optional.empty();
         }
         return Optional.of((VoucherDto) toDto(record.get()));
     }
 
-    static Optional<CardDto> toCard(
-            Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
+    static Optional<CardDto> toCard(Optional<PaymentMeanGateway.PaymentMeanRecord> record) {
         if (record.isEmpty() || !"CreditCard".equals(record.get().dtype)) {
             return Optional.empty();
         }

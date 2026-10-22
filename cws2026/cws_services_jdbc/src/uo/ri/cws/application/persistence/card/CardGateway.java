@@ -1,5 +1,6 @@
 package uo.ri.cws.application.persistence.card;
 
+import java.time.YearMonth;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.Gateway;
@@ -14,6 +15,6 @@ public interface CardGateway extends Gateway<CardGateway.CardRecord> {
     class CardRecord extends Gateway.BaseRecord {
         public String number;
         public String type;
-        public java.time.YearMonth validThru;
+        public YearMonth validThru;
     }
 }

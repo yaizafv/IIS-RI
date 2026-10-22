@@ -3,11 +3,11 @@ package uo.ri.cws.application.service.invoice.create.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.CardRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.VoucherRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
-import uo.ri.conf.Factories;
 import uo.ri.cws.application.service.invoice.InvoicingService.CardDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.CashDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.PaymentMeanDto;
@@ -60,11 +60,9 @@ public class FindPaymentMeansByClientNif implements Command<List<PaymentMeanDto>
 
     public static void validateNif(String nif) {
         ArgumentChecks.isNotBlank(nif, "El NIF no puede estar vacío");
-        ArgumentChecks.isTrue(nif.matches("[0-9]{8}[A-Z]"),
-                "El NIF no tiene un formato válido");
+        ArgumentChecks.isTrue(nif.matches("[0-9]{8}[A-Z]"), "El NIF no tiene un formato válido");
         int number = Integer.parseInt(nif.substring(0, 8));
         String letters = "TRWAGMYFPDXBNJZSQVHLCKE";
-        ArgumentChecks.isTrue(nif.charAt(8) == letters.charAt(number % 23),
-                "La letra del NIF no es válida");
+        ArgumentChecks.isTrue(nif.charAt(8) == letters.charAt(number % 23), "La letra del NIF no es válida");
     }
 }

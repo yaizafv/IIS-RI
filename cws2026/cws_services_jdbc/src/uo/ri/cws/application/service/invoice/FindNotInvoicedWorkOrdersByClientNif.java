@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
-import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
 import uo.ri.cws.application.service.invoice.create.commands.FindPaymentMeansByClientNif;
 import uo.ri.util.exception.BusinessException;
 
-public class FindNotInvoicedWorkOrdersByClientNif
-        implements Command<List<InvoicingWorkOrderDto>> {
+public class FindNotInvoicedWorkOrdersByClientNif implements Command<List<InvoicingWorkOrderDto>> {
 
-    private final WorkOrderGateway workOrderGateway =
-            Factories.persistence.forWorkOrder();
+    private final WorkOrderGateway workOrderGateway = Factories.persistence.forWorkOrder();
     private final String nif;
 
     public FindNotInvoicedWorkOrdersByClientNif(String nif) {
@@ -25,8 +23,7 @@ public class FindNotInvoicedWorkOrdersByClientNif
 
     @Override
     public List<InvoicingWorkOrderDto> execute() throws BusinessException {
-        List<WorkOrderRecord> records =
-                workOrderGateway.findNotInvoicedWorkOrdersByClientNif(nif);
+        List<WorkOrderRecord> records = workOrderGateway.findNotInvoicedWorkOrdersByClientNif(nif);
         List<InvoicingWorkOrderDto> workOrders = new ArrayList<>();
         for (WorkOrderRecord record : records) {
             if (!"APPROVED".equals(record.state)) {

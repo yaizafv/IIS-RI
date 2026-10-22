@@ -1,5 +1,8 @@
 package uo.ri.cws.application.service.client.crud;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 
@@ -10,8 +13,7 @@ public final class ClientDtoAssembler {
 
     public static ClientRecord toRecord(ClientDto dto) {
         ClientRecord record = new ClientRecord();
-        record.id = dto.id == null
-                ? java.util.UUID.randomUUID().toString() : dto.id;
+        record.id = dto.id == null ? UUID.randomUUID().toString() : dto.id;
         record.version = dto.version == 0 ? 1 : dto.version;
         record.nif = dto.nif;
         record.name = dto.name;
@@ -23,7 +25,7 @@ public final class ClientDtoAssembler {
         record.phone = dto.phone;
         record.email = dto.email;
         record.entityState = "ENABLED";
-        record.createdAt = java.time.LocalDateTime.now();
+        record.createdAt = LocalDateTime.now();
         record.updatedAt = record.createdAt;
         return record;
     }

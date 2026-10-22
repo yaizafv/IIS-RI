@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +22,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public void add(InvoiceRecord t) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINVOICES_ADD"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINVOICES_ADD"))) {
             pst.setString(1, t.id);
             pst.setLong(2, t.version);
             pst.setLong(3, t.number);
@@ -33,10 +34,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
             pst.setBigDecimal(8, t.total);
             pst.setBigDecimal(9, t.vatAmount);
             pst.setBigDecimal(10, t.vatRate);
-            pst.setTimestamp(11, t.createdAt == null ? null
-                    : Timestamp.valueOf(t.createdAt));
-            pst.setTimestamp(12, t.updatedAt == null ? null
-                    : Timestamp.valueOf(t.updatedAt));
+            pst.setTimestamp(11, t.createdAt == null ? null : Timestamp.valueOf(t.createdAt));
+            pst.setTimestamp(12, t.updatedAt == null ? null : Timestamp.valueOf(t.updatedAt));
             pst.setString(13, t.entityState);
             pst.executeUpdate();
         } catch (SQLException e) {
@@ -46,8 +45,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public void remove(String id) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINVOICES_REMOVE"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINVOICES_REMOVE"))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {
@@ -57,8 +56,8 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public void update(InvoiceRecord t) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINVOICES_UPDATE"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINVOICES_UPDATE"))) {
             pst.setLong(1, t.number);
             pst.setDate(2, t.date == null ? null : Date.valueOf(t.date));
             pst.setString(3, t.state);
@@ -66,13 +65,12 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
             pst.setBigDecimal(5, t.total);
             pst.setBigDecimal(6, t.vatAmount);
             pst.setBigDecimal(7, t.vatRate);
-            pst.setTimestamp(8, t.updatedAt == null ? null
-                    : Timestamp.valueOf(t.updatedAt));
+            pst.setTimestamp(8, t.updatedAt == null ? null : Timestamp.valueOf(t.updatedAt));
             pst.setString(9, t.id);
             pst.setLong(10, t.version);
             if (pst.executeUpdate() != 1) {
                 throw new PersistenceException(
-                        new SQLException("Invoice was not updated because its version has changed"));
+                    new SQLException("Invoice was not updated because its version has changed"));
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -98,12 +96,14 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 
@@ -125,12 +125,14 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
         return result;
     }
@@ -154,12 +156,14 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 
@@ -186,20 +190,22 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 
     @Override
     public void setPaid(String id) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINVOICES_SET_PAID"))) {
-            pst.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINVOICES_SET_PAID"))) {
+            pst.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             pst.setString(2, id);
             if (pst.executeUpdate() != 1) {
                 throw new PersistenceException(new SQLException("Invoice was not marked as paid"));

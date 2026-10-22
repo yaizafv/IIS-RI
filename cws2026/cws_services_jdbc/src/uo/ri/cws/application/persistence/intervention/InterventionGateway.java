@@ -10,14 +10,13 @@ public interface InterventionGateway extends Gateway<InterventionGateway.Interve
 
     /**
      * @param id, refers to the mechanic id
-     * @return a list with all interventions done by the mechanic or an empty
-     *         list if there are none
+     * @return a list with all interventions done by the mechanic or an empty list
+     *         if there are none
      * @throws PersistenceException
      */
-    List<InterventionRecord> findByMechanicId(String id)
-        throws PersistenceException;
+    List<InterventionRecord> findByMechanicId(String id) throws PersistenceException;
 
-    public static class InterventionRecord extends Gateway.BaseRecord{
+    public static class InterventionRecord extends Gateway.BaseRecord {
         public String id;
         public long version;
 

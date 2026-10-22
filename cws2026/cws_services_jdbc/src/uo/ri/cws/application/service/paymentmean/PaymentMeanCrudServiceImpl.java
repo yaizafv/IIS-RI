@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.CardDto;
-import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.PaymentMeanDto;
-import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService.VoucherDto;
 import uo.ri.cws.application.service.paymentmean.commands.AddCard;
 import uo.ri.cws.application.service.paymentmean.commands.AddVoucher;
 import uo.ri.cws.application.service.paymentmean.commands.DeletePaymentMean;
@@ -41,20 +38,17 @@ public class PaymentMeanCrudServiceImpl implements PaymentMeanCrudService {
     }
 
     @Override
-    public List<PaymentMeanDto> findPaymentMeansByClientNif(String nif)
-            throws BusinessException {
+    public List<PaymentMeanDto> findPaymentMeansByClientNif(String nif) throws BusinessException {
         return executor.execute(new FindPaymentMeansByClientNif(nif));
     }
 
     @Override
-    public Optional<VoucherDto> findVoucherByCode(String code)
-            throws BusinessException {
+    public Optional<VoucherDto> findVoucherByCode(String code) throws BusinessException {
         return executor.execute(new FindVoucherByCode(code));
     }
 
     @Override
-    public Optional<CardDto> findCreditCardByNumber(String cardNumber)
-            throws BusinessException {
+    public Optional<CardDto> findCreditCardByNumber(String cardNumber) throws BusinessException {
         return executor.execute(new FindCardByNumber(cardNumber));
     }
 }

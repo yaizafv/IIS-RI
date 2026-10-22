@@ -14,16 +14,15 @@ public class FindPaymentMeansByClientNif implements Command<List<PaymentMeanDto>
     private final String nif;
 
     public FindPaymentMeansByClientNif(String nif) {
-        ArgumentChecks.isNotBlank(nif,
-                "El NIF del cliente no puede estar vacío");
+        ArgumentChecks.isNotBlank(nif, "El NIF del cliente no puede estar vacío");
         this.nif = nif;
     }
 
     @Override
     public List<PaymentMeanDto> execute() {
         List<PaymentMeanDto> result = new ArrayList<>();
-        List<PaymentMeanGateway.PaymentMeanRecord> records =
-                Factories.persistence.forPaymentMean().findByClientNif(nif);
+        List<PaymentMeanGateway.PaymentMeanRecord> records = Factories.persistence.forPaymentMean()
+            .findByClientNif(nif);
         for (PaymentMeanGateway.PaymentMeanRecord record : records) {
             result.add(PaymentMeanDtoAssembler.toDto(record));
         }

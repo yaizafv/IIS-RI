@@ -13,17 +13,13 @@ public class PropertyFile {
         this.fileName = fileName;
         this.props = new Properties();
 
-        try (InputStream input = getClass().getClassLoader()
-                .getResourceAsStream(fileName)) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null) {
-                throw new IllegalArgumentException(
-                        "Properties file not found: " + fileName);
+                throw new IllegalArgumentException("Properties file not found: " + fileName);
             }
             props.load(input);
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Error loading properties file: " + fileName,
-                    e);
+            throw new RuntimeException("Error loading properties file: " + fileName, e);
         }
     }
 
@@ -33,8 +29,7 @@ public class PropertyFile {
      */
     public String getRequired(String key) {
         if (!props.containsKey(key)) {
-            throw new IllegalArgumentException(
-                    "Missing property key '" + key + "' in file: " + fileName);
+            throw new IllegalArgumentException("Missing property key '" + key + "' in file: " + fileName);
         }
         return props.getProperty(key); // puede ser "", y eso está bien
     }
@@ -47,13 +42,11 @@ public class PropertyFile {
     }
 
     /**
-     * Returns an Optional<String> containing the value (empty if explicitly
-     * defined as such), or an empty Optional if the key does not exist.
+     * Returns an Optional<String> containing the value (empty if explicitly defined
+     * as such), or an empty Optional if the key does not exist.
      */
     public Optional<String> getOptional(String key) {
-        return props.containsKey(key)
-                ? Optional.ofNullable(props.getProperty(key))
-                : Optional.empty();
+        return props.containsKey(key) ? Optional.ofNullable(props.getProperty(key)) : Optional.empty();
     }
 
     public boolean containsKey(String key) {

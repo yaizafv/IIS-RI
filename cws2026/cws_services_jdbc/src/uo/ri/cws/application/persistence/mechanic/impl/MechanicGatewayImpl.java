@@ -86,7 +86,7 @@ public class MechanicGatewayImpl implements MechanicGateway {
 
             if (pst.executeUpdate() != 1) {
                 throw new PersistenceException(
-                        new SQLException("Mechanic was not updated because its version has changed"));
+                    new SQLException("Mechanic was not updated because its version has changed"));
             }
 
         } catch (SQLException e) {
@@ -96,7 +96,8 @@ public class MechanicGatewayImpl implements MechanicGateway {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 
@@ -119,12 +120,14 @@ public class MechanicGatewayImpl implements MechanicGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 

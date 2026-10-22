@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
@@ -18,9 +19,8 @@ public class RecommendationGatewayImpl implements RecommendationGateway {
     public void add(String recommenderId, String recommendedId) {
         LocalDateTime now = LocalDateTime.now();
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(
-                        "TRECOMMENDATIONS_ADD"))) {
-            pst.setString(1, java.util.UUID.randomUUID().toString());
+            .prepareStatement(Queries.getSQLSentence("TRECOMMENDATIONS_ADD"))) {
+            pst.setString(1, UUID.randomUUID().toString());
             pst.setTimestamp(2, Timestamp.valueOf(now));
             pst.setTimestamp(3, Timestamp.valueOf(now));
             pst.setString(4, "ENABLED");
@@ -66,8 +66,7 @@ public class RecommendationGatewayImpl implements RecommendationGateway {
 
     private static void execute(String recommenderId, String recommendedId) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(
-                        "TRECOMMENDATIONS_DELETE_FOR_CLIENT"))) {
+            .prepareStatement(Queries.getSQLSentence("TRECOMMENDATIONS_DELETE_FOR_CLIENT"))) {
             pst.setString(1, recommenderId);
             pst.setString(2, recommendedId);
             pst.executeUpdate();
@@ -77,7 +76,7 @@ public class RecommendationGatewayImpl implements RecommendationGateway {
     }
 
     private static PersistenceException unsupported() {
-        return new PersistenceException(new UnsupportedOperationException(
-                "Recommendations are managed through their specific operations"));
+        return new PersistenceException(
+            new UnsupportedOperationException("Recommendations are managed through their specific operations"));
     }
 }

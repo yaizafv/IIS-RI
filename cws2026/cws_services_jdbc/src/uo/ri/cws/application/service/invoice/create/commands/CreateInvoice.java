@@ -5,14 +5,15 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway.InvoiceRecord;
+import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
-import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
@@ -20,10 +21,8 @@ import uo.ri.util.exception.BusinessException;
 public class CreateInvoice implements Command<InvoiceDto> {
 
     private final List<String> workOrderIds;
-    private final WorkOrderGateway workOrderGateway =
-            Factories.persistence.forWorkOrder();
-    private final InvoiceGateway invoiceGateway =
-            Factories.persistence.forInvoice();
+    private final WorkOrderGateway workOrderGateway = Factories.persistence.forWorkOrder();
+    private final InvoiceGateway invoiceGateway = Factories.persistence.forInvoice();
 
     public CreateInvoice(List<String> workOrderIds) {
         ArgumentChecks.isNotNull(workOrderIds, "La lista de órdenes de trabajo no puede ser nula");
@@ -45,16 +44,13 @@ public class CreateInvoice implements Command<InvoiceDto> {
 
         BigDecimal subtotal = BigDecimal.ZERO;
         for (String workOrderId : workOrderIds) {
-            java.util.Optional<WorkOrderRecord> result =
-                    workOrderGateway.findById(workOrderId);
+            Optional<WorkOrderRecord> result = workOrderGateway.findById(workOrderId);
             if (result.isEmpty()) {
-                throw new BusinessException(
-                        "La orden de trabajo no existe: " + workOrderId);
+                throw new BusinessException("La orden de trabajo no existe: " + workOrderId);
             }
             WorkOrderRecord workOrder = result.get();
             if (!"APPROVED".equals(workOrder.state) || workOrder.invoiceId != null) {
-                throw new BusinessException(
-                        "La orden de trabajo no se puede facturar en estado: " + workOrder.state);
+                throw new BusinessException("La orden de trabajo no se puede facturar en estado: " + workOrder.state);
             }
 
             if (workOrder.amount != null) {
@@ -64,8 +60,8 @@ public class CreateInvoice implements Command<InvoiceDto> {
 
         dto.number = invoiceGateway.findLastNumber().orElse(0L) + 1;
         dto.subtotal = subtotal.setScale(2, RoundingMode.HALF_EVEN);
-        dto.vatAmount = dto.subtotal.multiply(dto.vatPercentage)
-                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_EVEN);
+        dto.vatAmount = dto.subtotal.multiply(dto.vatPercentage).divide(new BigDecimal("100"), 2,
+            RoundingMode.HALF_EVEN);
         dto.total = dto.subtotal.add(dto.vatAmount).setScale(2, RoundingMode.HALF_UP);
 
         InvoiceRecord invoice = new InvoiceRecord();

@@ -1,15 +1,17 @@
 package uo.ri.cws.application.service.client.commands;
 
-import uo.ri.cws.application.persistence.util.command.Command;
+import java.util.UUID;
+
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.cash.CashGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.PaymentMeanRecord;
-import uo.ri.cws.application.persistence.cash.CashGateway;
+import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
+import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.service.client.crud.ClientDtoAssembler;
-import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.assertion.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
@@ -19,11 +21,9 @@ public class AddClient implements Command<ClientDto> {
     private final ClientDto client;
     private final String recommenderNif;
     private final ClientGateway clients = Factories.persistence.forClient();
-    private final PaymentMeanGateway paymentMeans =
-            Factories.persistence.forPaymentMean();
+    private final PaymentMeanGateway paymentMeans = Factories.persistence.forPaymentMean();
     private final CashGateway cash = Factories.persistence.forCash();
-    private final RecommendationGateway recommendations =
-            Factories.persistence.forRecommendation();
+    private final RecommendationGateway recommendations = Factories.persistence.forRecommendation();
 
     public AddClient(ClientDto client, String recommenderNif) {
         ArgumentChecks.isNotNull(client, "Los datos del cliente no pueden ser nulos");
@@ -35,16 +35,13 @@ public class AddClient implements Command<ClientDto> {
     public ClientDto execute() throws BusinessException {
         validate(client);
         if (recommenderNif != null) {
-            ArgumentChecks.isNotBlank(recommenderNif,
-                    "El NIF del recomendador no puede estar vacío");
+            ArgumentChecks.isNotBlank(recommenderNif, "El NIF del recomendador no puede estar vacío");
         }
-        BusinessChecks.doesNotExist(clients.findByNif(client.nif),
-                "Ya existe un cliente con ese NIF");
+        BusinessChecks.doesNotExist(clients.findByNif(client.nif), "Ya existe un cliente con ese NIF");
         String recommenderId = null;
         if (recommenderNif != null) {
             if (client.nif.equals(recommenderNif)) {
-                throw new BusinessException(
-                        "Un cliente no puede recomendarse a sí mismo");
+                throw new BusinessException("Un cliente no puede recomendarse a sí mismo");
             }
             var recommender = clients.findByNif(recommenderNif);
             if (recommender.isEmpty()) {
@@ -56,7 +53,7 @@ public class AddClient implements Command<ClientDto> {
         ClientRecord record = ClientDtoAssembler.toRecord(client);
         clients.add(record);
         PaymentMeanRecord cashRecord = new PaymentMeanRecord();
-        cashRecord.id = java.util.UUID.randomUUID().toString();
+        cashRecord.id = UUID.randomUUID().toString();
         cashRecord.dtype = "Cash";
         cashRecord.clientId = record.id;
         cashRecord.accumulated = java.math.BigDecimal.ZERO;

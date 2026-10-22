@@ -16,8 +16,7 @@ public class FindNotInvoicedWorkOrdersByClientAction implements Action {
     public void execute() throws BusinessException {
         InvoicingService service = Factories.service.forCreateInvoiceService();
         String nif = Console.readString("Client nif");
-        List<InvoicingWorkOrderDto> workOrders =
-            service.findNotInvoicedWorkOrdersByClientNif(nif);
+        List<InvoicingWorkOrderDto> workOrders = service.findNotInvoicedWorkOrdersByClientNif(nif);
 
         Console.println("\nInvoice-pending work orders\n");
         if (workOrders.isEmpty()) {

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.service.client.commands.AddClient;
 import uo.ri.cws.application.service.client.commands.DeleteClientByNif;
 import uo.ri.cws.application.service.client.commands.FindAllClients;
@@ -18,8 +17,7 @@ public class ClientCrudServiceImpl implements ClientCrudService {
     private final CommandExecutor executor = new CommandExecutor();
 
     @Override
-    public ClientDto addClient(ClientDto client, String recommenderNif)
-            throws BusinessException {
+    public ClientDto addClient(ClientDto client, String recommenderNif) throws BusinessException {
         return executor.execute(new AddClient(client, recommenderNif));
     }
 
@@ -39,14 +37,12 @@ public class ClientCrudServiceImpl implements ClientCrudService {
     }
 
     @Override
-    public Optional<ClientDto> findClientByNif(String nif)
-            throws BusinessException {
+    public Optional<ClientDto> findClientByNif(String nif) throws BusinessException {
         return executor.execute(new FindClientByNif(nif));
     }
 
     @Override
-    public List<ClientDto> findClientsRecommendedBy(String recommenderNif)
-            throws BusinessException {
+    public List<ClientDto> findClientsRecommendedBy(String recommenderNif) throws BusinessException {
         return executor.execute(new FindClientsRecommendedBy(recommenderNif));
     }
 }

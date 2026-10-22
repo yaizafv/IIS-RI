@@ -3,8 +3,6 @@ package uo.ri.cws.application.service.paymentmean;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.paymentmean.VoucherGenerationService.VoucherDto;
-import uo.ri.cws.application.service.paymentmean.VoucherGenerationService.VoucherSummaryDto;
 import uo.ri.cws.application.service.paymentmean.commands.FindVouchersByClientNif;
 import uo.ri.cws.application.service.paymentmean.commands.GenerateVouchers;
 import uo.ri.cws.application.service.paymentmean.commands.GetVoucherSummary;
@@ -20,8 +18,7 @@ public class VoucherGenerationServiceImpl implements VoucherGenerationService {
     }
 
     @Override
-    public List<VoucherDto> findVouchersByClientNif(String nif)
-            throws BusinessException {
+    public List<VoucherDto> findVouchersByClientNif(String nif) throws BusinessException {
         return executor.execute(new FindVouchersByClientNif(nif));
     }
 

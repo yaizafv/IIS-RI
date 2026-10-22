@@ -7,10 +7,10 @@ public class VehicleMenu extends BaseMenu {
     public VehicleMenu() {
         menuOptions = new Object[][] { { "Foreman > Vehicle management", null },
 
-                { "Register new vehicle", UnsupportedOperationException.class },
-                { "Update vehicle", UnsupportedOperationException.class },
-                { "Disable vehicle", UnsupportedOperationException.class },
-                { "List all vehicles", UnsupportedOperationException.class }, };
+            { "Register new vehicle", UnsupportedOperationException.class },
+            { "Update vehicle", UnsupportedOperationException.class },
+            { "Disable vehicle", UnsupportedOperationException.class },
+            { "List all vehicles", UnsupportedOperationException.class }, };
     }
 
 }

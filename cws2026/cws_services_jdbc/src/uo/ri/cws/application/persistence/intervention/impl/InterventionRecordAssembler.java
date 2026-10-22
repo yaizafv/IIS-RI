@@ -31,13 +31,12 @@ public class InterventionRecordAssembler extends BaseRecordAssembler<Interventio
 
         record.mechanicId = rs.getString("mechanic_id");
         record.workorderId = rs.getString("workorder_id");
-        record.date = rs.getTimestamp("date") == null
-                ? null : rs.getTimestamp("date").toLocalDateTime();
+        record.date = rs.getTimestamp("date") == null ? null : rs.getTimestamp("date").toLocalDateTime();
         record.minutes = rs.getInt("minutes");
 
         return record;
     }
-    
+
     public List<InterventionRecord> toInterventionRecordList(ResultSet rs) throws SQLException {
         List<InterventionRecord> res = new ArrayList<>();
         while (rs.next()) {

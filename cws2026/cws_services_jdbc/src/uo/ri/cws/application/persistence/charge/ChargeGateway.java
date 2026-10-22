@@ -15,8 +15,7 @@ public interface ChargeGateway extends Gateway<ChargeGateway.ChargeRecord> {
         public LocalDateTime date;
     }
 
-    void add(String invoiceId, String paymentMeanId, BigDecimal amount)
-            throws PersistenceException;
+    void add(String invoiceId, String paymentMeanId, BigDecimal amount) throws PersistenceException;
 
     void removeForClient(String clientId) throws PersistenceException;
 }

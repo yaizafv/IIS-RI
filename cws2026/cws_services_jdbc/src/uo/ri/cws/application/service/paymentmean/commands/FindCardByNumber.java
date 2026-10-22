@@ -12,14 +12,12 @@ public class FindCardByNumber implements Command<Optional<CardDto>> {
     private final String number;
 
     public FindCardByNumber(String number) {
-        ArgumentChecks.isNotBlank(number,
-                "El número de tarjeta no puede estar vacío");
+        ArgumentChecks.isNotBlank(number, "El número de tarjeta no puede estar vacío");
         this.number = number;
     }
 
     @Override
     public Optional<CardDto> execute() {
-        return PaymentMeanDtoAssembler.toCard(
-                Factories.persistence.forPaymentMean().findByCardNumber(number));
+        return PaymentMeanDtoAssembler.toCard(Factories.persistence.forPaymentMean().findByCardNumber(number));
     }
 }

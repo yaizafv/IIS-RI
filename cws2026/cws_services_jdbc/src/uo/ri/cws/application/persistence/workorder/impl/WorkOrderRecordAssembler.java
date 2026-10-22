@@ -22,7 +22,7 @@ public class WorkOrderRecordAssembler extends BaseRecordAssembler<WorkOrderRecor
 
     public WorkOrderRecord resultSetToWorkOrderRecord(ResultSet rs) throws SQLException {
         WorkOrderRecord result = new WorkOrderRecord();
-        
+
         result.id = rs.getString("id");
         result.version = rs.getLong("version");
         result.vehicleId = rs.getString("vehicle_id");

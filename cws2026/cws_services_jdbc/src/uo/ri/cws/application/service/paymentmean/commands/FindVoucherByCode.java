@@ -18,7 +18,6 @@ public class FindVoucherByCode implements Command<Optional<VoucherDto>> {
 
     @Override
     public Optional<VoucherDto> execute() {
-        return PaymentMeanDtoAssembler.toVoucher(
-                Factories.persistence.forPaymentMean().findByVoucherCode(code));
+        return PaymentMeanDtoAssembler.toVoucher(Factories.persistence.forPaymentMean().findByVoucherCode(code));
     }
 }

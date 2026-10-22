@@ -35,8 +35,7 @@ public class MechanicRecordAssembler extends BaseRecordAssembler<MechanicRecord>
         return record;
     }
 
-    public List<MechanicRecord> toMechanicRecordList(ResultSet rs)
-        throws SQLException {
+    public List<MechanicRecord> toMechanicRecordList(ResultSet rs) throws SQLException {
         List<MechanicRecord> res = new ArrayList<>();
         while (rs.next()) {
             res.add(toCurrentRecord(rs));

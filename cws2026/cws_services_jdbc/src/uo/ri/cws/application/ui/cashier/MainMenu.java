@@ -12,12 +12,10 @@ public class MainMenu extends BaseMenu {
     public MainMenu() {
 
         menuOptions = new Object[][] { { "Cash", null },
-                { "Find not invoiced work orders by client",
-                        FindNotInvoicedWorkOrdersByClientAction.class },
-                { "Find work orders by client", FindWorkOrdersByClientAction.class },
-                { "Find work orders by plate", FindWorkOrdersByPlateAction.class },
-                { "Invoice work orders", InvoiceWorkorderAction.class },
-                { "Settle invoice", SettleInvoiceAction.class }, };
+            { "Find not invoiced work orders by client", FindNotInvoicedWorkOrdersByClientAction.class },
+            { "Find work orders by client", FindWorkOrdersByClientAction.class },
+            { "Find work orders by plate", FindWorkOrdersByPlateAction.class },
+            { "Invoice work orders", InvoiceWorkorderAction.class }, { "Settle invoice", SettleInvoiceAction.class }, };
 
     }
 

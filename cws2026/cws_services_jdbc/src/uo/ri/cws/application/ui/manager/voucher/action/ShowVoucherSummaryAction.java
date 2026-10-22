@@ -13,13 +13,10 @@ public class ShowVoucherSummaryAction implements Action {
     @Override
     public void execute() throws BusinessException {
         Console.println("\nVoucher summary\n");
-        List<VoucherSummaryDto> summary = Factories.service.forVoucherService()
-                .getVoucherSummary();
+        List<VoucherSummaryDto> summary = Factories.service.forVoucherService().getVoucherSummary();
         for (VoucherSummaryDto row : summary) {
-            Console.printf("\t%s %s %s \t%d \t%s \t%s \t%s\n",
-                    row.nif(), row.name(), row.surname(), row.issuedQty(),
-                    row.totalAmount(), row.availableAmount(),
-                    row.consumedAmount());
+            Console.printf("\t%s %s %s \t%d \t%s \t%s \t%s\n", row.nif(), row.name(), row.surname(), row.issuedQty(),
+                row.totalAmount(), row.availableAmount(), row.consumedAmount());
         }
     }
 }

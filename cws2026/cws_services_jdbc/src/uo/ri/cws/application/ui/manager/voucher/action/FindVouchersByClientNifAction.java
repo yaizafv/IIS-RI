@@ -14,18 +14,17 @@ public class FindVouchersByClientNifAction implements Action {
     @Override
     public void execute() throws BusinessException {
         List<VoucherDto> vouchers = Factories.service.forVoucherService()
-                .findVouchersByClientNif(Console.readString("Client nif"));
+            .findVouchersByClientNif(Console.readString("Client nif"));
         Console.println("\nClient vouchers\n");
         BigDecimal available = BigDecimal.ZERO;
         BigDecimal consumed = BigDecimal.ZERO;
         for (VoucherDto voucher : vouchers) {
-            Console.printf("\t%s \t%s \t%s \t%s\n",
-                    voucher.id, voucher.code, voucher.availableAmount,
-                    voucher.accumulatedAmount);
+            Console.printf("\t%s \t%s \t%s \t%s\n", voucher.id, voucher.code, voucher.availableAmount,
+                voucher.accumulatedAmount);
             available = available.add(voucher.availableAmount);
             consumed = consumed.add(voucher.accumulatedAmount);
         }
-        Console.printf("Vouchers: %d, total: %s, consumed: %s, available: %s\n",
-                vouchers.size(), available.add(consumed), consumed, available);
+        Console.printf("Vouchers: %d, total: %s, consumed: %s, available: %s\n", vouchers.size(),
+            available.add(consumed), consumed, available);
     }
 }

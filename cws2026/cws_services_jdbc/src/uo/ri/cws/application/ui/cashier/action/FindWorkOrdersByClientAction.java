@@ -14,7 +14,7 @@ public class FindWorkOrdersByClientAction implements Action {
     @Override
     public void execute() throws BusinessException {
         List<InvoicingWorkOrderDto> workOrders = Factories.service.forCreateInvoiceService()
-                .findWorkOrdersByClientNif(Console.readString("Client nif"));
+            .findWorkOrdersByClientNif(Console.readString("Client nif"));
         Console.println("\nWork orders of the client\n");
         for (InvoicingWorkOrderDto workOrder : workOrders) {
             Printer.printWorkOrder(workOrder);

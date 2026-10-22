@@ -14,8 +14,7 @@ public class ListClientsAction implements Action {
     @Override
     public void execute() throws BusinessException {
         Console.println("\nList of clients\n");
-        List<ClientDto> clients = Factories.service.forClientCrudService()
-                .findAllClients();
+        List<ClientDto> clients = Factories.service.forClientCrudService().findAllClients();
         for (ClientDto client : clients) {
             Printer.printClient(client);
         }

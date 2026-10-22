@@ -30,8 +30,7 @@ public class SettleInvoiceAction implements Action {
         String nif = Console.readString("Client nif");
         List<PaymentMeanDto> means = service.findPayMeansByClientNif(nif);
         if (means.isEmpty()) {
-            throw new BusinessException(
-                    "The client has no payment means or the nif is wrong");
+            throw new BusinessException("The client has no payment means or the nif is wrong");
         }
 
         Map<String, BigDecimal> charges = new HashMap<>();

@@ -1,7 +1,6 @@
 package uo.ri.cws.application.ui.foreman.client.action;
 
 import uo.ri.conf.Factories;
-import uo.ri.cws.application.service.client.ClientCrudService;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessException;
@@ -23,8 +22,7 @@ public class AddClientAction implements Action {
         client.email = Console.readString("Email");
         String recommender = Console.readString("Recommender nif (empty if none)");
 
-        client = Factories.service.forClientCrudService().addClient(client,
-                recommender.isBlank() ? null : recommender);
+        client = Factories.service.forClientCrudService().addClient(client, recommender.isBlank() ? null : recommender);
         Console.println("New client added: " + client.id);
     }
 }

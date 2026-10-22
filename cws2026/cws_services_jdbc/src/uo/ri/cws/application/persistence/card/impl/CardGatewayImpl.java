@@ -14,6 +14,8 @@ import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class CardGatewayImpl implements CardGateway {
+    private final CardRecordAssembler assembler = new CardRecordAssembler();
+
     @Override public void add(CardRecord record) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
                 Queries.getSQLSentence("TCREDITCARDS_ADD"))) {
@@ -51,15 +53,8 @@ public class CardGatewayImpl implements CardGateway {
                 Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
-                if (!rs.next()) return Optional.empty();
-                CardRecord r = new CardRecord();
-                r.id = rs.getString("id");
-                r.number = rs.getString("number");
-                r.type = rs.getString("type");
-                Date date = rs.getDate("validThru");
-                r.validThru = date == null ? null
-                        : java.time.YearMonth.from(date.toLocalDate());
-                return Optional.of(r);
+                CardRecord record = assembler.toRecord(rs);
+                return record == null ? Optional.empty() : Optional.of(record);
             }
         } catch (SQLException e) { throw new PersistenceException(e); }
     }

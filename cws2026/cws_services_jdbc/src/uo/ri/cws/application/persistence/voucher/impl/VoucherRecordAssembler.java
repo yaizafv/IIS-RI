@@ -26,7 +26,7 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
         return toCurrentRecord(rs);
     }
 
-    private VoucherRecord toCurrentRecord(ResultSet rs) throws SQLException {
+    VoucherRecord toCurrentRecord(ResultSet rs) throws SQLException {
         var record = super.toRecord(rs);
         record.code = rs.getString("code");
         record.description = rs.getString("description");
@@ -35,7 +35,7 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
         return record;
     }
 
-    public List<VoucherRecord> toMechanicRecordList(ResultSet rs)
+    public List<VoucherRecord> toVoucherRecordList(ResultSet rs)
         throws SQLException {
         List<VoucherRecord> res = new ArrayList<>();
         while (rs.next()) {

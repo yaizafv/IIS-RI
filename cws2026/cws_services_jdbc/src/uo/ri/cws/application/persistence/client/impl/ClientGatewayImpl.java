@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +14,8 @@ import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class ClientGatewayImpl implements ClientGateway {
+
+    private final ClientRecordAssembler assembler = new ClientRecordAssembler();
 
     @Override
     public void add(ClientRecord record) {
@@ -80,11 +81,7 @@ public class ClientGatewayImpl implements ClientGateway {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
                 .prepareStatement(Queries.getSQLSentence("TCLIENTS_FIND_ALL"));
              ResultSet rs = pst.executeQuery()) {
-            List<ClientRecord> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(toRecord(rs));
-            }
-            return result;
+            return assembler.toRecordList(rs);
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
@@ -122,11 +119,7 @@ public class ClientGatewayImpl implements ClientGateway {
                         "TCLIENTS_FIND_RECOMMENDED_BY_NIF"))) {
             pst.setString(1, recommenderNif);
             try (ResultSet rs = pst.executeQuery()) {
-                List<ClientRecord> result = new ArrayList<>();
-                while (rs.next()) {
-                    result.add(toRecord(rs));
-                }
-                return result;
+                return assembler.toRecordList(rs);
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -148,31 +141,12 @@ public class ClientGatewayImpl implements ClientGateway {
                 .prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
-                return rs.next() ? Optional.of(toRecord(rs))
+                return rs.next() ? Optional.of(assembler.toCurrentRecord(rs))
                         : Optional.empty();
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
-    }
-
-    private static ClientRecord toRecord(ResultSet rs) throws SQLException {
-        ClientRecord record = new ClientRecord();
-        record.id = rs.getString("id");
-        record.version = rs.getLong("version");
-        record.nif = rs.getString("nif");
-        record.name = rs.getString("name");
-        record.surname = rs.getString("surname");
-        record.street = rs.getString("street");
-        record.city = rs.getString("city");
-        record.country = rs.getString("country");
-        record.postalCode = rs.getString("postalCode");
-        record.phone = rs.getString("phone");
-        record.email = rs.getString("email");
-        record.createdAt = rs.getTimestamp("createdAt").toLocalDateTime();
-        record.updatedAt = rs.getTimestamp("updatedAt").toLocalDateTime();
-        record.entityState = rs.getString("entityState");
-        return record;
     }
 
     private static boolean exists(String key, String value) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.client.ClientGateway;
-import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
@@ -20,7 +19,7 @@ public class ClientGatewayImpl implements ClientGateway {
     @Override
     public void add(ClientRecord record) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence("TCLIENTS_ADD"))) {
+            .prepareStatement(Queries.getSQLSentence("TCLIENTS_ADD"))) {
             pst.setString(1, record.id);
             pst.setLong(2, record.version);
             pst.setTimestamp(3, Timestamp.valueOf(record.createdAt));
@@ -49,7 +48,7 @@ public class ClientGatewayImpl implements ClientGateway {
     @Override
     public void update(ClientRecord record) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence("TCLIENTS_UPDATE"))) {
+            .prepareStatement(Queries.getSQLSentence("TCLIENTS_UPDATE"))) {
             pst.setString(1, record.name);
             pst.setString(2, record.surname);
             pst.setString(3, record.nif);
@@ -63,8 +62,8 @@ public class ClientGatewayImpl implements ClientGateway {
             pst.setString(11, record.id);
             pst.setLong(12, record.version);
             if (pst.executeUpdate() != 1) {
-                throw new PersistenceException(new SQLException(
-                        "Client was not updated because its version has changed"));
+                throw new PersistenceException(
+                    new SQLException("Client was not updated because its version has changed"));
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -78,9 +77,10 @@ public class ClientGatewayImpl implements ClientGateway {
 
     @Override
     public List<ClientRecord> findAll() {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
                 .prepareStatement(Queries.getSQLSentence("TCLIENTS_FIND_ALL"));
-             ResultSet rs = pst.executeQuery()) {
+            ResultSet rs = pst.executeQuery()) {
             return assembler.toRecordList(rs);
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -95,8 +95,7 @@ public class ClientGatewayImpl implements ClientGateway {
     @Override
     public Optional<ClientRecord> findOtherByNif(String nif, String id) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(
-                        "TCLIENTS_FIND_OTHER_BY_NIF"))) {
+            .prepareStatement(Queries.getSQLSentence("TCLIENTS_FIND_OTHER_BY_NIF"))) {
             pst.setString(1, nif);
             pst.setString(2, id);
             try (ResultSet rs = pst.executeQuery()) {
@@ -115,8 +114,7 @@ public class ClientGatewayImpl implements ClientGateway {
     @Override
     public List<ClientRecord> findRecommendedBy(String recommenderNif) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(
-                        "TCLIENTS_FIND_RECOMMENDED_BY_NIF"))) {
+            .prepareStatement(Queries.getSQLSentence("TCLIENTS_FIND_RECOMMENDED_BY_NIF"))) {
             pst.setString(1, recommenderNif);
             try (ResultSet rs = pst.executeQuery()) {
                 return assembler.toRecordList(rs);
@@ -137,12 +135,10 @@ public class ClientGatewayImpl implements ClientGateway {
     }
 
     private Optional<ClientRecord> findOne(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
-                return rs.next() ? Optional.of(assembler.toCurrentRecord(rs))
-                        : Optional.empty();
+                return rs.next() ? Optional.of(assembler.toCurrentRecord(rs)) : Optional.empty();
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -150,8 +146,7 @@ public class ClientGatewayImpl implements ClientGateway {
     }
 
     private static boolean exists(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next();
@@ -162,8 +157,7 @@ public class ClientGatewayImpl implements ClientGateway {
     }
 
     private static void execute(String key, String id) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {

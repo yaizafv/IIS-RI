@@ -6,7 +6,6 @@ import java.time.YearMonth;
 import java.util.UUID;
 
 import uo.ri.conf.Factories;
-import uo.ri.cws.application.persistence.card.CardGateway;
 import uo.ri.cws.application.persistence.card.CardGateway.CardRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
@@ -20,14 +19,10 @@ public class AddCard implements Command<CardDto> {
 
     public AddCard(CardDto card) {
         ArgumentChecks.isNotNull(card, "La tarjeta no puede ser nula");
-        ArgumentChecks.isNotBlank(card.cardNumber,
-                "El número de tarjeta no puede estar vacío");
-        ArgumentChecks.isNotNull(card.cardExpiration,
-                "La fecha de caducidad no puede ser nula");
-        ArgumentChecks.isNotBlank(card.cardType,
-                "El tipo de tarjeta no puede estar vacío");
-        ArgumentChecks.isNotBlank(card.clientId,
-                "El identificador del cliente no puede estar vacío");
+        ArgumentChecks.isNotBlank(card.cardNumber, "El número de tarjeta no puede estar vacío");
+        ArgumentChecks.isNotNull(card.cardExpiration, "La fecha de caducidad no puede ser nula");
+        ArgumentChecks.isNotBlank(card.cardType, "El tipo de tarjeta no puede estar vacío");
+        ArgumentChecks.isNotBlank(card.clientId, "El identificador del cliente no puede estar vacío");
         this.card = card;
     }
 
@@ -57,8 +52,7 @@ public class AddCard implements Command<CardDto> {
     }
 
     private PaymentMeanGateway.PaymentMeanRecord toPaymentMean(CardRecord record) {
-        PaymentMeanGateway.PaymentMeanRecord parent =
-                new PaymentMeanGateway.PaymentMeanRecord();
+        PaymentMeanGateway.PaymentMeanRecord parent = new PaymentMeanGateway.PaymentMeanRecord();
         parent.id = record.id;
         parent.dtype = "CreditCard";
         parent.clientId = card.clientId;

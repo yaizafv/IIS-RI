@@ -6,14 +6,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.invoice.InvoicingService;
 import uo.ri.cws.application.service.invoice.FindNotInvoicedWorkOrdersByClientNif;
+import uo.ri.cws.application.service.invoice.InvoicingService;
 import uo.ri.cws.application.service.invoice.create.commands.CreateInvoice;
 import uo.ri.cws.application.service.invoice.create.commands.FindInvoiceByNumber;
 import uo.ri.cws.application.service.invoice.create.commands.FindPaymentMeansByClientNif;
 import uo.ri.cws.application.service.invoice.create.commands.FindWorkOrdersByClientNif;
 import uo.ri.cws.application.service.invoice.create.commands.SettleInvoice;
 import uo.ri.util.exception.BusinessException;
+import uo.ri.util.exception.NotYetImplementedException;
 
 public class InvoicingServiceImpl implements InvoicingService {
 
@@ -36,8 +37,7 @@ public class InvoicingServiceImpl implements InvoicingService {
 
     @Override
     public List<InvoicingWorkOrderDto> findWorkOrdersByPlateNumber(String plate) throws BusinessException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @Override

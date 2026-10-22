@@ -14,13 +14,13 @@ import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class InterventionGatewayImpl implements InterventionGateway {
-    
+
     private final InterventionRecordAssembler assembler = new InterventionRecordAssembler();
 
     @Override
     public void add(InterventionRecord t) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINTERVENTIONS_ADD"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINTERVENTIONS_ADD"))) {
             pst.setString(1, t.id);
             pst.setLong(2, t.version);
             pst.setTimestamp(3, t.createdAt == null ? null : Timestamp.valueOf(t.createdAt));
@@ -43,8 +43,8 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
     @Override
     public void update(InterventionRecord t) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINTERVENTIONS_UPDATE"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINTERVENTIONS_UPDATE"))) {
             pst.setString(1, t.mechanicId);
             pst.setString(2, t.workorderId);
             pst.setTimestamp(3, t.date == null ? null : Timestamp.valueOf(t.date));
@@ -53,8 +53,8 @@ public class InterventionGatewayImpl implements InterventionGateway {
             pst.setString(6, t.id);
             pst.setLong(7, t.version);
             if (pst.executeUpdate() != 1) {
-                throw new PersistenceException(new SQLException(
-                        "Intervention was not updated because its version has changed"));
+                throw new PersistenceException(
+                    new SQLException("Intervention was not updated because its version has changed"));
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -63,8 +63,8 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
     @Override
     public Optional<InterventionRecord> findById(String id) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINTERVENTIONS_FIND_BY_ID"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINTERVENTIONS_FIND_BY_ID"))) {
             pst.setString(1, id);
             try (ResultSet rs = pst.executeQuery()) {
                 return Optional.ofNullable(assembler.toRecord(rs));
@@ -76,9 +76,10 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
     @Override
     public List<InterventionRecord> findAll() throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TINTERVENTIONS_FIND_ALL"));
-             ResultSet rs = pst.executeQuery()) {
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TINTERVENTIONS_FIND_ALL"));
+            ResultSet rs = pst.executeQuery()) {
             return assembler.toInterventionRecordList(rs);
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -93,8 +94,7 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
         try {
             c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(
-                Queries.getSQLSentence("TINTERVENTIONS_FIND_BY_MECHANIC_ID"));
+            pst = c.prepareStatement(Queries.getSQLSentence("TINTERVENTIONS_FIND_BY_MECHANIC_ID"));
             pst.setString(1, id);
             rs = pst.executeQuery();
             return assembler.toInterventionRecordList(rs);
@@ -106,18 +106,19 @@ public class InterventionGatewayImpl implements InterventionGateway {
                 if (rs != null) {
                     rs.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 if (pst != null) {
                     pst.close();
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
 
     private void executeUpdate(String queryKey, String id) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(queryKey))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(queryKey))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {

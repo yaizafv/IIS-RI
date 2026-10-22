@@ -16,7 +16,7 @@ import uo.ri.util.exception.BusinessException;
 public class MechanicCrudServiceImpl implements MechanicCrudService {
 
     private CommandExecutor executor = new CommandExecutor();
-    
+
     @Override
     public MechanicDto create(MechanicDto dto) throws BusinessException {
         return executor.execute(new AddMechanic(dto));

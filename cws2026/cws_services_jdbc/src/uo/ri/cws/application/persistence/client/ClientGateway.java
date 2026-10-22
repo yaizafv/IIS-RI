@@ -10,11 +10,9 @@ public interface ClientGateway extends Gateway<ClientGateway.ClientRecord> {
 
     Optional<ClientRecord> findByNif(String nif) throws PersistenceException;
 
-    Optional<ClientRecord> findOtherByNif(String nif, String id)
-            throws PersistenceException;
+    Optional<ClientRecord> findOtherByNif(String nif, String id) throws PersistenceException;
 
-    List<ClientRecord> findRecommendedBy(String recommenderNif)
-            throws PersistenceException;
+    List<ClientRecord> findRecommendedBy(String recommenderNif) throws PersistenceException;
 
     boolean hasVehicles(String clientId) throws PersistenceException;
 

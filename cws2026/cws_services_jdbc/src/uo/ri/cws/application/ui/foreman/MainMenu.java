@@ -9,11 +9,9 @@ import uo.ri.util.menu.NotYetImplementedAction;
 public class MainMenu extends BaseMenu {
 
     public MainMenu() {
-        menuOptions = new Object[][] { { "Foreman", null },
-                { "Vehicle reception", ReceptionMenu.class },
-                { "Client management", ClientMenu.class },
-                { "Vehicle management", VehicleMenu.class },
-                { "Review client history", NotYetImplementedAction.class }, };
+        menuOptions = new Object[][] { { "Foreman", null }, { "Vehicle reception", ReceptionMenu.class },
+            { "Client management", ClientMenu.class }, { "Vehicle management", VehicleMenu.class },
+            { "Review client history", NotYetImplementedAction.class }, };
     }
 
     public static void main(String[] args) {

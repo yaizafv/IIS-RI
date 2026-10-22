@@ -10,6 +10,7 @@ import uo.ri.util.exception.PersistenceException;
 
 public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMeanRecord> {
 
+    @Override
     Optional<PaymentMeanRecord> findById(String id) throws PersistenceException;
 
     List<PaymentMeanRecord> findByClientNif(String nif) throws PersistenceException;
@@ -28,8 +29,7 @@ public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMe
 
     void addAccumulated(String id, BigDecimal amount) throws PersistenceException;
 
-    void decreaseVoucherAvailable(String id, BigDecimal amount)
-            throws PersistenceException;
+    void decreaseVoucherAvailable(String id, BigDecimal amount) throws PersistenceException;
 
     void removeForClient(String clientId) throws PersistenceException;
 
@@ -39,7 +39,8 @@ public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMe
         public String dtype;
     }
 
-    class CashRecord extends PaymentMeanRecord {}
+    class CashRecord extends PaymentMeanRecord {
+    }
 
     class CardRecord extends PaymentMeanRecord {
         public String number;

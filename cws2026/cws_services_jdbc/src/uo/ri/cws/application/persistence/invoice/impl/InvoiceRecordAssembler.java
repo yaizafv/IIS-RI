@@ -29,7 +29,7 @@ public class InvoiceRecordAssembler extends BaseRecordAssembler<InvoiceRecord> {
 
     private InvoiceRecord toCurrentRecord(ResultSet rs) throws SQLException {
         var record = super.toRecord(rs);
-        
+
         Date date = rs.getDate("date");
         record.date = date == null ? null : date.toLocalDate();
         record.number = rs.getLong("number");

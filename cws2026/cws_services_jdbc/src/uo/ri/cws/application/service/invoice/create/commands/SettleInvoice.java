@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.charge.ChargeGateway;
@@ -17,7 +18,6 @@ import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.VoucherR
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
-import uo.ri.util.exception.PersistenceException;
 
 public class SettleInvoice implements Command<Void> {
 
@@ -32,24 +32,20 @@ public class SettleInvoice implements Command<Void> {
         ArgumentChecks.isNotNull(charges, "Los cargos no pueden ser nulos");
         ArgumentChecks.isTrue(!charges.isEmpty(), "Debe indicarse al menos un cargo");
         for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
-            ArgumentChecks.isNotBlank(charge.getKey(),
-                    "El identificador del medio de pago no puede estar vacío");
+            ArgumentChecks.isNotBlank(charge.getKey(), "El identificador del medio de pago no puede estar vacío");
             ArgumentChecks.isNotNull(charge.getValue(), "El importe del cargo no puede ser nulo");
-            ArgumentChecks.isTrue(charge.getValue().signum() >= 0,
-                    "El importe del cargo no puede ser negativo");
+            ArgumentChecks.isTrue(charge.getValue().signum() >= 0, "El importe del cargo no puede ser negativo");
         }
         this.invoiceId = invoiceId;
         this.charges = new LinkedHashMap<>();
         for (Map.Entry<String, BigDecimal> charge : charges.entrySet()) {
-            this.charges.put(charge.getKey(),
-                    charge.getValue().setScale(2, RoundingMode.HALF_EVEN));
+            this.charges.put(charge.getKey(), charge.getValue().setScale(2, RoundingMode.HALF_EVEN));
         }
     }
 
     @Override
     public Void execute() throws BusinessException {
-        java.util.Optional<InvoiceRecord> invoiceResult =
-                invoiceGateway.findById(invoiceId);
+        Optional<InvoiceRecord> invoiceResult = invoiceGateway.findById(invoiceId);
         if (invoiceResult.isEmpty()) {
             throw new BusinessException("No existe la factura");
         }
@@ -74,17 +70,14 @@ public class SettleInvoice implements Command<Void> {
         return null;
     }
 
-    private void settlePaymentMean(String id, BigDecimal amount)
-            throws BusinessException {
-        java.util.Optional<PaymentMeanGateway.PaymentMeanRecord> result =
-                paymentMeanGateway.findById(id);
+    private void settlePaymentMean(String id, BigDecimal amount) throws BusinessException {
+        Optional<PaymentMeanGateway.PaymentMeanRecord> result = paymentMeanGateway.findById(id);
         if (result.isEmpty()) {
             throw new BusinessException("No existe el medio de pago");
         }
         PaymentMeanGateway.PaymentMeanRecord record = result.get();
         if (record instanceof CardRecord card) {
-            if (card.validThru != null
-                    && card.validThru.isBefore(YearMonth.from(LocalDate.now()))) {
+            if (card.validThru != null && card.validThru.isBefore(YearMonth.from(LocalDate.now()))) {
                 throw new BusinessException("La tarjeta está caducada");
             }
         } else if (record instanceof VoucherRecord voucher) {

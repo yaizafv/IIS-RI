@@ -1,7 +1,7 @@
 package uo.ri.cws.application.persistence.workorder;
 
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.Gateway;
@@ -11,8 +11,8 @@ public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderReco
 
     /**
      * @param workorder Ids, list of workorders to retrieve
-     * @return list of workorder dto whose id is included in the parameter,
-     *         probably empty
+     * @return list of workorder dto whose id is included in the parameter, probably
+     *         empty
      * @throws PersistenceException
      */
     List<WorkOrderRecord> findByIds(List<String> workOrderIds);

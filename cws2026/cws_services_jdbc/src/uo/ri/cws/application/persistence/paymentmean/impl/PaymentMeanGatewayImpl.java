@@ -1,5 +1,6 @@
 package uo.ri.cws.application.persistence.paymentmean.impl;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,20 +9,18 @@ import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.PaymentMeanRecord;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
 
-    private final PaymentMeanRecordAssembler assembler =
-            new PaymentMeanRecordAssembler();
+    private final PaymentMeanRecordAssembler assembler = new PaymentMeanRecordAssembler();
 
     @Override
     public void add(PaymentMeanRecord record) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_ADD"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_ADD"))) {
             bindCommon(pst, record);
             pst.executeUpdate();
         } catch (SQLException e) {
@@ -36,8 +35,8 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
 
     @Override
     public void update(PaymentMeanRecord record) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_UPDATE"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_UPDATE"))) {
             pst.setBigDecimal(1, record.accumulated);
             pst.setTimestamp(2, Timestamp.valueOf(record.updatedAt));
             pst.setString(3, record.id);
@@ -57,9 +56,10 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
 
     @Override
     public List<PaymentMeanRecord> findAll() throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL"));
-             ResultSet rs = pst.executeQuery()) {
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL"));
+            ResultSet rs = pst.executeQuery()) {
             return readAll(rs);
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -67,24 +67,18 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public List<PaymentMeanRecord> findByClientNif(String nif)
-            throws PersistenceException {
-        return findMany(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CLIENT_NIF"),
-                nif);
+    public List<PaymentMeanRecord> findByClientNif(String nif) throws PersistenceException {
+        return findMany(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CLIENT_NIF"), nif);
     }
 
     @Override
-    public Optional<PaymentMeanRecord> findByVoucherCode(String code)
-            throws PersistenceException {
-        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_VOUCHER_CODE"),
-                code);
+    public Optional<PaymentMeanRecord> findByVoucherCode(String code) throws PersistenceException {
+        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_VOUCHER_CODE"), code);
     }
 
     @Override
-    public Optional<PaymentMeanRecord> findByCardNumber(String number)
-            throws PersistenceException {
-        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CARD_NUMBER"),
-                number);
+    public Optional<PaymentMeanRecord> findByCardNumber(String number) throws PersistenceException {
+        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CARD_NUMBER"), number);
     }
 
     @Override
@@ -108,10 +102,9 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public void addAccumulated(String id, java.math.BigDecimal amount)
-            throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TPAYMENTMEANS_ADD_ACCUMULATED"))) {
+    public void addAccumulated(String id, BigDecimal amount) throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_ADD_ACCUMULATED"))) {
             pst.setBigDecimal(1, amount);
             pst.setString(2, id);
             pst.executeUpdate();
@@ -121,10 +114,9 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public void decreaseVoucherAvailable(String id, java.math.BigDecimal amount)
-            throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TVOUCHERS_DECREASE_AVAILABLE"))) {
+    public void decreaseVoucherAvailable(String id, BigDecimal amount) throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_DECREASE_AVAILABLE"))) {
             pst.setBigDecimal(1, amount);
             pst.setString(2, id);
             pst.executeUpdate();
@@ -165,8 +157,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
         return assembler.toRecordList(rs);
     }
 
-    private static void bindCommon(PreparedStatement pst, PaymentMeanRecord record)
-            throws SQLException {
+    private static void bindCommon(PreparedStatement pst, PaymentMeanRecord record) throws SQLException {
         pst.setString(1, record.id);
         pst.setString(2, record.dtype);
         pst.setTimestamp(3, Timestamp.valueOf(record.createdAt));
@@ -178,8 +169,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     private static boolean exists(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next();
@@ -190,8 +180,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     private static void execute(String key, String id) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {

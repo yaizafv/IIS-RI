@@ -10,7 +10,7 @@ import uo.ri.util.menu.Action;
 public class AddMechanicAction implements Action {
 
     MechanicCrudService mechanicService = Factories.service.forMechanicCrudService();
-    
+
     @Override
     public void execute() throws BusinessException {
         // Get info
@@ -22,9 +22,9 @@ public class AddMechanicAction implements Action {
         dto.nif = nif;
         dto.name = name;
         dto.surname = surname;
-        
+
         mechanicService.create(dto);
-        
+
         // Print result
         Console.println("Mechanic added");
     }

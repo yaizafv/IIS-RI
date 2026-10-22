@@ -12,8 +12,8 @@ import java.util.Optional;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
-import uo.ri.util.exception.PersistenceException;
 import uo.ri.util.exception.NotYetImplementedException;
+import uo.ri.util.exception.PersistenceException;
 
 public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
@@ -36,8 +36,8 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public Optional<WorkOrderRecord> findById(String id) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TWORKORDERS_FIND_BY_ID"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TWORKORDERS_FIND_BY_ID"))) {
             pst.setString(1, id);
             try (ResultSet rs = pst.executeQuery()) {
                 return assembler.toWorkOrderRecord(rs);
@@ -102,8 +102,7 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
         ResultSet rs = null;
         try {
             Connection c = Jdbc.getCurrentConnection();
-            pst = c.prepareStatement(Queries.getSQLSentence(
-                    "TWORKORDERS_FIND_NOT_INVOICED_WORK_ORDERS_BY_CLIENT_NIF"));
+            pst = c.prepareStatement(Queries.getSQLSentence("TWORKORDERS_FIND_NOT_INVOICED_WORK_ORDERS_BY_CLIENT_NIF"));
             pst.setString(1, nif);
             rs = pst.executeQuery();
             workOrders = assembler.toWorkOrderRecordList(rs);
@@ -128,8 +127,8 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public List<WorkOrderRecord> findByClientNif(String nif) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TWORKORDERS_FIND_BY_CLIENT_NIF"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TWORKORDERS_FIND_BY_CLIENT_NIF"))) {
             pst.setString(1, nif);
             try (ResultSet rs = pst.executeQuery()) {
                 return assembler.toWorkOrderRecordList(rs);
@@ -141,14 +140,13 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
 
     @Override
     public void setInvoiced(String workOrderId, String invoiceId) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(
-                Queries.getSQLSentence("TWORKORDERS_SET_INVOICED"))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TWORKORDERS_SET_INVOICED"))) {
             pst.setString(1, invoiceId);
             pst.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             pst.setString(3, workOrderId);
             if (pst.executeUpdate() != 1) {
-                throw new PersistenceException(
-                        new SQLException("Work order was not invoiced: " + workOrderId));
+                throw new PersistenceException(new SQLException("Work order was not invoiced: " + workOrderId));
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);

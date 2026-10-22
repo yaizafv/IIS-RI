@@ -10,15 +10,15 @@ import uo.ri.util.exception.BusinessException;
 import uo.ri.util.menu.Action;
 
 public class ListMechanicAction implements Action {
-    
+
     MechanicCrudService mechanicService = Factories.service.forMechanicCrudService();
 
     @Override
     public void execute() throws BusinessException {
         String nif = Console.readString("nif");
-        
+
         Optional<MechanicDto> opt = mechanicService.findByNif(nif);
-        
+
         if (opt.isPresent()) {
             MechanicDto dto = opt.get();
             Console.println("\nMechanic information \n");

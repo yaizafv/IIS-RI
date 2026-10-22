@@ -14,16 +14,14 @@ public class FindVouchersByClientNif implements Command<List<VoucherDto>> {
     private final String nif;
 
     public FindVouchersByClientNif(String nif) {
-        ArgumentChecks.isNotBlank(nif,
-                "El NIF del cliente no puede estar vacío");
+        ArgumentChecks.isNotBlank(nif, "El NIF del cliente no puede estar vacío");
         this.nif = nif;
     }
 
     @Override
     public List<VoucherDto> execute() {
         List<VoucherDto> result = new ArrayList<>();
-        for (VoucherRecord record :
-                Factories.persistence.forVoucher().findByClientNif(nif)) {
+        for (VoucherRecord record : Factories.persistence.forVoucher().findByClientNif(nif)) {
             VoucherDto dto = new VoucherDto();
             dto.id = record.id;
             dto.version = record.version;

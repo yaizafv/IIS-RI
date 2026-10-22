@@ -13,11 +13,9 @@ public class GetVoucherSummary implements Command<List<VoucherSummaryDto>> {
     @Override
     public List<VoucherSummaryDto> execute() {
         List<VoucherSummaryDto> result = new ArrayList<>();
-        for (SummaryRecord summary : Factories.persistence.forVoucher()
-                .findSummary()) {
-            result.add(new VoucherSummaryDto(summary.nif(), summary.name(),
-                    summary.surname(), summary.issuedQty(), summary.totalAmount(),
-                    summary.availableAmount(), summary.consumedAmount()));
+        for (SummaryRecord summary : Factories.persistence.forVoucher().findSummary()) {
+            result.add(new VoucherSummaryDto(summary.nif(), summary.name(), summary.surname(), summary.issuedQty(),
+                summary.totalAmount(), summary.availableAmount(), summary.consumedAmount()));
         }
         return result;
     }

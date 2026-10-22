@@ -3,6 +3,7 @@ package uo.ri.cws.application.persistence.card.impl;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.YearMonth;
 
 import uo.ri.cws.application.persistence.card.CardGateway.CardRecord;
 
@@ -21,8 +22,7 @@ public class CardRecordAssembler {
         record.number = rs.getString("number");
         record.type = rs.getString("type");
         Date date = rs.getDate("validThru");
-        record.validThru = date == null ? null
-                : java.time.YearMonth.from(date.toLocalDate());
+        record.validThru = date == null ? null : YearMonth.from(date.toLocalDate());
         return record;
     }
 }

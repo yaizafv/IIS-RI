@@ -8,6 +8,7 @@ import java.util.Optional;
 import uo.ri.cws.application.persistence.cash.CashGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
 
 public class CashGatewayImpl implements CashGateway {
@@ -24,17 +25,17 @@ public class CashGatewayImpl implements CashGateway {
 
     @Override
     public void update(CashRecord record) {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
     public Optional<CashRecord> findById(String id) {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<CashRecord> findAll() {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
@@ -43,8 +44,7 @@ public class CashGatewayImpl implements CashGateway {
     }
 
     private static void execute(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             pst.executeUpdate();
         } catch (SQLException e) {
@@ -52,8 +52,4 @@ public class CashGatewayImpl implements CashGateway {
         }
     }
 
-    private static PersistenceException unsupported() {
-        return new PersistenceException(new UnsupportedOperationException(
-                "Cash records are managed through the payment mean operations"));
-    }
 }

@@ -19,9 +19,7 @@ public class GenerateVouchers implements Command<int[]> {
         int workOrderVouchers = generateWorkOrderVouchers(vouchers);
         int recommendationVouchers = generateRecommendationVouchers(vouchers);
         int invoiceVouchers = generateInvoiceVouchers(vouchers);
-        return new int[] {
-                workOrderVouchers, recommendationVouchers, invoiceVouchers
-        };
+        return new int[] { workOrderVouchers, recommendationVouchers, invoiceVouchers };
     }
 
     private int generateWorkOrderVouchers(VoucherGateway vouchers) {
@@ -34,8 +32,7 @@ public class GenerateVouchers implements Command<int[]> {
                 vouchers.markWorkOrderUsed(ids.get(i));
                 vouchers.markWorkOrderUsed(ids.get(i + 1));
                 vouchers.markWorkOrderUsed(ids.get(i + 2));
-                vouchers.addGenerated(entry.getKey(), new BigDecimal("20.00"),
-                        "Por tres órdenes de trabajo");
+                vouchers.addGenerated(entry.getKey(), new BigDecimal("20.00"), "Por tres órdenes de trabajo");
                 generated++;
             }
         }
@@ -52,8 +49,7 @@ public class GenerateVouchers implements Command<int[]> {
                 vouchers.markRecommendationUsed(ids.get(i));
                 vouchers.markRecommendationUsed(ids.get(i + 1));
                 vouchers.markRecommendationUsed(ids.get(i + 2));
-                vouchers.addGenerated(entry.getKey(), new BigDecimal("25.00"),
-                        "Por recomendación");
+                vouchers.addGenerated(entry.getKey(), new BigDecimal("25.00"), "Por recomendación");
                 generated++;
             }
         }
@@ -65,8 +61,7 @@ public class GenerateVouchers implements Command<int[]> {
         List<EligibleRecord> invoices = vouchers.findEligibleInvoices();
         for (EligibleRecord invoice : invoices) {
             vouchers.markInvoiceUsed(invoice.itemId());
-            vouchers.addGenerated(invoice.clientId(), new BigDecimal("30.00"),
-                    "Por factura de más de 500");
+            vouchers.addGenerated(invoice.clientId(), new BigDecimal("30.00"), "Por factura de más de 500");
             generated++;
         }
         return generated;

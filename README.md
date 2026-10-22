@@ -17,6 +17,7 @@ asignatura de Repositorios de Información.
 
 - [1. Dominio del problema](#1-dominio-del-problema)
 - [2. Modelo de dominio](#2-modelo-de-dominio)
+- [2.4. Conceptos técnicos fundamentales](#24-conceptos-técnicos-fundamentales)
 - [3. Actores y responsabilidades](#3-actores-y-responsabilidades)
 - [4. Flujo operativo del taller](#4-flujo-operativo-del-taller)
 - [5. Reglas de negocio](#5-reglas-de-negocio)
@@ -143,6 +144,338 @@ Cada especialización añade sus datos:
 - efectivo: no requiere datos adicionales;
 - tarjeta: tipo, número y caducidad;
 - bono: código, descripción y `availableAmount`.
+
+---
+
+### 2.4. Conceptos técnicos fundamentales
+
+Esta sección define los conceptos que aparecen continuamente en el código.
+Entenderlos es importante porque cada uno tiene una responsabilidad distinta.
+No son nombres intercambiables: un DTO no es un record, un gateway no es un
+servicio y un command no es una consulta SQL.
+
+#### 2.4.1. DTO: Data Transfer Object
+
+Un **DTO** (*Data Transfer Object*) es un objeto cuyo objetivo principal es
+transportar datos entre dos partes de la aplicación. Es, conceptualmente, un
+formulario o una estructura de datos que contiene valores, pero no debería
+contener la lógica de acceso a la base de datos.
+
+En este proyecto los DTOs forman parte del contrato que los clientes utilizan.
+Por ejemplo, `ClientCrudService.ClientDto` puede transportar:
+
+```text
+id
+version
+nif
+name
+surname
+addressStreet
+addressCity
+addressCountry
+addressZipcode
+phone
+email
+```
+
+El cliente de la aplicación rellena un DTO para solicitar una operación:
+
+```text
+UI -> ClientDto -> ClientCrudService
+```
+
+También recibe un DTO como resultado:
+
+```text
+Base de datos -> Record -> Service -> ClientDto -> UI
+```
+
+Un DTO no debe saber:
+
+- qué tabla almacena sus datos;
+- qué consulta SQL se ejecuta;
+- cómo abrir una conexión;
+- cómo convertir un `ResultSet`;
+- cómo iniciar o confirmar una transacción.
+
+La razón es el desacoplamiento. Si el DTO o la interfaz de usuario conocieran
+las tablas, cualquier cambio de persistencia obligaría a modificar también la
+presentación.
+
+En este proyecto pueden existir DTOs parecidos en servicios distintos. Por
+ejemplo, el DTO de un bono utilizado al pagar una factura no tiene por qué ser
+idéntico al DTO utilizado para listar bonos. Cada interfaz define el contrato
+que necesita y no debe depender de los detalles internos de otra interfaz.
+
+#### 2.4.2. Entidad de dominio
+
+Una **entidad de dominio** es algo que tiene significado propio dentro del
+problema y que puede mantener una identidad a lo largo del tiempo. Un cliente
+concreto sigue siendo el mismo cliente aunque cambie su dirección; una orden
+concreta sigue siendo la misma orden aunque se le añadan intervenciones.
+
+En el dominio aparecen entidades como `Client`, `Vehicle`, `WorkOrder`,
+`Invoice` o `Mechanic`. Una entidad suele tener:
+
+- una identidad;
+- datos;
+- relaciones con otras entidades;
+- reglas que limitan las operaciones permitidas;
+- un ciclo de vida.
+
+El modelo conceptual puede mostrar entidades con comportamiento, pero la
+implementación JDBC separa ese modelo de los objetos de transporte y de
+persistencia. Esta separación evita que una clase tenga que representar al
+mismo tiempo una regla de negocio, una fila SQL y una respuesta para la UI.
+
+#### 2.4.3. Record de persistencia
+
+Un **record** en la arquitectura de este proyecto es la representación de una
+entidad tal y como la necesita la persistencia. No debe confundirse
+necesariamente con la palabra clave `record` de Java: aquí hablamos de un
+objeto de datos de la capa JDBC, normalmente definido dentro de la interfaz de
+su gateway.
+
+Por ejemplo, un `ClientRecord` puede contener, además de los datos visibles
+para la aplicación:
+
+```text
+id
+version
+createdAt
+updatedAt
+entityState
+nif
+name
+surname
+address...
+```
+
+Los campos de persistencia (`version`, fechas internas o estado de entidad)
+pueden ser necesarios para actualizar correctamente una fila aunque no formen
+parte de la pantalla del usuario.
+
+La diferencia práctica es:
+
+| Objeto | Pregunta a la que responde | Capa principal |
+| --- | --- | --- |
+| Entidad de dominio | ¿Qué representa dentro del negocio? | Modelo conceptual |
+| DTO | ¿Qué datos entran o salen del servicio? | API de aplicación |
+| Record | ¿Qué datos necesita la persistencia? | JDBC |
+| `ResultSet` | ¿Qué filas ha devuelto técnicamente SQL? | Driver JDBC |
+
+El servicio convierte normalmente `Record -> DTO`; el gateway y sus
+assemblers convierten `ResultSet -> Record`.
+
+#### 2.4.4. JDBC, `Connection`, `PreparedStatement` y `ResultSet`
+
+**JDBC** (*Java Database Connectivity*) es la API estándar de Java para
+comunicarse con una base de datos relacional.
+
+Las piezas básicas son:
+
+- **`Connection`**: representa una conexión abierta con la base de datos y su
+  contexto transaccional.
+- **`PreparedStatement`**: representa una sentencia SQL preparada con
+  parámetros. Permite enviar valores sin concatenarlos en la consulta.
+- **`ResultSet`**: cursor que permite recorrer las filas devueltas por un
+  `SELECT`.
+- **`SQLException`**: error técnico producido por el driver o la base de datos.
+
+Una consulta JDBC simplificada sería:
+
+```java
+try (PreparedStatement statement = connection.prepareStatement(sql)) {
+    statement.setString(1, nif);
+    try (ResultSet result = statement.executeQuery()) {
+        // El assembler convierte cada fila en un ClientRecord.
+    }
+}
+```
+
+Este código debe permanecer en la persistencia. Un servicio no debería recibir
+un `ResultSet`, y una interfaz de usuario no debería crear un
+`PreparedStatement`.
+
+#### 2.4.5. Gateway
+
+Un **gateway** es la puerta de entrada a un recurso externo, en este caso la
+base de datos. Su misión es traducir una intención de persistencia a
+operaciones JDBC y ocultar los detalles técnicos al resto de la aplicación.
+
+Un gateway de clientes puede ofrecer métodos conceptualmente parecidos a:
+
+```java
+Optional<ClientRecord> findByNif(String nif);
+List<ClientRecord> findAll();
+void add(ClientRecord record);
+void update(ClientRecord record);
+void remove(String id);
+```
+
+El servicio puede pedir “busca el cliente por NIF” sin saber:
+
+- el nombre de la tabla;
+- las columnas seleccionadas;
+- si se utiliza un `JOIN`;
+- qué clave existe en `queries.properties`;
+- cómo se ensamblan las columnas;
+- cómo se transforman los errores JDBC.
+
+Un gateway no debe:
+
+- imprimir mensajes;
+- pedir datos al usuario;
+- devolver DTOs de la API;
+- decidir qué texto mostrar en un menú;
+- abrir una transacción independiente para cada llamada si forma parte de un
+  command mayor.
+
+#### 2.4.6. Service o capa de aplicación
+
+Un **service** es la fachada que expone un caso de uso al resto de la
+aplicación. Es el punto de entrada que utilizan los clientes, los menús y los
+tests.
+
+Por ejemplo, `ClientCrudService.add(dto)` expresa una operación de negocio:
+dar de alta un cliente. El consumidor no necesita saber si internamente se
+insertan tres filas o se ejecutan cuatro consultas.
+
+Un service suele encargarse de:
+
+1. validar argumentos formales;
+2. iniciar la ejecución del caso de uso;
+3. coordinar commands;
+4. convertir resultados de persistencia en DTOs;
+5. propagar las excepciones definidas por el contrato.
+
+Un service no debe convertirse en una clase que contiene todo el SQL y toda la
+lógica de cada caso. Cuando una operación tiene varios pasos, delega en un
+command.
+
+#### 2.4.7. Command
+
+Un **command** representa una operación que se puede ejecutar como una unidad.
+Es útil cuando un caso de uso necesita leer varias entidades, aplicar reglas y
+modificar varias tablas.
+
+Por ejemplo, liquidar una factura puede requerir:
+
+1. buscar la factura;
+2. comprobar que no está pagada;
+3. buscar los medios de pago;
+4. verificar caducidades y saldos;
+5. comprobar que la suma coincide;
+6. crear cargos;
+7. actualizar acumulados;
+8. marcar la factura como pagada.
+
+Todo ese proceso se encapsula en un command para ejecutarlo en una única
+transacción. El service ofrece la operación públicamente, mientras que el
+command contiene la coordinación interna.
+
+```text
+InvoicingService.settleInvoice(...)
+              |
+              v
+        SettleInvoice command
+              |
+              +--> InvoiceGateway
+              +--> PaymentMeanGateway
+              +--> ChargeGateway
+```
+
+Un command no es simplemente una consulta. Puede contener varias lecturas,
+validaciones y escrituras, siempre que formen parte del mismo caso de uso.
+
+#### 2.4.8. Assembler
+
+Un **assembler** es un conversor entre representaciones. En la persistencia
+JDBC convierte un `ResultSet` en un record:
+
+```text
+columnas SQL -> ResultSet -> ClientRecord
+```
+
+Esto centraliza el mapeo de nombres y tipos:
+
+- una columna `VALID_THRU` puede convertirse en `YearMonth`;
+- una columna numérica puede convertirse en `BigDecimal`;
+- varias columnas pueden formar una especialización `VoucherRecord`;
+- una columna de estado puede convertirse en el valor esperado por el
+  record.
+
+Sin assembler, cada método del gateway repetiría el mismo código y sería más
+fácil olvidar una columna o mapearla con un tipo incorrecto.
+
+#### 2.4.9. Factory
+
+Una **factory** es un objeto que crea implementaciones. Su finalidad es que
+los consumidores dependan de interfaces, no de clases concretas.
+
+Sin factory, un cliente tendría que hacer:
+
+```java
+ClientCrudService service = new ClientCrudServiceImpl();
+```
+
+Eso lo acoplaría directamente a la implementación JDBC. Con factory:
+
+```java
+ClientCrudService service =
+    Factories.service.forClientCrudService();
+```
+
+El consumidor conoce `ClientCrudService`, pero no necesita conocer cómo se
+construye ni qué gateways recibe la implementación.
+
+En el proyecto:
+
+- `ServiceFactory` crea servicios;
+- `PersistenceFactory` crea gateways;
+- `Factories` ofrece ambas factories configuradas.
+
+#### 2.4.10. Transacción
+
+Una **transacción** es un conjunto de operaciones de base de datos que debe
+confirmarse o deshacerse como una unidad. Su objetivo principal aquí es evitar
+estados intermedios.
+
+Por ejemplo, dar de alta un cliente implica crear el cliente y su medio de
+pago en efectivo. No sería válido conservar el cliente si falla la creación
+del efectivo:
+
+```text
+Alta correcta:
+  cliente + efectivo + recomendación -> COMMIT
+
+Alta fallida:
+  cliente + efectivo + recomendación -> ROLLBACK completo
+```
+
+El `commit` hace permanentes los cambios y el `rollback` los deshace. El
+`CommandExecutor` ayuda a que el command se ejecute dentro de la conexión y
+transacción adecuadas.
+
+#### 2.4.11. Integridad referencial
+
+La **integridad referencial** garantiza que las relaciones entre tablas sigan
+siendo válidas. Una clave ajena no puede apuntar a una fila inexistente y no
+se debe borrar una fila padre si todavía existen hijos que dependen de ella,
+salvo que el diseño especifique un borrado en cascada seguro.
+
+En este proyecto afecta especialmente a:
+
+- clientes y vehículos;
+- órdenes y vehículos;
+- facturas y órdenes;
+- cargos y medios de pago;
+- medios de pago comunes y sus especializaciones;
+- recomendaciones y clientes.
+
+La lógica de aplicación debe comprobar las reglas de negocio antes de llegar a
+un error críptico de la base de datos, pero la base de datos debe seguir
+protegiendo sus propias restricciones.
 
 ---
 
@@ -299,19 +632,56 @@ HSQLDB
 ### 6.1. Capa de presentación o cliente
 
 Está fuera del núcleo JDBC. Recoge datos, muestra resultados y traduce errores
-para el usuario. No debe conocer tablas, `ResultSet`, `PreparedStatement` ni
-consultas SQL.
+para el usuario. En el repositorio aparece en los módulos `cws_client_*` y en
+la UI auxiliar que acompaña a `cws_services_jdbc`.
+
+Una acción de presentación debe limitarse a:
+
+1. pedir o recibir los datos;
+2. construir el DTO adecuado;
+3. obtener el servicio mediante la factory;
+4. invocar el método del servicio;
+5. mostrar el resultado;
+6. transformar las excepciones en un mensaje comprensible.
+
+No debe conocer tablas, `ResultSet`, `PreparedStatement`, `Connection`,
+consultas SQL ni reglas internas de persistencia. Si una acción de UI decide
+cómo se calcula un bono o si una tarjeta está caducada, la regla queda
+duplicada y puede incumplirse cuando el servicio se use desde un test u otro
+cliente.
 
 ### 6.2. Capa de contratos
 
 `cws_service_interfaces` define las interfaces que implementa el módulo JDBC.
-Los DTOs de estos contratos son la API pública de la aplicación.
+Los DTOs de estos contratos son la API pública de la aplicación. Esta capa
+responde a la pregunta “¿qué puede pedir la aplicación?”, no a “¿cómo se
+guarda?”. Por eso contiene firmas, tipos de entrada, tipos de salida,
+documentación y excepciones, pero no SQL ni conexiones.
+
+La implementación JDBC debe cumplir exactamente este contrato. Si una
+operación exige `IllegalArgumentException` para un NIF nulo y
+`BusinessException` para un NIF duplicado, no es correcto intercambiar ambas
+excepciones aunque el resultado final parezca similar.
 
 ### 6.3. Capa de aplicación
 
 En `cws_services_jdbc/src/uo/ri/cws/application/service` viven las
-implementaciones de servicios. Validan argumentos, orquestan commands y
-convierten records a DTOs.
+implementaciones de servicios. Esta capa representa los casos de uso desde el
+punto de vista de quien utiliza el taller.
+
+Sus responsabilidades son:
+
+- validar precondiciones formales;
+- elegir o crear el command adecuado;
+- delegar la coordinación de persistencia;
+- convertir records a DTOs;
+- traducir errores técnicos a errores de aplicación cuando corresponda;
+- no exponer detalles de SQL.
+
+La capa de aplicación no debería contener sentencias SQL ni lógica de
+presentación. Tampoco debe llamar a otro service para consultar una entidad:
+debe utilizar los gateways necesarios dentro del mismo caso de uso para
+conservar una única transacción.
 
 ### 6.4. Capa de persistencia
 
@@ -324,10 +694,19 @@ En `application/persistence` viven:
 - ejecución de commands;
 - conexión y carga de consultas.
 
+Esta capa responde a la pregunta “¿cómo leo y escribo los datos?”. Es la única
+que debe conocer los nombres de tablas, columnas, claves SQL, `ResultSet`,
+`PreparedStatement` y conversiones desde tipos JDBC. Un gateway no debe
+decidir si una orden está aprobada desde el punto de vista de la UI, pero sí
+debe saber cómo leer o actualizar el estado persistido de esa orden.
+
 ### 6.5. Base de datos
 
 HSQLDB almacena el estado. La implementación debe respetar claves primarias,
-claves ajenas, restricciones de unicidad e integridad referencial.
+claves ajenas, restricciones de unicidad e integridad referencial. La base de
+datos es la última barrera de consistencia, no un sustituto de la validación
+de negocio: la aplicación debe producir errores comprensibles y la base debe
+impedir que una operación defectuosa deje referencias imposibles.
 
 ---
 
@@ -396,47 +775,110 @@ Los consumidores dependen de interfaces. `ServiceFactoryImpl` y
 
 ### 8.1. Service Layer
 
-Cada caso de uso se expone mediante un servicio orientado a una capacidad:
-clientes, mecánicos, facturación o bonos. La interfaz es el contrato y la
-implementación coordina validaciones, commands y conversión de datos.
+La **capa de servicios** agrupa operaciones relacionadas con una capacidad del
+negocio. Cada caso de uso se expone mediante un servicio orientado a clientes,
+mecánicos, facturación o bonos.
+
+La interfaz es el contrato y la implementación coordina validaciones, commands
+y conversión de datos. El patrón evita que los clientes conozcan la estructura
+de la base de datos y permite que una misma regla se aplique igual desde un
+menú, una prueba de aceptación o una integración futura.
+
+Ejemplo:
+
+```text
+ClientCrudService.add(...)
+    no significa “hacer un INSERT”
+    significa “dar de alta un cliente cumpliendo todas sus reglas”
+```
 
 ### 8.2. Data Transfer Object (DTO)
 
-Los DTOs atraviesan la frontera de servicios. No contienen SQL ni deben
-exponer metadatos internos de persistencia salvo que el contrato los requiera.
+El patrón **DTO** crea objetos simples para cruzar fronteras entre módulos o
+capas. Los DTOs atraviesan la frontera de servicios y expresan la información
+que la API necesita, no la estructura completa de las tablas.
+
+No contienen SQL, conexiones ni comportamiento de persistencia. Tampoco deben
+convertirse en “entidades gigantes” que conozcan todas las reglas del sistema.
+La validación de formato puede iniciarse al recibirlos, pero las reglas que
+dependen de datos persistidos pertenecen al servicio o al command.
 
 ### 8.3. Data Mapper / Record Assembler
 
-Los records representan datos persistentes y los assemblers los reconstruyen
-desde `ResultSet`. El mapeo se mantiene fuera del servicio.
+El patrón **Data Mapper** separa los objetos de la aplicación de la forma en
+que se almacenan. Los records representan datos persistentes y los assemblers
+los reconstruyen desde `ResultSet`. El mapeo se mantiene fuera del servicio.
+
+Esto es especialmente importante para las jerarquías de medios de pago:
+varias tablas relacionadas pueden convertirse en un `PaymentMeanRecord`
+especializado sin que `InvoicingService` tenga que saber cómo se hizo el
+`JOIN`.
 
 ### 8.4. Gateway
 
-Un gateway actúa como repositorio especializado de una entidad y oculta SQL,
-conexiones y detalles de JDBC.
+Un **gateway** actúa como repositorio especializado de una entidad y oculta
+SQL, conexiones y detalles de JDBC. Es una frontera: hacia arriba ofrece
+operaciones expresadas en records; hacia abajo utiliza consultas y sentencias
+JDBC.
+
+El gateway no es el lugar adecuado para imprimir errores, construir DTOs,
+decidir el texto de un menú o coordinar todo un proceso de negocio que afecta a
+varias entidades. Esa coordinación pertenece al command.
 
 ### 8.5. Command
 
-Un command encapsula una operación atómica o una secuencia coordinada de
-pasos. Resulta especialmente útil para crear facturas, liquidarlas o generar
-bonos.
+El patrón **Command** convierte una operación en un objeto ejecutable. El
+command encapsula una operación atómica o una secuencia coordinada de pasos y
+recibe los gateways que necesita.
+
+Resulta especialmente útil para crear facturas, liquidarlas o generar bonos
+porque permite mantener juntas las lecturas, comprobaciones, escrituras y
+marcas de consumo dentro de una única transacción. También facilita probar el
+caso de uso sin mezclarlo con la presentación.
 
 ### 8.6. Factory
 
-Las factories desacoplan consumidores de implementaciones concretas y permiten
-intercambiar persistencia o servicios sin modificar los clientes.
+El patrón **Factory** concentra la creación de objetos. Las factories
+desacoplan consumidores de implementaciones concretas y permiten intercambiar
+persistencia o servicios sin modificar los clientes.
+
+La factory no contiene la lógica del caso de uso. Su responsabilidad es decidir
+qué implementación se construye y conectarla con sus dependencias.
 
 ### 8.7. Builder en pruebas
 
-Los tests utilizan builders de records y DTOs para generar datos coherentes,
-reutilizables y legibles. El patrón no forma parte de la lógica de producción,
-pero es esencial para preparar escenarios.
+El patrón **Builder** permite construir objetos paso a paso mediante una API
+legible. Los tests utilizan builders de records y DTOs para generar datos
+coherentes, reutilizables y legibles:
+
+```java
+new ClientDtoBuilder()
+    .withNif("12345678A")
+    .withName("Ana")
+    .withSurname("García")
+    .build();
+```
+
+El patrón no forma parte de la lógica de producción, pero es esencial para
+preparar escenarios con muchas relaciones y valores por defecto.
 
 ### 8.8. Optimistic locking
 
-Los records incluyen `version`. Las actualizaciones condicionadas por versión
-evitan sobrescribir cambios realizados por otra operación y permiten informar
-de conflictos de concurrencia.
+El **optimistic locking** es una estrategia de control de concurrencia. En
+lugar de bloquear una fila durante toda la edición, cada record conserva una
+`version`.
+
+El flujo es:
+
+1. se lee el record con versión `n`;
+2. el usuario o servicio modifica sus datos;
+3. el `UPDATE` exige que la fila siga teniendo versión `n`;
+4. si se actualiza una fila, la versión pasa a `n + 1`;
+5. si no se actualiza ninguna, otra operación cambió el record y se informa de
+   un conflicto.
+
+Así se evita sobrescribir silenciosamente una modificación realizada por otra
+operación.
 
 ---
 

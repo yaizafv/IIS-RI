@@ -28,6 +28,8 @@ public class VoucherRecordAssembler extends BaseRecordAssembler<VoucherRecord> {
 
     VoucherRecord toCurrentRecord(ResultSet rs) throws SQLException {
         var record = super.toRecord(rs);
+        record.clientId = rs.getString("client_id");
+        record.accumulated = rs.getBigDecimal("accumulated");
         record.code = rs.getString("code");
         record.description = rs.getString("description");
         record.available = rs.getBigDecimal("available");

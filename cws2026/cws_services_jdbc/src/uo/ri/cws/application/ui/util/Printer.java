@@ -2,16 +2,24 @@ package uo.ri.cws.application.ui.util;
 
 import java.util.List;
 
+import uo.ri.cws.application.service.invoice.InvoicingService;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.PaymentMeanDto;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.service.vehicletype.VehicleTypeCrudService.VehicleTypeDto;
 import uo.ri.cws.application.service.workorder.WorkOrderCrudService.WorkOrderDto;
 import uo.ri.util.console.Console;
 
 public class Printer {
 
+    public static void printClient(ClientDto client) {
+        Console.printf("\t%s %-10.10s %-15.15s %-25.25s %-20.20s %-15.15s %-15.15s %-10.10s %-15.15s %-25.25s\n",
+                client.id, client.nif, client.name, client.surname,
+                client.addressStreet, client.addressCity, client.addressCountry,
+                client.addressZipcode, client.phone, client.email);
+    }
 
 	public static void printInvoice(InvoiceDto invoice) {
 
@@ -27,18 +35,19 @@ public class Printer {
 		Console.println();
 		Console.println("Available payment means");
 
-		Console.printf("\t%s \t%-8.8s \t%s \n", "Id", "Type", "Acummulated");
+		Console.printf("\t%s \t%-15.15s \t%s \t%s\n",
+		        "Id", "Type", "Accumulated", "Details");
 		for (PaymentMeanDto medio : medios) {
-			printPaymentMean( medio );
+			String details = "";
+			if (medio instanceof InvoicingService.VoucherDto voucher) {
+				details = "available " + voucher.availableAmount;
+			} else if (medio instanceof InvoicingService.CardDto card) {
+				details = "expiration " + card.cardExpiration;
+			}
+			Console.printf("\t%s \t%-15.15s \t%s \t%s\n",
+			        medio.id, medio.getClass().getSimpleName(),
+			        medio.accumulated, details);
 		}
-	}
-
-	private static void printPaymentMean(PaymentMeanDto medio) {
-		Console.printf("\t%s \t%-8.8s \t%s \n"
-				, medio.id
-				, medio.getClass().getName()  // not the best...
-				, medio.accumulated
-		);
 	}
 
 	public static void printWorkOrder(WorkOrderDto rep) {

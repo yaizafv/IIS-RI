@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.CardRecord;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.CashRecord;
+import uo.ri.cws.application.persistence.card.CardGateway.CardRecord;
+import uo.ri.cws.application.persistence.cash.CashGateway.CashRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.PaymentMeanRecord;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.VoucherRecord;
+import uo.ri.cws.application.persistence.voucher.VoucherGateway.VoucherRecord;
 import uo.ri.cws.application.persistence.util.assembler.BaseRecordAssembler;
 
 public class PaymentMeanRecordAssembler extends BaseRecordAssembler<PaymentMeanRecord> {

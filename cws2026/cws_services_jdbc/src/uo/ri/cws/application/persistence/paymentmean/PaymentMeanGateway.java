@@ -38,19 +38,4 @@ public interface PaymentMeanGateway extends Gateway<PaymentMeanGateway.PaymentMe
         public BigDecimal accumulated;
         public String dtype;
     }
-
-    class CashRecord extends PaymentMeanRecord {
-    }
-
-    class CardRecord extends PaymentMeanRecord {
-        public String number;
-        public YearMonth validThru;
-        public String type;
-    }
-
-    class VoucherRecord extends PaymentMeanRecord {
-        public String code;
-        public String description;
-        public BigDecimal available;
-    }
 }

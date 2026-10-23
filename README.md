@@ -1,1377 +1,845 @@
-# CWS 2026 - `cws_services_jdbc`
+# CWS (Car Workshop System) - Sistema de Gestión de Taller Mecánico
 
-Implementación JDBC de **Car Workshop System (CWS)**, el sistema de gestión de
-un taller de reparación y mantenimiento de vehículos desarrollado para la
-asignatura de Repositorios de Información.
-
-> **Alcance de este documento**
->
-> Aunque el repositorio contiene módulos de clientes, pruebas, utilidades y
-> scripts de base de datos, la pieza que se implementa y entrega es
-> `cws2026/cws_services_jdbc`. Este README documenta principalmente ese módulo:
-> sus contratos, servicios, comandos, gateways, records, transacciones,
-> consultas SQL y reglas de negocio. Los demás módulos se mencionan únicamente
-> como consumidores o soporte de la implementación JDBC.
-
-## Índice
-
-- [1. Dominio del problema](#1-dominio-del-problema)
-- [2. Modelo de dominio](#2-modelo-de-dominio)
-- [2.4. Conceptos técnicos fundamentales](#24-conceptos-técnicos-fundamentales)
-- [3. Actores y responsabilidades](#3-actores-y-responsabilidades)
-- [4. Flujo operativo del taller](#4-flujo-operativo-del-taller)
-- [5. Reglas de negocio](#5-reglas-de-negocio)
-- [6. Arquitectura por capas](#6-arquitectura-por-capas)
-- [7. Estructura de `cws_services_jdbc`](#7-estructura-de-cws_services_jdbc)
-- [8. Patrones utilizados](#8-patrones-utilizados)
-- [9. Flujo de una operación JDBC](#9-flujo-de-una-operación-jdbc)
-- [10. Servicios implementados](#10-servicios-implementados)
-- [11. Persistencia y SQL](#11-persistencia-y-sql)
-- [12. Transacciones y concurrencia](#12-transacciones-y-concurrencia)
-- [13. Excepciones y validación](#13-excepciones-y-validación)
-- [14. Configuración y ejecución](#14-configuración-y-ejecución)
-- [15. Pruebas](#15-pruebas)
-- [16. Guía de implementación](#16-guía-de-implementación)
-- [17. Convenciones y checklist](#17-convenciones-y-checklist)
-- [18. Limitaciones conocidas](#18-limitaciones-conocidas)
-- [19. Documentación de referencia](#19-documentación-de-referencia)
+## Tabla de Contenidos
+1. [Descripción General](#descripción-general)
+2. [Modelo del Dominio](#modelo-del-dominio)
+3. [Conceptos Fundamentales](#conceptos-fundamentales)
+4. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
+5. [Patrones de Diseño](#patrones-de-diseño)
+6. [Guía de Implementación de una Nueva Entidad](#guía-de-implementación-de-una-nueva-entidad)
 
 ---
 
-## 1. Dominio del problema
+## Descripción General
 
-El sistema representa la actividad diaria de un taller mecánico. Un cliente
-lleva uno o varios vehículos al taller para que se realicen reparaciones o
-tareas de mantenimiento. El trabajo se organiza mediante **órdenes de
-trabajo**, que son asignadas a mecánicos y contienen las intervenciones,
-tiempos y repuestos utilizados.
+**CWS** es un sistema de gestión para talleres mecánicos que gestiona:
+- **Clientes**: registro y CRUD de clientes
+- **Órdenes de Trabajo**: trabajo realizado en vehículos
+- **Facturas**: facturación de servicios
+- **Bonos/Vouchers**: programa de bonificación automática por órdenes de trabajo
 
-Cuando el trabajo termina y el jefe de taller lo aprueba, una o varias órdenes
-pueden convertirse en una factura. La factura se paga en caja mediante uno o
-varios medios de pago: efectivo, tarjeta o bono. El sistema debe conservar el
-historial suficiente para calcular importes, controlar estados, verificar
-restricciones y mantener la trazabilidad completa de la reparación.
+Este proyecto implementa **generación automática de bonos**: cuando un cliente acumula **3 órdenes de trabajo completadas**, el sistema automáticamente genera un cupón (bono) que puede usar como medio de pago.
 
-La ampliación de fidelización añade recomendaciones entre clientes y bonos:
-
-- un cliente puede recomendar a muchos clientes;
-- cada cliente recomendado solo puede tener un recomendador;
-- las recomendaciones y hechos que ya hayan generado un bono no pueden
-  reutilizarse;
-- los bonos se consumen al pagar facturas y nunca pueden dejar saldo negativo;
-- el proceso de generación se invoca manualmente desde el menú, aunque el
-  enunciado lo plantea como una tarea diaria programada.
-
-### 1.1. Modelo de dominio proporcionado
-
-El siguiente diagrama resume las entidades principales, los agregados y sus
-relaciones. Se conserva como referencia visual del modelo extendido utilizado
-por la práctica:
-
-![Modelo de dominio extendido](docs/reference/domain-model-extended-v2627.png)
-
-La imagen permite identificar dos agregados centrales:
-
-- **`WorkOrder`**: reúne las intervenciones, sustituciones, mecánico asignado y
-  el cálculo del trabajo realizado.
-- **`Invoice`**: reúne los cargos de una o varias órdenes, calcula subtotal,
-  IVA y total, registra los pagos y controla su estado.
-
-Fuera de esos agregados se encuentran entidades compartidas como `Client`,
-`Vehicle`, `Mechanic`, `SparePart`, `PaymentMean`, `Voucher`, `CreditCard`,
-`Cash` y `Recommendation`.
+### Requisitos del Proyecto
+Solo se implementan dos casos de prueba:
+- **Test 1**: Generación de bonos por 3 órdenes de trabajo + Gestión CRUD de clientes
+- **Test Clients**: Gestión CRUD de clientes solamente
 
 ---
 
-## 2. Modelo de dominio
+## Modelo del Dominio
 
-### 2.1. Entidades principales
+![Modelo del Dominio](docs/reference/domain-model-extended-v2627.png)
 
-| Entidad | Responsabilidad |
-| --- | --- |
-| `Client` | Identidad, datos personales, vehículos y recomendaciones realizadas o recibidas. |
-| `Vehicle` | Vehículo propiedad de un cliente y clasificado por un tipo. |
-| `VehicleType` | Categoría del vehículo y precio por hora de mecánico. |
-| `Mechanic` | Profesional que realiza intervenciones sobre órdenes de trabajo. |
-| `WorkOrder` | Reparación o mantenimiento solicitado para un vehículo. |
-| `Intervention` | Trabajo realizado por un mecánico, con fecha, minutos e importe. |
-| `SparePart` | Pieza disponible en el catálogo del taller. |
-| `Substitution` | Uso de una cantidad de repuesto dentro de una intervención. |
-| `Invoice` | Documento económico generado a partir de órdenes aprobadas. |
-| `Charge` | Importe pagado con un medio de pago concreto. |
-| `PaymentMean` | Abstracción de cualquier forma de pago de un cliente. |
-| `Cash` | Medio de pago en efectivo creado automáticamente para todo cliente. |
-| `CreditCard` | Tarjeta, tipo y fecha de caducidad. |
-| `Voucher` | Bono con código, descripción, importe acumulado y saldo disponible. |
-| `Recommendation` | Relación entre el cliente recomendador y el recomendado. |
+### Entidades Principales
 
-### 2.2. Relaciones esenciales
+**1. Cliente (Client)**
+- Identificado por NIF (número de identificación fiscal)
+- Propiedades: nombre, teléfono, email, dirección
+- Relación: 1 cliente → N órdenes de trabajo, N bonos
 
-```text
-Client 1 -------- 0..* Vehicle
-VehicleType 1 --- 0..* Vehicle
-Vehicle 1 ------- 0..* WorkOrder
-WorkOrder 1 ----- 0..* Intervention
-Mechanic 1 ------ 0..* Intervention
-Intervention 1 -- 0..* Substitution
-SparePart 1 ----- 0..* Substitution
-Invoice 1 ------- 1..* WorkOrder
-Invoice 1 ------- 0..* Charge
-PaymentMean 1 --- 0..* Charge
-Client 1 -------- 0..* PaymentMean
-Client 1 -------- 0..* Recommendation (como recomendador)
-Client 0..1 ----- 0..1 Recommendation (como recomendado)
-```
+**2. Orden de Trabajo (WorkOrder)**
+- Identificada por código único
+- Propiedades: descripción, fecha, estado (OPEN/FINISHED), vehículo, cliente
+- Relación: 1 cliente → N órdenes de trabajo
+- Estado: OPEN (abierta) → FINISHED (terminada)
 
-Una orden puede ser trabajada sucesivamente por distintos mecánicos si se
-reabre, pero solo puede tener un mecánico activo en cada instante. El historial
-de intervenciones no se elimina al reasignar la orden.
+**3. Bono/Voucher**
+- Identificado por código único
+- Propiedades: fecha de creación, descripción, estado (AVAILABLE/EXPIRED/REDEEMED)
+- Relación: pertenece a 1 cliente
+- Se genera automáticamente tras 3 órdenes terminadas
 
-### 2.3. Tipos de pago
+**4. Medio de Pago (PaymentMean)**
+- Pago en efectivo (CASH) o bono (VOUCHER)
+- Registra pagos realizados contra facturas
 
-`PaymentMean` es una jerarquía de persistencia:
+**5. Factura (Invoice)**
+- Documento de facturación
+- Relación: factura → N medios de pago
+- El cliente paga mediante efectivo o bonos
 
-```text
-TPaymentMeans
-├── TCashes
-├── TCreditCards
-└── TVouchers
-```
+### Relaciones Clave
 
-Todos los medios comparten `id`, `version`, `clientId` y `accumulated`.
-Cada especialización añade sus datos:
-
-- efectivo: no requiere datos adicionales;
-- tarjeta: tipo, número y caducidad;
-- bono: código, descripción y `availableAmount`.
+- **Cliente** → Posee N **Órdenes de Trabajo** y N **Bonos**
+- **Orden de Trabajo** → Generada por 1 **Cliente**, completada = contribuye a bono
+- **Bono** → Pertenece a 1 **Cliente**, se crea cuando acumula 3 órdenes
+- **Factura** → Se paga mediante N **Medios de Pago** (CASH o VOUCHER)
 
 ---
 
-### 2.4. Conceptos técnicos fundamentales
+## Conceptos Fundamentales
 
-Esta sección define los conceptos que aparecen continuamente en el código.
-Entenderlos es importante porque cada uno tiene una responsabilidad distinta.
-No son nombres intercambiables: un DTO no es un record, un gateway no es un
-servicio y un command no es una consulta SQL.
+### ¿Qué es un DTO (Data Transfer Object)?
 
-#### 2.4.1. DTO: Data Transfer Object
+Un **DTO** es un objeto que **transporta datos** entre capas del proyecto. Es como un "mensajero" que lleva información de un lado a otro.
 
-Un **DTO** (*Data Transfer Object*) es un objeto cuyo objetivo principal es
-transportar datos entre dos partes de la aplicación. Es, conceptualmente, un
-formulario o una estructura de datos que contiene valores, pero no debería
-contener la lógica de acceso a la base de datos.
+**Analogía del mundo real:**
+- Tienes una **base de datos** (almacén) con la información original
+- Un **DTO** es como una **fotocopia** de esa información
+- La UI no accede directamente al almacén, recibe la fotocopia (DTO)
 
-En este proyecto los DTOs forman parte del contrato que los clientes utilizan.
-Por ejemplo, `ClientCrudService.ClientDto` puede transportar:
+**¿Por qué?** Porque protege la base de datos de cambios accidentales desde la UI.
 
-```text
-id
-version
-nif
-name
-surname
-addressStreet
-addressCity
-addressCountry
-addressZipcode
-phone
-email
-```
-
-El cliente de la aplicación rellena un DTO para solicitar una operación:
-
-```text
-UI -> ClientDto -> ClientCrudService
-```
-
-También recibe un DTO como resultado:
-
-```text
-Base de datos -> Record -> Service -> ClientDto -> UI
-```
-
-Un DTO no debe saber:
-
-- qué tabla almacena sus datos;
-- qué consulta SQL se ejecuta;
-- cómo abrir una conexión;
-- cómo convertir un `ResultSet`;
-- cómo iniciar o confirmar una transacción.
-
-La razón es el desacoplamiento. Si el DTO o la interfaz de usuario conocieran
-las tablas, cualquier cambio de persistencia obligaría a modificar también la
-presentación.
-
-En este proyecto pueden existir DTOs parecidos en servicios distintos. Por
-ejemplo, el DTO de un bono utilizado al pagar una factura no tiene por qué ser
-idéntico al DTO utilizado para listar bonos. Cada interfaz define el contrato
-que necesita y no debe depender de los detalles internos de otra interfaz.
-
-#### 2.4.2. Entidad de dominio
-
-Una **entidad de dominio** es algo que tiene significado propio dentro del
-problema y que puede mantener una identidad a lo largo del tiempo. Un cliente
-concreto sigue siendo el mismo cliente aunque cambie su dirección; una orden
-concreta sigue siendo la misma orden aunque se le añadan intervenciones.
-
-En el dominio aparecen entidades como `Client`, `Vehicle`, `WorkOrder`,
-`Invoice` o `Mechanic`. Una entidad suele tener:
-
-- una identidad;
-- datos;
-- relaciones con otras entidades;
-- reglas que limitan las operaciones permitidas;
-- un ciclo de vida.
-
-El modelo conceptual puede mostrar entidades con comportamiento, pero la
-implementación JDBC separa ese modelo de los objetos de transporte y de
-persistencia. Esta separación evita que una clase tenga que representar al
-mismo tiempo una regla de negocio, una fila SQL y una respuesta para la UI.
-
-#### 2.4.3. Record de persistencia
-
-Un **record** en la arquitectura de este proyecto es la representación de una
-entidad tal y como la necesita la persistencia. No debe confundirse
-necesariamente con la palabra clave `record` de Java: aquí hablamos de un
-objeto de datos de la capa JDBC, normalmente definido dentro de la interfaz de
-su gateway.
-
-Por ejemplo, un `ClientRecord` puede contener, además de los datos visibles
-para la aplicación:
-
-```text
-id
-version
-createdAt
-updatedAt
-entityState
-nif
-name
-surname
-address...
-```
-
-Los campos de persistencia (`version`, fechas internas o estado de entidad)
-pueden ser necesarios para actualizar correctamente una fila aunque no formen
-parte de la pantalla del usuario.
-
-La diferencia práctica es:
-
-| Objeto | Pregunta a la que responde | Capa principal |
-| --- | --- | --- |
-| Entidad de dominio | ¿Qué representa dentro del negocio? | Modelo conceptual |
-| DTO | ¿Qué datos entran o salen del servicio? | API de aplicación |
-| Record | ¿Qué datos necesita la persistencia? | JDBC |
-| `ResultSet` | ¿Qué filas ha devuelto técnicamente SQL? | Driver JDBC |
-
-El servicio convierte normalmente `Record -> DTO`; el gateway y sus
-assemblers convierten `ResultSet -> Record`.
-
-#### 2.4.4. JDBC, `Connection`, `PreparedStatement` y `ResultSet`
-
-**JDBC** (*Java Database Connectivity*) es la API estándar de Java para
-comunicarse con una base de datos relacional.
-
-Las piezas básicas son:
-
-- **`Connection`**: representa una conexión abierta con la base de datos y su
-  contexto transaccional.
-- **`PreparedStatement`**: representa una sentencia SQL preparada con
-  parámetros. Permite enviar valores sin concatenarlos en la consulta.
-- **`ResultSet`**: cursor que permite recorrer las filas devueltas por un
-  `SELECT`.
-- **`SQLException`**: error técnico producido por el driver o la base de datos.
-
-Una consulta JDBC simplificada sería:
-
+**Ejemplo en el proyecto:**
 ```java
-try (PreparedStatement statement = connection.prepareStatement(sql)) {
-    statement.setString(1, nif);
-    try (ResultSet result = statement.executeQuery()) {
-        // El assembler convierte cada fila en un ClientRecord.
+// En la capa Service, definimos DTOs como clases internas:
+public interface ClientCrudService {
+    class ClientDto {
+        public String nif;
+        public String name;
+        public String phone;
+        // ... más propiedades
     }
 }
 ```
 
-Este código debe permanecer en la persistencia. Un servicio no debería recibir
-un `ResultSet`, y una interfaz de usuario no debería crear un
-`PreparedStatement`.
+### ¿Qué es un Assembler?
 
-#### 2.4.5. Gateway
+Un **Assembler** es una clase que **convierte datos de una forma a otra**. Es como un "traductor" entre diferentes formatos de información.
 
-Un **gateway** es la puerta de entrada a un recurso externo, en este caso la
-base de datos. Su misión es traducir una intención de persistencia a
-operaciones JDBC y ocultar los detalles técnicos al resto de la aplicación.
+**Analogía:**
+- Tienes un objeto de base de datos (Record)
+- Necesitas convertirlo a DTO para la UI
+- El Assembler hace esa conversión
 
-Un gateway de clientes puede ofrecer métodos conceptualmente parecidos a:
+**Ejemplo:**
+```java
+// Convertir de Record (BD) a DTO (UI)
+ClientDto dto = new ClientDto();
+dto.nif = record.getNif();
+dto.name = record.getName();
+return dto;
+```
+
+### ¿Qué es un Gateway?
+
+Un **Gateway** es una clase que **comunica con la base de datos**. Es como un "puente" entre el código Java y las tablas SQL.
+
+**Analogía:**
+- Tú eres un cliente que quiere información
+- El Gateway es como el gerente de una oficina
+- Tú le pides información y él va a la base de datos a buscarla
+
+**¿Por qué existe?** Porque aisla toda la lógica SQL en un solo sitio, facilitando cambios futuros.
+
+**Ejemplo:**
+```java
+public interface ClientGateway {
+    ClientRecord findByNif(String nif);
+    void add(ClientRecord record);
+    void update(ClientRecord record);
+}
+```
+
+### ¿Qué es un Command (Patrón Command)?
+
+Un **Command** es una clase que **empaqueta una acción completa** con validación y ejecución. Es como una "orden" que se puede ejecutar posteriormente.
+
+**Analogía:**
+- Un mesero en un restaurante toma tu pedido
+- Lo escribe en un papel (Command)
+- La cocina ejecuta ese pedido después
+
+**¿Por qué?** Porque separamos **qué hacer** de **cómo hacerlo**, facilitando pruebas y transacciones.
+
+**Ejemplo:**
+```java
+public class AddClient implements Command<ClientDto> {
+    private String nif, name, phone;
+    
+    public ClientDto execute() {
+        // Validar datos
+        // Crear cliente en base de datos
+        // Retornar DTO
+    }
+}
+```
+
+### ¿Qué es un Service?
+
+Un **Service** es una clase que **orquesta operaciones de negocio**. Es como un "coordinador" que decide qué hacer.
+
+**Analogía:**
+- Un proyecto de construcción necesita un coordinador
+- El coordinador pide presupuestos, contrata obreros, supervisa trabajo
+- El Service es ese coordinador, pero para lógica de negocio
+
+**¿Por qué?** Porque centraliza la lógica de negocio (validaciones, reglas) en un lugar.
+
+**Ejemplo:**
+```java
+public class ClientCrudServiceImpl implements ClientCrudService {
+    public ClientDto add(ClientDto dto) {
+        var command = new AddClient(dto);
+        return commandExecutor.execute(command);
+    }
+}
+```
+
+### ¿Qué es la Inyección de Dependencias?
+
+**Inyección de Dependencias** = pasar objetos que necesitas como **parámetros** en lugar de crearlos internamente.
+
+**Analogía:**
+- En lugar de que un empleado compre sus propias herramientas
+- La empresa le proporciona las herramientas (inyección)
+
+**En nuestro proyecto:** Usamos un **Service Locator** (patrón alternativo):
+```java
+// En lugar de inyectar en constructor:
+ClientGateway gateway = Factories.getInstance().getServiceFactory()
+    .getClientGateway();
+```
+
+---
+
+## Arquitectura del Proyecto
+
+El proyecto sigue una arquitectura de **capas** (layered architecture):
+
+```
+┌─────────────────────────────────────────┐
+│ CAPA UI (Interfaz de Usuario)           │ ← Menús, entrada del usuario
+├─────────────────────────────────────────┤
+│ ↑↓ DTOs (Data Transfer Objects)         │ ← Frontera de datos
+├─────────────────────────────────────────┤
+│ CAPA SERVICE (Lógica de Negocio)        │ ← Servicios, Commands, validaciones
+├─────────────────────────────────────────┤
+│ ↑↓ Records (Objetos de Persistencia)    │ ← Frontera de datos
+├─────────────────────────────────────────┤
+│ CAPA PERSISTENCE (Acceso a Datos)       │ ← Gateways, JDBC, SQL
+├─────────────────────────────────────────┤
+│ BASE DE DATOS                           │ ← Tablas, registros
+└─────────────────────────────────────────┘
+```
+
+### Capa 1: Interfaz de Usuario (UI)
+
+**Responsabilidad:** Interactuar con el usuario
+
+**Componentes:**
+- `BaseMenu`: clase base para todos los menús
+- `ClientMenu`, `VoucherMenu`, etc.: menús específicos
+- `Action`: interfaz para acciones del usuario
+
+**Flujo:**
+1. Usuario selecciona opción en menú
+2. Se crea un DTO con los datos ingresados
+3. Se llama a un Service pasando el DTO
+4. Se recibe DTO de respuesta
+5. Se muestra resultado al usuario
+
+**Ubicación:** `uo/ri/cws/application/ui/`
+
+### Capa 2: Servicios (Application/Service)
+
+**Responsabilidad:** Implementar lógica de negocio
+
+**Componentes:**
+- `*ServiceImpl`: implementaciones de servicios (ClientCrudService, VoucherGenerationService)
+- `Command<T>`: interfaz para comandos que encapsulan operaciones
+- `CommandExecutor`: ejecuta Commands con manejo de transacciones
+- `*Gateway`: interfaces que definen operaciones de persistencia
+
+**Flujo:**
+1. UI llama método del Service con DTO
+2. Service valida datos de negocio
+3. Service crea un Command con los parámetros
+4. Service pasa Command a CommandExecutor
+5. CommandExecutor ejecuta Command y gestiona transacción
+6. Command devuelve resultado como DTO
+
+**Ubicación:** `uo/ri/cws/application/service/`
+
+### Capa 3: Persistencia (Persistence)
+
+**Responsabilidad:** Acceder a la base de datos
+
+**Componentes:**
+- `*GatewayImpl`: implementaciones que manejan JDBC
+- `Queries`: carga queries desde `queries.properties`
+- `*Record`: clases que representan registros de BD
+
+**Flujo:**
+1. Command necesita datos de la BD
+2. Llama método del Gateway
+3. Gateway carga query desde `queries.properties`
+4. Gateway ejecuta query con JDBC
+5. Gateway mapea resultados a Records
+6. Gateway devuelve Records
+
+**Ubicación:** `uo/ri/cws/application/persistence/`
+
+### Flujo Completo: Ejemplo - Agregar un Cliente
+
+```
+1. [UI] Usuario selecciona "Agregar Cliente"
+   ↓
+2. [UI] ClientMenu crea ClientDto con nif, nombre, teléfono
+   ↓
+3. [UI] Llama: ClientCrudService.add(clientDto)
+   ↓
+4. [SERVICE] ClientCrudServiceImpl recibe DTO
+   ↓
+5. [SERVICE] Valida: nif único, campos obligatorios
+   ↓
+6. [SERVICE] Crea Command: new AddClient(clientDto)
+   ↓
+7. [SERVICE] Ejecuta: commandExecutor.execute(addClientCommand)
+   ↓
+8. [COMMAND] AddClient.execute() obtiene ClientGateway
+   ↓
+9. [GATEWAY] ClientGatewayImpl.add(record)
+   ↓
+10. [GATEWAY] Carga query: TCLIENTS_ADD desde queries.properties
+   ↓
+11. [GATEWAY] Ejecuta INSERT en tabla TCLIENTS
+   ↓
+12. [GATEWAY] Devuelve record insertado
+   ↓
+13. [COMMAND] Convierte Record a DTO mediante Assembler
+   ↓
+14. [SERVICE] Devuelve DTO al UI
+   ↓
+15. [UI] Muestra "Cliente agregado correctamente"
+```
+
+---
+
+## Patrones de Diseño
+
+### 1. Patrón Facade (ServiceFactory)
+
+**¿Qué es?** Una clase que **simplifica el acceso a múltiples servicios**.
+
+**¿Por qué?** Evita que la UI conozca detalles internos de cómo se crean los servicios.
+
+**Implementación:**
+```java
+// En lugar de:
+ClientGateway gateway = new ClientGatewayImpl(database);
+ClientCrudService service = new ClientCrudServiceImpl(gateway, executor);
+
+// Hacemos:
+ClientCrudService service = serviceFactory.getClientCrudService();
+```
+
+**Ubicación:** `ServiceFactoryImpl.java`
+
+### 2. Patrón Command
+
+**¿Qué es?** Encapsular una acción como un objeto que puede ser:
+- Ejecutado
+- Validado
+- Registrado
+- Revertido
+
+**¿Por qué?** Separamos la lógica de validación y ejecución de la lógica de presentación.
+
+**Implementación:**
+```java
+public class AddClient implements Command<ClientDto> {
+    private ClientDto dto;
+    
+    public ClientDto execute() {
+        // Validar
+        // Ejecutar
+        // Retornar
+    }
+}
+
+// En CommandExecutor:
+public <T> T execute(Command<T> command) {
+    try {
+        return command.execute();
+    } catch (Exception e) {
+        // Gestionar transacción
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/service/command/`
+
+### 3. Patrón Gateway
+
+**¿Qué es?** Interfaz que **abstrae el acceso a datos** de una fuente específica.
+
+**¿Por qué?** Permite cambiar de base de datos sin tocar la lógica de negocio.
+
+**Implementación:**
+```java
+// Interfaz (Service layer)
+public interface ClientGateway {
+    ClientRecord findByNif(String nif);
+    void add(ClientRecord record);
+}
+
+// Implementación (Persistence layer)
+public class ClientGatewayImpl implements ClientGateway {
+    public void add(ClientRecord record) {
+        String sql = Queries.getQuery("TCLIENTS_ADD");
+        // Ejecutar SQL
+    }
+}
+```
+
+**Ubicación:** 
+- Interfaz: `uo/ri/cws/application/service/*/`
+- Implementación: `uo/ri/cws/application/persistence/*/impl/`
+
+### 4. Patrón DTO (Data Transfer Object)
+
+**¿Qué es?** Objeto que **transporta datos entre capas**.
+
+**¿Por qué?** Desacopla la estructura de la BD de la estructura que ve la UI.
+
+**Implementación:**
+```java
+public interface ClientCrudService {
+    class ClientDto {
+        public String nif;
+        public String name;
+        public String phone;
+        public String email;
+        public String address;
+    }
+    
+    ClientDto add(ClientDto dto);
+}
+```
+
+**Ubicación:** Como clases internas en interfaces de Services
+
+### 5. Patrón Assembler
+
+**¿Qué es?** Clase que **convierte entre diferentes representaciones** de un objeto.
+
+**¿Por qué?** Centraliza la lógica de conversión Record ↔ DTO.
+
+**Implementación:**
+```java
+public class ClientAssembler {
+    public static ClientDto toDto(ClientRecord record) {
+        var dto = new ClientDto();
+        dto.nif = record.getNif();
+        dto.name = record.getName();
+        return dto;
+    }
+    
+    public static ClientRecord toRecord(ClientDto dto) {
+        return new ClientRecord(dto.nif, dto.name, dto.phone);
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/service/client/`
+
+### 6. Patrón Service Locator
+
+**¿Qué es?** Clase global que **proporciona acceso a servicios**.
+
+**¿Por qué?** En un proyecto pequeño, evita pasar dependencias por toda la aplicación.
+
+**Nota:** No es inyección de dependencias "pura", pero es pragmático para proyectos universitarios.
+
+**Implementación:**
+```java
+public class Factories {
+    private static Factories instance;
+    
+    public static Factories getInstance() {
+        if (instance == null) {
+            instance = new Factories();
+        }
+        return instance;
+    }
+    
+    public ServiceFactory getServiceFactory() {
+        return new ServiceFactoryImpl();
+    }
+}
+```
+
+**Ubicación:** `Factories.java`
+
+---
+
+## Guía de Implementación de una Nueva Entidad
+
+Supongamos que queremos agregar soporte completo para **Vehículos (Vehicle)**.
+
+### Paso 0: Preparar la Base de Datos
+
+Primero, la tabla debe existir en la BD:
+```sql
+CREATE TABLE TVEHICLES (
+    id VARCHAR(255) PRIMARY KEY,
+    license_plate VARCHAR(255) UNIQUE NOT NULL,
+    make VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    year INT NOT NULL,
+    client_nif VARCHAR(255) NOT NULL,
+    FOREIGN KEY (client_nif) REFERENCES TCLIENTS(nif)
+);
+```
+
+### Paso 1: Definir el DTO en la Interfaz de Servicio
+
+**Ubicación:** `uo/ri/cws/application/service/vehicle/VehicleCrudService.java`
 
 ```java
-Optional<ClientRecord> findByNif(String nif);
-List<ClientRecord> findAll();
-void add(ClientRecord record);
-void update(ClientRecord record);
-void remove(String id);
+public interface VehicleCrudService {
+    
+    class VehicleDto {
+        public String id;
+        public String licensePlate;
+        public String make;
+        public String model;
+        public int year;
+        public String clientNif;
+    }
+    
+    VehicleDto add(VehicleDto dto) throws BusinessException;
+    VehicleDto findById(String id) throws BusinessException;
+    void update(VehicleDto dto) throws BusinessException;
+    void delete(String id) throws BusinessException;
+    List<VehicleDto> findByClientNif(String clientNif) throws BusinessException;
+}
 ```
 
-El servicio puede pedir “busca el cliente por NIF” sin saber:
+### Paso 2: Crear el Record de Persistencia
 
-- el nombre de la tabla;
-- las columnas seleccionadas;
-- si se utiliza un `JOIN`;
-- qué clave existe en `queries.properties`;
-- cómo se ensamblan las columnas;
-- cómo se transforman los errores JDBC.
-
-Un gateway no debe:
-
-- imprimir mensajes;
-- pedir datos al usuario;
-- devolver DTOs de la API;
-- decidir qué texto mostrar en un menú;
-- abrir una transacción independiente para cada llamada si forma parte de un
-  command mayor.
-
-#### 2.4.6. Service o capa de aplicación
-
-Un **service** es la fachada que expone un caso de uso al resto de la
-aplicación. Es el punto de entrada que utilizan los clientes, los menús y los
-tests.
-
-Por ejemplo, `ClientCrudService.add(dto)` expresa una operación de negocio:
-dar de alta un cliente. El consumidor no necesita saber si internamente se
-insertan tres filas o se ejecutan cuatro consultas.
-
-Un service suele encargarse de:
-
-1. validar argumentos formales;
-2. iniciar la ejecución del caso de uso;
-3. coordinar commands;
-4. convertir resultados de persistencia en DTOs;
-5. propagar las excepciones definidas por el contrato.
-
-Un service no debe convertirse en una clase que contiene todo el SQL y toda la
-lógica de cada caso. Cuando una operación tiene varios pasos, delega en un
-command.
-
-#### 2.4.7. Command
-
-Un **command** representa una operación que se puede ejecutar como una unidad.
-Es útil cuando un caso de uso necesita leer varias entidades, aplicar reglas y
-modificar varias tablas.
-
-Por ejemplo, liquidar una factura puede requerir:
-
-1. buscar la factura;
-2. comprobar que no está pagada;
-3. buscar los medios de pago;
-4. verificar caducidades y saldos;
-5. comprobar que la suma coincide;
-6. crear cargos;
-7. actualizar acumulados;
-8. marcar la factura como pagada.
-
-Todo ese proceso se encapsula en un command para ejecutarlo en una única
-transacción. El service ofrece la operación públicamente, mientras que el
-command contiene la coordinación interna.
-
-```text
-InvoicingService.settleInvoice(...)
-              |
-              v
-        SettleInvoice command
-              |
-              +--> InvoiceGateway
-              +--> PaymentMeanGateway
-              +--> ChargeGateway
-```
-
-Un command no es simplemente una consulta. Puede contener varias lecturas,
-validaciones y escrituras, siempre que formen parte del mismo caso de uso.
-
-#### 2.4.8. Assembler
-
-Un **assembler** es un conversor entre representaciones. En la persistencia
-JDBC convierte un `ResultSet` en un record:
-
-```text
-columnas SQL -> ResultSet -> ClientRecord
-```
-
-Esto centraliza el mapeo de nombres y tipos:
-
-- una columna `VALID_THRU` puede convertirse en `YearMonth`;
-- una columna numérica puede convertirse en `BigDecimal`;
-- varias columnas pueden formar una especialización `VoucherRecord`;
-- una columna de estado puede convertirse en el valor esperado por el
-  record.
-
-Sin assembler, cada método del gateway repetiría el mismo código y sería más
-fácil olvidar una columna o mapearla con un tipo incorrecto.
-
-#### 2.4.9. Factory
-
-Una **factory** es un objeto que crea implementaciones. Su finalidad es que
-los consumidores dependan de interfaces, no de clases concretas.
-
-Sin factory, un cliente tendría que hacer:
+**Ubicación:** `uo/ri/cws/application/persistence/vehicle/VehicleRecord.java`
 
 ```java
-ClientCrudService service = new ClientCrudServiceImpl();
+public class VehicleRecord {
+    private String id;
+    private String licensePlate;
+    private String make;
+    private String model;
+    private int year;
+    private String clientNif;
+    
+    public VehicleRecord(String id, String licensePlate, String make, 
+                         String model, int year, String clientNif) {
+        this.id = id;
+        this.licensePlate = licensePlate;
+        this.make = make;
+        this.model = model;
+        this.year = year;
+        this.clientNif = clientNif;
+    }
+    
+    // Getters
+    public String getId() { return id; }
+    public String getLicensePlate() { return licensePlate; }
+    public String getMake() { return make; }
+    public String getModel() { return model; }
+    public int getYear() { return year; }
+    public String getClientNif() { return clientNif; }
+}
 ```
 
-Eso lo acoplaría directamente a la implementación JDBC. Con factory:
+### Paso 3: Definir la Interfaz Gateway
+
+**Ubicación:** `uo/ri/cws/application/service/vehicle/VehicleGateway.java`
 
 ```java
-ClientCrudService service =
-    Factories.service.forClientCrudService();
+public interface VehicleGateway {
+    VehicleRecord add(VehicleRecord record) throws PersistenceException;
+    VehicleRecord findById(String id) throws PersistenceException;
+    void update(VehicleRecord record) throws PersistenceException;
+    void delete(String id) throws PersistenceException;
+    List<VehicleRecord> findByClientNif(String clientNif) throws PersistenceException;
+}
 ```
 
-El consumidor conoce `ClientCrudService`, pero no necesita conocer cómo se
-construye ni qué gateways recibe la implementación.
+### Paso 4: Crear el Assembler
 
-En el proyecto:
-
-- `ServiceFactory` crea servicios;
-- `PersistenceFactory` crea gateways;
-- `Factories` ofrece ambas factories configuradas.
-
-#### 2.4.10. Transacción
-
-Una **transacción** es un conjunto de operaciones de base de datos que debe
-confirmarse o deshacerse como una unidad. Su objetivo principal aquí es evitar
-estados intermedios.
-
-Por ejemplo, dar de alta un cliente implica crear el cliente y su medio de
-pago en efectivo. No sería válido conservar el cliente si falla la creación
-del efectivo:
-
-```text
-Alta correcta:
-  cliente + efectivo + recomendación -> COMMIT
-
-Alta fallida:
-  cliente + efectivo + recomendación -> ROLLBACK completo
-```
-
-El `commit` hace permanentes los cambios y el `rollback` los deshace. El
-`CommandExecutor` ayuda a que el command se ejecute dentro de la conexión y
-transacción adecuadas.
-
-#### 2.4.11. Integridad referencial
-
-La **integridad referencial** garantiza que las relaciones entre tablas sigan
-siendo válidas. Una clave ajena no puede apuntar a una fila inexistente y no
-se debe borrar una fila padre si todavía existen hijos que dependen de ella,
-salvo que el diseño especifique un borrado en cascada seguro.
-
-En este proyecto afecta especialmente a:
-
-- clientes y vehículos;
-- órdenes y vehículos;
-- facturas y órdenes;
-- cargos y medios de pago;
-- medios de pago comunes y sus especializaciones;
-- recomendaciones y clientes.
-
-La lógica de aplicación debe comprobar las reglas de negocio antes de llegar a
-un error críptico de la base de datos, pero la base de datos debe seguir
-protegiendo sus propias restricciones.
-
----
-
-## 3. Actores y responsabilidades
-
-La capa JDBC no dibuja menús ni interactúa directamente con el usuario; expone
-servicios para que los clientes de aplicación realicen esas tareas.
-
-| Actor | Responsabilidad funcional |
-| --- | --- |
-| Gerente / manager | Gestionar mecánicos, repuestos, tipos de vehículo y generar o consultar bonos. |
-| Jefe de taller / foreman | Gestionar clientes y vehículos, abrir y supervisar órdenes, asignarlas y aprobarlas. |
-| Mecánico | Consultar órdenes asignadas, registrar intervenciones y repuestos y cerrar trabajos. |
-| Cajero / cashier | Crear facturas, consultar medios de pago y liquidar facturas. |
-
-La separación de actores no sustituye a la separación arquitectónica: los
-clientes utilizan interfaces de servicio y nunca deben construir SQL.
-
----
-
-## 4. Flujo operativo del taller
-
-### 4.1. Recepción
-
-1. El jefe de taller registra al cliente si todavía no existe.
-2. El alta crea automáticamente su medio de pago en efectivo.
-3. Se registran sus vehículos y el tipo de cada vehículo.
-4. Se abre una orden de trabajo para el vehículo.
-5. La orden comienza sin mecánico asignado.
-
-### 4.2. Reparación
-
-1. El jefe de taller asigna la orden a un mecánico.
-2. El mecánico registra cada intervención y el tiempo empleado.
-3. Si necesita piezas, registra sustituciones contra el catálogo.
-4. El mecánico marca el trabajo como terminado.
-5. El jefe revisa el resultado:
-   - si es correcto, aprueba la orden;
-   - si no es correcto, la reabre y puede reasignarla.
-
-### 4.3. Facturación
-
-1. Caja consulta las órdenes no facturadas de los vehículos de un cliente.
-2. Selecciona una o varias órdenes en estado `APPROVED`.
-3. El servicio crea una factura, cargos y totales económicos.
-4. Una orden se factura completa; no se divide entre facturas.
-
-### 4.4. Cobro
-
-1. Se localiza la factura por su número.
-2. Se identifica al cliente que paga.
-3. Se consultan sus medios de pago disponibles.
-4. Se distribuye el importe entre efectivo, tarjetas y bonos.
-5. La suma debe coincidir exactamente con el total de la factura.
-6. Si todo es válido, se crean los cargos y la factura pasa a `PAID`.
-7. Si algo falla, no se conserva ningún cargo parcial.
-
----
-
-## 5. Reglas de negocio
-
-### 5.1. Clientes
-
-- El NIF es único.
-- El cliente debe tener los datos obligatorios válidos.
-- Un cliente no puede recomendarse a sí mismo.
-- El recomendador indicado debe existir.
-- Un cliente puede recomendar a muchos clientes.
-- Un cliente solo puede ser recomendado una vez.
-- Al crear un cliente se crea su medio de pago en efectivo.
-- No se puede eliminar un cliente con vehículos.
-- No se puede eliminar un cliente con facturas pagadas.
-- Al eliminarlo deben respetarse las relaciones de pagos y recomendaciones.
-
-### 5.2. Órdenes de trabajo
-
-- Una orden pertenece a un vehículo.
-- Una orden puede no tener mecánico al abrirse.
-- Solo un mecánico puede estar asignado activamente.
-- Una orden aprobada no puede reabrirse, reasignarse ni modificarse.
-- Una orden solo puede facturarse cuando está en estado `APPROVED`.
-- Una orden no puede formar parte de varias facturas.
-
-### 5.3. Facturas
-
-- Una factura agrupa una o más órdenes completas.
-- El número de factura es secuencial.
-- Se calculan subtotal, IVA y total.
-- Una factura pagada no vuelve a pagarse.
-- La factura pasa a `PAID` solo después de registrar correctamente todos sus
-  cargos.
-
-### 5.4. Tarjetas
-
-- El número de tarjeta es único.
-- La fecha de caducidad debe ser posterior al momento del alta.
-- La tarjeta es utilizable hasta el último instante de su mes de caducidad.
-- Una tarjeta con cargos no puede eliminarse.
-- Una tarjeta caducada no puede utilizarse para liquidar una factura.
-
-### 5.5. Bonos
-
-- El código del bono es único.
-- La descripción es obligatoria.
-- El importe inicial no puede ser negativo.
-- Un bono puede utilizarse varias veces mientras conserve saldo.
-- `availableAmount` nunca puede ser negativo.
-- Un bono con cargos no puede eliminarse.
-- El acumulado representa lo consumido y el disponible lo pendiente.
-
-### 5.6. Generación automática de bonos
-
-El método `VoucherGenerationService.generateVouchers()` devuelve tres
-contadores en este orden: bonos de 20, 25 y 30 euros.
-
-| Bono | Condición | Descripción |
-| --- | --- | --- |
-| 20 € | Cada 3 órdenes facturadas y pagadas de un cliente, sin reutilizar órdenes. | `Por tres órdenes de trabajo` |
-| 25 € | Cada 3 recomendaciones cuyos clientes recomendados tengan una orden facturada y pagada, sin reutilizar recomendaciones. | `Por recomendación` |
-| 30 € | Cada factura pagada cuyo total sea superior a 500 €, sin reutilizar facturas. | `Por factura de más de 500` |
-
-El proceso puede emitir varios bonos en una ejecución, incluso de tipos
-distintos para el mismo cliente. La marca de uso debe quedar persistida para
-evitar emitir de nuevo un bono por los mismos hechos.
-
----
-
-## 6. Arquitectura por capas
-
-El recorrido general de una petición es:
-
-```text
-Cliente / UI / test
-        |
-        v
-Interfaz de servicio
-        |
-        v
-ServiceImpl
-        |
-        v
-Command
-        |
-        v
-Gateway
-        |
-        v
-Jdbc + Queries
-        |
-        v
-HSQLDB
-```
-
-### 6.1. Capa de presentación o cliente
-
-Está fuera del núcleo JDBC. Recoge datos, muestra resultados y traduce errores
-para el usuario. En el repositorio aparece en los módulos `cws_client_*` y en
-la UI auxiliar que acompaña a `cws_services_jdbc`.
-
-Una acción de presentación debe limitarse a:
-
-1. pedir o recibir los datos;
-2. construir el DTO adecuado;
-3. obtener el servicio mediante la factory;
-4. invocar el método del servicio;
-5. mostrar el resultado;
-6. transformar las excepciones en un mensaje comprensible.
-
-No debe conocer tablas, `ResultSet`, `PreparedStatement`, `Connection`,
-consultas SQL ni reglas internas de persistencia. Si una acción de UI decide
-cómo se calcula un bono o si una tarjeta está caducada, la regla queda
-duplicada y puede incumplirse cuando el servicio se use desde un test u otro
-cliente.
-
-### 6.2. Capa de contratos
-
-`cws_service_interfaces` define las interfaces que implementa el módulo JDBC.
-Los DTOs de estos contratos son la API pública de la aplicación. Esta capa
-responde a la pregunta “¿qué puede pedir la aplicación?”, no a “¿cómo se
-guarda?”. Por eso contiene firmas, tipos de entrada, tipos de salida,
-documentación y excepciones, pero no SQL ni conexiones.
-
-La implementación JDBC debe cumplir exactamente este contrato. Si una
-operación exige `IllegalArgumentException` para un NIF nulo y
-`BusinessException` para un NIF duplicado, no es correcto intercambiar ambas
-excepciones aunque el resultado final parezca similar.
-
-### 6.3. Capa de aplicación
-
-En `cws_services_jdbc/src/uo/ri/cws/application/service` viven las
-implementaciones de servicios. Esta capa representa los casos de uso desde el
-punto de vista de quien utiliza el taller.
-
-Sus responsabilidades son:
-
-- validar precondiciones formales;
-- elegir o crear el command adecuado;
-- delegar la coordinación de persistencia;
-- convertir records a DTOs;
-- traducir errores técnicos a errores de aplicación cuando corresponda;
-- no exponer detalles de SQL.
-
-La capa de aplicación no debería contener sentencias SQL ni lógica de
-presentación. Tampoco debe llamar a otro service para consultar una entidad:
-debe utilizar los gateways necesarios dentro del mismo caso de uso para
-conservar una única transacción.
-
-### 6.4. Capa de persistencia
-
-En `application/persistence` viven:
-
-- interfaces `Gateway`;
-- records de persistencia;
-- implementaciones JDBC;
-- assemblers de `ResultSet`;
-- ejecución de commands;
-- conexión y carga de consultas.
-
-Esta capa responde a la pregunta “¿cómo leo y escribo los datos?”. Es la única
-que debe conocer los nombres de tablas, columnas, claves SQL, `ResultSet`,
-`PreparedStatement` y conversiones desde tipos JDBC. Un gateway no debe
-decidir si una orden está aprobada desde el punto de vista de la UI, pero sí
-debe saber cómo leer o actualizar el estado persistido de esa orden.
-
-### 6.5. Base de datos
-
-HSQLDB almacena el estado. La implementación debe respetar claves primarias,
-claves ajenas, restricciones de unicidad e integridad referencial. La base de
-datos es la última barrera de consistencia, no un sustituto de la validación
-de negocio: la aplicación debe producir errores comprensibles y la base debe
-impedir que una operación defectuosa deje referencias imposibles.
-
----
-
-## 7. Estructura de `cws_services_jdbc`
-
-```text
-cws_services_jdbc/
-├── pom.xml
-└── src/
-    ├── connection.properties
-    ├── queries.properties
-    └── uo/
-        ├── ri/
-        │   ├── conf/
-        │   │   └── Factories.java
-        │   ├── cws/
-        │   │   └── application/
-        │   │       ├── persistence/
-        │   │       │   ├── Gateway.java
-        │   │       │   ├── PersistenceFactory.java
-        │   │       │   ├── ...Gateway.java
-        │   │       │   ├── .../impl/
-        │   │       │   ├── util/assembler/
-        │   │       │   ├── util/command/
-        │   │       │   └── util/jdbc/
-        │   │       ├── service/
-        │   │       │   ├── ServiceFactoryImpl.java
-        │   │       │   ├── client/
-        │   │       │   ├── mechanic/
-        │   │       │   ├── invoice/
-        │   │       │   └── paymentmean/
-        │   │       └── ui/
-        │   └── util/
-        │       ├── exception/
-        │       └── menu/
-        └── ...
-```
-
-### 7.1. Gateways disponibles
-
-El módulo define gateways para clientes, mecánicos, vehículos, tipos de
-vehículo, órdenes, intervenciones, cargos, facturas, recomendaciones, medios
-de pago, tarjetas, efectivo y bonos. Cada gateway expone records propios y
-oculta el detalle de las tablas.
-
-### 7.2. Assemblers
-
-Los `RecordAssembler` convierten filas JDBC en records. Centralizan nombres de
-columnas y la construcción de objetos, evitando repetir mapeos en cada método.
-
-### 7.3. Factories
-
-`Factories` mantiene las factories de servicio y persistencia:
+**Ubicación:** `uo/ri/cws/application/service/vehicle/VehicleAssembler.java`
 
 ```java
-Factories.service
-Factories.persistence
+public class VehicleAssembler {
+    
+    public static VehicleDto toDto(VehicleRecord record) {
+        var dto = new VehicleDto();
+        dto.id = record.getId();
+        dto.licensePlate = record.getLicensePlate();
+        dto.make = record.getMake();
+        dto.model = record.getModel();
+        dto.year = record.getYear();
+        dto.clientNif = record.getClientNif();
+        return dto;
+    }
+    
+    public static VehicleRecord toRecord(VehicleDto dto) {
+        return new VehicleRecord(dto.id, dto.licensePlate, dto.make, 
+                                  dto.model, dto.year, dto.clientNif);
+    }
+}
 ```
 
-Los consumidores dependen de interfaces. `ServiceFactoryImpl` y
-`PersistenceFactoryImpl` deciden qué implementación concreta se construye.
+### Paso 5: Crear los Commands
 
----
+**Ubicación:** `uo/ri/cws/application/service/vehicle/command/`
 
-## 8. Patrones utilizados
-
-### 8.1. Service Layer
-
-La **capa de servicios** agrupa operaciones relacionadas con una capacidad del
-negocio. Cada caso de uso se expone mediante un servicio orientado a clientes,
-mecánicos, facturación o bonos.
-
-La interfaz es el contrato y la implementación coordina validaciones, commands
-y conversión de datos. El patrón evita que los clientes conozcan la estructura
-de la base de datos y permite que una misma regla se aplique igual desde un
-menú, una prueba de aceptación o una integración futura.
-
-Ejemplo:
-
-```text
-ClientCrudService.add(...)
-    no significa “hacer un INSERT”
-    significa “dar de alta un cliente cumpliendo todas sus reglas”
+#### AddVehicle.java
+```java
+public class AddVehicle implements Command<VehicleDto> {
+    private VehicleDto dto;
+    
+    public AddVehicle(VehicleDto dto) {
+        this.dto = dto;
+    }
+    
+    public VehicleDto execute() throws BusinessException {
+        // Validar que cliente existe
+        var clientGateway = Factories.getInstance().getServiceFactory()
+                                     .getClientGateway();
+        if (clientGateway.findByNif(dto.clientNif) == null) {
+            throw new BusinessException("Cliente no existe");
+        }
+        
+        // Validar placa única
+        var vehicleGateway = Factories.getInstance().getServiceFactory()
+                                      .getVehicleGateway();
+        // (Asumir que existe findByLicensePlate)
+        
+        // Crear registro
+        var record = VehicleAssembler.toRecord(dto);
+        if (record.getId() == null || record.getId().isEmpty()) {
+            record = new VehicleRecord(UUID.randomUUID().toString(), 
+                                       dto.licensePlate, dto.make, 
+                                       dto.model, dto.year, dto.clientNif);
+        }
+        
+        VehicleRecord added = vehicleGateway.add(record);
+        return VehicleAssembler.toDto(added);
+    }
+}
 ```
 
-### 8.2. Data Transfer Object (DTO)
+### Paso 6: Implementar el Service
 
-El patrón **DTO** crea objetos simples para cruzar fronteras entre módulos o
-capas. Los DTOs atraviesan la frontera de servicios y expresan la información
-que la API necesita, no la estructura completa de las tablas.
-
-No contienen SQL, conexiones ni comportamiento de persistencia. Tampoco deben
-convertirse en “entidades gigantes” que conozcan todas las reglas del sistema.
-La validación de formato puede iniciarse al recibirlos, pero las reglas que
-dependen de datos persistidos pertenecen al servicio o al command.
-
-### 8.3. Data Mapper / Record Assembler
-
-El patrón **Data Mapper** separa los objetos de la aplicación de la forma en
-que se almacenan. Los records representan datos persistentes y los assemblers
-los reconstruyen desde `ResultSet`. El mapeo se mantiene fuera del servicio.
-
-Esto es especialmente importante para las jerarquías de medios de pago:
-varias tablas relacionadas pueden convertirse en un `PaymentMeanRecord`
-especializado sin que `InvoicingService` tenga que saber cómo se hizo el
-`JOIN`.
-
-### 8.4. Gateway
-
-Un **gateway** actúa como repositorio especializado de una entidad y oculta
-SQL, conexiones y detalles de JDBC. Es una frontera: hacia arriba ofrece
-operaciones expresadas en records; hacia abajo utiliza consultas y sentencias
-JDBC.
-
-El gateway no es el lugar adecuado para imprimir errores, construir DTOs,
-decidir el texto de un menú o coordinar todo un proceso de negocio que afecta a
-varias entidades. Esa coordinación pertenece al command.
-
-### 8.5. Command
-
-El patrón **Command** convierte una operación en un objeto ejecutable. El
-command encapsula una operación atómica o una secuencia coordinada de pasos y
-recibe los gateways que necesita.
-
-Resulta especialmente útil para crear facturas, liquidarlas o generar bonos
-porque permite mantener juntas las lecturas, comprobaciones, escrituras y
-marcas de consumo dentro de una única transacción. También facilita probar el
-caso de uso sin mezclarlo con la presentación.
-
-### 8.6. Factory
-
-El patrón **Factory** concentra la creación de objetos. Las factories
-desacoplan consumidores de implementaciones concretas y permiten intercambiar
-persistencia o servicios sin modificar los clientes.
-
-La factory no contiene la lógica del caso de uso. Su responsabilidad es decidir
-qué implementación se construye y conectarla con sus dependencias.
-
-### 8.7. Builder en pruebas
-
-El patrón **Builder** permite construir objetos paso a paso mediante una API
-legible. Los tests utilizan builders de records y DTOs para generar datos
-coherentes, reutilizables y legibles:
+**Ubicación:** `uo/ri/cws/application/service/vehicle/VehicleCrudServiceImpl.java`
 
 ```java
-new ClientDtoBuilder()
-    .withNif("12345678A")
-    .withName("Ana")
-    .withSurname("García")
-    .build();
+public class VehicleCrudServiceImpl implements VehicleCrudService {
+    
+    private CommandExecutor commandExecutor;
+    
+    public VehicleCrudServiceImpl(CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
+    }
+    
+    @Override
+    public VehicleDto add(VehicleDto dto) throws BusinessException {
+        var command = new AddVehicle(dto);
+        return commandExecutor.execute(command);
+    }
+    
+    @Override
+    public VehicleDto findById(String id) throws BusinessException {
+        var gateway = Factories.getInstance().getServiceFactory()
+                              .getVehicleGateway();
+        VehicleRecord record = gateway.findById(id);
+        if (record == null) {
+            throw new BusinessException("Vehículo no encontrado");
+        }
+        return VehicleAssembler.toDto(record);
+    }
+    
+    @Override
+    public void update(VehicleDto dto) throws BusinessException {
+        var command = new UpdateVehicle(dto);
+        commandExecutor.execute(command);
+    }
+    
+    @Override
+    public void delete(String id) throws BusinessException {
+        var command = new DeleteVehicle(id);
+        commandExecutor.execute(command);
+    }
+    
+    @Override
+    public List<VehicleDto> findByClientNif(String clientNif) 
+            throws BusinessException {
+        var gateway = Factories.getInstance().getServiceFactory()
+                              .getVehicleGateway();
+        List<VehicleRecord> records = gateway.findByClientNif(clientNif);
+        return records.stream()
+                      .map(VehicleAssembler::toDto)
+                      .toList();
+    }
+}
 ```
 
-El patrón no forma parte de la lógica de producción, pero es esencial para
-preparar escenarios con muchas relaciones y valores por defecto.
+### Paso 7: Implementar el Gateway
 
-### 8.8. Optimistic locking
-
-El **optimistic locking** es una estrategia de control de concurrencia. En
-lugar de bloquear una fila durante toda la edición, cada record conserva una
-`version`.
-
-El flujo es:
-
-1. se lee el record con versión `n`;
-2. el usuario o servicio modifica sus datos;
-3. el `UPDATE` exige que la fila siga teniendo versión `n`;
-4. si se actualiza una fila, la versión pasa a `n + 1`;
-5. si no se actualiza ninguna, otra operación cambió el record y se informa de
-   un conflicto.
-
-Así se evita sobrescribir silenciosamente una modificación realizada por otra
-operación.
-
----
-
-## 9. Flujo de una operación JDBC
-
-Ejemplo: alta de un cliente recomendado.
-
-```text
-ClientDto
-  |
-  v
-ClientCrudServiceImpl.add(...)
-  |
-  v
-AddClient command
-  |
-  +--> ClientGateway.findByNif(...)
-  +--> ClientGateway.add(...)
-  +--> PaymentMeanGateway.addCash(...)
-  +--> RecommendationGateway.add(...)
-  |
-  v
-CommandExecutor
-  |
-  v
-commit / rollback
-```
-
-El flujo detallado es:
-
-1. El cliente crea un DTO con los datos del alta.
-2. La factory devuelve `ClientCrudService`.
-3. El servicio valida argumentos formales.
-4. El command comprueba unicidad del NIF.
-5. Si hay recomendador, verifica que exista y que no sea el propio cliente.
-6. Se inserta el cliente.
-7. Se crea su medio de pago `Cash`.
-8. Se registra la recomendación si procede.
-9. Se devuelve el DTO con el identificador generado.
-10. Cualquier fallo provoca rollback del conjunto.
-
-Para una consulta, el sentido es inverso:
-
-```text
-SQL -> ResultSet -> Record -> DTO -> consumidor
-```
-
-Para una escritura:
-
-```text
-DTO -> Record -> PreparedStatement -> SQL
-```
-
----
-
-## 10. Servicios implementados
-
-### 10.1. `ClientCrudService`
-
-Gestiona altas, consultas, listados, actualizaciones, bajas y clientes
-recomendados. La implementación utiliza commands como:
-
-- `AddClient`;
-- `FindClientByNif`;
-- `FindAllClients`;
-- `UpdateClient`;
-- `DeleteClientByNif`;
-- `FindClientsRecommendedBy`.
-
-### 10.2. `MechanicCrudService`
-
-Gestiona altas, consultas por ID o NIF, listados, actualizaciones y bajas de
-mecánicos. Utiliza records con versión y controla conflictos de actualización.
-
-### 10.3. `InvoicingService`
-
-Expone:
-
-- búsqueda de órdenes por cliente;
-- búsqueda de órdenes no facturadas;
-- búsqueda por matrícula;
-- creación de facturas;
-- búsqueda por número;
-- consulta de medios de pago;
-- liquidación de facturas.
-
-La creación exige órdenes existentes y en estado `APPROVED`. La liquidación
-recibe un `Map<String, BigDecimal>` donde la clave es el ID del medio de pago
-y el valor es el importe que se carga.
-
-### 10.4. `VoucherGenerationService`
-
-Genera bonos según las tres políticas descritas, consulta bonos por NIF y
-devuelve el resumen agregado ordenado por importe disponible descendente.
-
-### 10.5. Servicios aún representados por contrato
-
-El contrato contempla también operaciones de vehículos, tipos de vehículo,
-órdenes, intervenciones, repuestos, historial de clientes y medios de pago.
-La regla para trabajar en este repositorio es conservar la estructura completa
-de paquetes y hacer explícito cualquier método fuera del alcance mediante
-`NotYetImplementedException`; nunca devolver `null` silenciosamente.
-
----
-
-## 11. Persistencia y SQL
-
-### 11.1. SQL externalizado
-
-Las consultas deben vivir en `src/queries.properties`. La clase `Queries`
-resuelve las claves y evita que el SQL quede disperso por los gateways.
-
-Ventajas:
-
-- revisión centralizada de consultas;
-- menor acoplamiento entre Java y SQL;
-- facilidad para adaptar consultas al motor soportado;
-- menor riesgo de concatenar valores de usuario.
-
-Siempre se deben utilizar parámetros en `PreparedStatement`; no se debe
-concatenar NIFs, códigos, matrículas o importes en SQL.
-
-### 11.2. Propiedades de conexión
-
-`src/connection.properties` contiene la configuración de la conexión JDBC.
-Debe ser coherente con el servidor HSQLDB iniciado para las pruebas o la
-ejecución manual.
-
-### 11.3. Recursos de persistencia
-
-Las implementaciones JDBC deben:
-
-1. obtener la conexión asociada al hilo;
-2. cargar la consulta por su clave;
-3. preparar la sentencia;
-4. enlazar parámetros;
-5. ejecutar la operación;
-6. ensamblar records si hay resultados;
-7. convertir `SQLException` en la excepción de persistencia del proyecto;
-8. liberar recursos mediante `try-with-resources`.
-
----
-
-## 12. Transacciones y concurrencia
-
-### 12.1. Atomicidad
-
-Las operaciones que modifican varias tablas deben ejecutarse en una única
-transacción. Ejemplos:
-
-- alta de cliente + efectivo + recomendación;
-- alta de tarjeta o bono;
-- creación de factura + relación con órdenes;
-- liquidación + cargos + actualización de medios + estado `PAID`;
-- generación de bono + marcas de hechos consumidos.
-
-El patrón esperado es:
-
-```text
-begin
-  paso 1
-  paso 2
-  paso 3
-commit
-```
-
-Ante una excepción:
-
-```text
-rollback
-```
-
-`CommandExecutor` centraliza este comportamiento. Los servicios no deben abrir
-transacciones independientes para cada suboperación.
-
-### 12.2. Consistencia
-
-El orden de borrado debe respetar las claves ajenas. En una jerarquía de
-medios de pago, normalmente se elimina primero la fila especializada y
-después la fila común de `TPaymentMeans`, salvo que el esquema indique otro
-orden.
-
-### 12.3. Versionado
-
-Las actualizaciones deben incluir la versión leída. Si ninguna fila se
-actualiza porque la versión cambió, se informa de un conflicto en lugar de
-sobrescribir datos de otra operación.
-
----
-
-## 13. Excepciones y validación
-
-### `IllegalArgumentException`
-
-Se utiliza para argumentos formalmente inválidos:
-
-- DTO nulo;
-- identificador nulo;
-- cadena vacía o en blanco;
-- lista nula o vacía;
-- importe nulo;
-- clave nula en el mapa de cargos.
-
-### `BusinessException`
-
-Se utiliza cuando el argumento tiene forma correcta, pero la operación viola
-una regla:
-
-- NIF duplicado;
-- recomendador inexistente;
-- cliente con vehículos que se intenta borrar;
-- tarjeta caducada;
-- bono sin saldo suficiente;
-- factura ya pagada;
-- suma de cargos distinta al total;
-- orden no aprobada para facturar.
-
-### Excepción de persistencia
-
-Los errores de JDBC se encapsulan en la excepción de persistencia del proyecto.
-La capa de presentación decide cómo mostrarlos; la persistencia no imprime
-trazas ni interactúa con el usuario.
-
-### Operaciones no implementadas
-
-Cuando un contrato incluye una operación fuera del alcance de esta entrega,
-debe utilizarse `NotYetImplementedException`. No son válidos los fallos
-silenciosos:
+**Ubicación:** `uo/ri/cws/application/persistence/vehicle/impl/VehicleGatewayImpl.java`
 
 ```java
-return null;
-return Collections.emptyList();
+public class VehicleGatewayImpl implements VehicleGateway {
+    
+    private Datasource datasource;
+    
+    public VehicleGatewayImpl(Datasource datasource) {
+        this.datasource = datasource;
+    }
+    
+    @Override
+    public VehicleRecord add(VehicleRecord record) throws PersistenceException {
+        try (var connection = datasource.getConnection();
+             var stmt = connection.prepareStatement(
+                 Queries.getQuery("TVEHICLES_ADD"))) {
+            
+            stmt.setString(1, record.getId());
+            stmt.setString(2, record.getLicensePlate());
+            stmt.setString(3, record.getMake());
+            stmt.setString(4, record.getModel());
+            stmt.setInt(5, record.getYear());
+            stmt.setString(6, record.getClientNif());
+            
+            stmt.executeUpdate();
+            return record;
+            
+        } catch (SQLException e) {
+            throw new PersistenceException("Error al agregar vehículo", e);
+        }
+    }
+    
+    @Override
+    public VehicleRecord findById(String id) throws PersistenceException {
+        try (var connection = datasource.getConnection();
+             var stmt = connection.prepareStatement(
+                 Queries.getQuery("TVEHICLES_FIND_BY_ID"))) {
+            
+            stmt.setString(1, id);
+            var rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return new VehicleRecord(
+                    rs.getString("id"),
+                    rs.getString("license_plate"),
+                    rs.getString("make"),
+                    rs.getString("model"),
+                    rs.getInt("year"),
+                    rs.getString("client_nif")
+                );
+            }
+            return null;
+            
+        } catch (SQLException e) {
+            throw new PersistenceException("Error al buscar vehículo", e);
+        }
+    }
+    
+    // Implementar update(), delete(), findByClientNif() de forma similar...
+}
 ```
 
-si hacen creer que la operación se completó correctamente.
+### Paso 8: Agregar Queries a properties
 
----
+**Ubicación:** `queries.properties`
 
-## 14. Configuración y ejecución
-
-### 14.1. Requisitos
-
-- JDK 21;
-- Maven;
-- HSQLDB 2.7.2;
-- acceso a los recursos del proyecto;
-- una base de datos configurada mediante `connection.properties`.
-
-La versión Java está fijada en el `pom.xml` raíz mediante:
-
-```xml
-<release>21</release>
+```properties
+# Vehicles
+TVEHICLES_ADD = INSERT INTO TVEHICLES (id, license_plate, make, model, year, client_nif) VALUES (?, ?, ?, ?, ?, ?)
+TVEHICLES_FIND_BY_ID = SELECT id, license_plate, make, model, year, client_nif FROM TVEHICLES WHERE id = ?
+TVEHICLES_UPDATE = UPDATE TVEHICLES SET license_plate = ?, make = ?, model = ?, year = ? WHERE id = ?
+TVEHICLES_DELETE = DELETE FROM TVEHICLES WHERE id = ?
+TVEHICLES_FIND_BY_CLIENT = SELECT id, license_plate, make, model, year, client_nif FROM TVEHICLES WHERE client_nif = ?
 ```
 
-### 14.2. Arrancar HSQLDB
+### Paso 9: Registrar en ServiceFactory
 
-Desde `cws2026/cws_database`:
+**Ubicación:** `ServiceFactoryImpl.java`
 
-```bat
-1.startup.bat
+Agregamos getter:
+```java
+public VehicleGateway getVehicleGateway() {
+    return new VehicleGatewayImpl(datasource);
+}
+
+public VehicleCrudService getVehicleCrudService() {
+    return new VehicleCrudServiceImpl(commandExecutor);
+}
 ```
 
-En sistemas Unix-like:
+### Paso 10: Crear Menú en la UI
 
-```bash
-./1.startup.sh
-```
-
-El script utiliza `hsqldb-2.7.2.jar` y arranca el servidor HSQLDB. Los scripts
-adicionales permiten abrir el manager, reiniciar la base de datos y activar el
-modo legacy.
-
-### 14.3. Configurar la conexión
-
-Revisar:
-
-```text
-cws2026/cws_services_jdbc/src/connection.properties
-cws2026/cws_services_jdbc/src/queries.properties
-```
-
-No se deben introducir credenciales reales ni datos sensibles en el
-repositorio.
-
-### 14.4. Compilar
-
-Desde `cws2026`:
-
-```bash
-mvn clean verify
-```
-
-Para compilar solo la implementación JDBC y sus dependencias:
-
-```bash
-mvn -pl cws_services_jdbc -am clean package
-```
-
-Para ejecutar los tests del módulo de servicios:
-
-```bash
-mvn -pl cws_service_tests -am test
-```
-
-El módulo de tests está configurado para ejecutar `RunServiceTests.java`.
-
----
-
-## 15. Pruebas
-
-Las pruebas del repositorio combinan:
-
-- **Cucumber** para aceptación y comportamiento funcional;
-- **JUnit Jupiter** para robustez, validaciones y casos límite.
-
-La estructura de aceptación sigue una relación directa:
-
-```text
-feature
-  -> scenario class
-      -> fixtures
-      -> record builders
-      -> DTO builders
-      -> assertions
-```
-
-Para cada nueva funcionalidad JDBC se deben cubrir como mínimo:
-
-1. caso feliz;
-2. argumento nulo o vacío;
-3. entidad inexistente;
-4. duplicado;
-5. violación de regla de negocio;
-6. rollback ante fallo intermedio;
-7. restricciones de integridad referencial;
-8. repetición de la operación;
-9. concurrencia o conflicto de versión cuando aplique.
-
-Las fixtures no sustituyen a la lógica de producción: sirven para construir
-estados iniciales controlados y verificar resultados.
-
----
-
-## 16. Guía de implementación
-
-Esta es la secuencia recomendada para implementar un caso de uso nuevo dentro
-de `cws_services_jdbc`.
-
-### Paso 1. Leer el contrato
-
-Comenzar por la interfaz de `cws_service_interfaces`:
-
-- firma;
-- DTOs;
-- excepciones;
-- precondiciones;
-- postcondiciones;
-- estados permitidos.
-
-El contrato es la fuente de verdad de la API.
-
-### Paso 2. Identificar el modelo persistente
-
-Localizar las tablas implicadas y sus relaciones. Determinar:
-
-- clave primaria;
-- claves ajenas;
-- restricciones de unicidad;
-- columnas de versión;
-- tablas padre e hija;
-- relaciones que deben actualizarse conjuntamente.
-
-### Paso 3. Diseñar o revisar el gateway
-
-Añadir únicamente operaciones de persistencia, por ejemplo:
+**Ubicación:** `uo/ri/cws/application/ui/foreman/vehicle/VehicleMenu.java`
 
 ```java
-Optional<ClientRecord> findByNif(String nif);
-List<ClientRecord> findAll();
-void add(ClientRecord record);
-void update(ClientRecord record);
-void remove(String id);
+public class VehicleMenu extends BaseMenu {
+    
+    private VehicleCrudService service;
+    
+    @Override
+    protected Map<String, Action> createOptions() {
+        var options = new LinkedHashMap<String, Action>();
+        
+        options.put("1", new Action("Agregar vehículo") {
+            @Override
+            public void execute() {
+                var dto = new VehicleDto();
+                dto.id = readString("ID: ");
+                dto.licensePlate = readString("Placa: ");
+                dto.make = readString("Marca: ");
+                dto.model = readString("Modelo: ");
+                dto.year = readInt("Año: ");
+                dto.clientNif = readString("NIF cliente: ");
+                
+                var result = service.add(dto);
+                System.out.println("Vehículo agregado: " + result.licensePlate);
+            }
+        });
+        
+        options.put("2", new Action("Buscar por ID") {
+            @Override
+            public void execute() {
+                String id = readString("ID: ");
+                var result = service.findById(id);
+                System.out.println(result.licensePlate + " (" + 
+                                  result.make + " " + result.model + ")");
+            }
+        });
+        
+        // Agregar más opciones...
+        
+        return options;
+    }
+    
+    @Override
+    protected void onLoad() {
+        service = Factories.getInstance().getServiceFactory()
+                          .getVehicleCrudService();
+    }
+}
 ```
-
-El gateway no debe aplicar reglas de presentación ni devolver DTOs.
-
-### Paso 4. Crear o ajustar el record
-
-El record debe contener los datos necesarios para persistir y reconstruir la
-entidad, incluidos metadatos como `id` y `version` cuando correspondan.
-
-### Paso 5. Crear el assembler
-
-Mapear explícitamente las columnas del `ResultSet`. Si hay una jerarquía,
-construir la especialización correcta (`CashRecord`, `CardRecord` o
-`VoucherRecord`).
-
-### Paso 6. Externalizar SQL
-
-Añadir las consultas a `queries.properties` con nombres consistentes. Usar
-parámetros y comprobar que la consulta funciona en HSQLDB.
-
-### Paso 7. Implementar el command
-
-El command debe coordinar los gateways implicados y devolver el resultado
-necesario. Debe ser pequeño, expresivo y testeable.
-
-### Paso 8. Implementar el servicio
-
-El servicio:
-
-1. valida argumentos formales;
-2. construye el command;
-3. solicita su ejecución;
-4. convierte records a DTOs;
-5. propaga las excepciones previstas por el contrato.
-
-Un servicio no debe llamar a otro servicio. Si necesita una comprobación,
-utiliza el gateway correspondiente dentro del mismo command y transacción.
-
-### Paso 9. Registrar la implementación en la factory
-
-El consumidor debe pedir una interfaz a `ServiceFactory`; nunca instanciar
-directamente una clase `Impl`.
-
-### Paso 10. Probar límites e integridad
-
-Añadir escenarios para las restricciones y comprobar que los fallos hacen
-rollback. No basta con probar únicamente el resultado del caso feliz.
 
 ---
 
-## 17. Convenciones y checklist
+## Resumen
 
-Antes de considerar terminada una modificación:
+**Cuando agregues una nueva entidad, recuerda:**
 
-- [ ] El cambio está dentro de `cws_services_jdbc`.
-- [ ] Se ha leído y respetado el contrato de servicio.
-- [ ] Las consultas SQL están externalizadas.
-- [ ] No se concatena entrada de usuario en SQL.
-- [ ] Las operaciones multi-tabla usan una única transacción.
-- [ ] Los gateways no devuelven DTOs.
-- [ ] Los servicios no conocen `ResultSet` ni SQL.
-- [ ] Los servicios no llaman a otros servicios.
-- [ ] Los DTOs no se usan como records JDBC.
-- [ ] Las restricciones de integridad referencial están cubiertas.
-- [ ] Se utilizan `BusinessException` e `IllegalArgumentException` en el lugar
-      correcto.
-- [ ] Las operaciones fuera de alcance fallan explícitamente.
-- [ ] Las actualizaciones respetan la versión.
-- [ ] No hay `println`, código muerto ni excepciones ignoradas sin motivo.
-- [ ] El código compila con Java 21 sin warnings relevantes.
-- [ ] Los tests de aceptación y robustez pasan.
-- [ ] Se ha verificado el rollback de los casos compuestos.
+1. **BD primero**: Crear tabla en base de datos
+2. **DTO**: Definir en interfaz de Service
+3. **Record**: Clase que representa fila de BD
+4. **Gateway interface**: Qué operaciones son posibles
+5. **Assembler**: Convertir DTO ↔ Record
+6. **Commands**: Encapsular acciones
+7. **Service**: Orquestar Commands
+8. **Gateway impl**: Ejecutar SQL realmente
+9. **Queries.properties**: Guardar SQL
+10. **ServiceFactory**: Registrar nuevos servicios
+11. **UI/Menu**: Interfaz con usuario
 
----
-
-## 18. Limitaciones conocidas
-
-El repositorio contiene una estructura docente amplia y la entrega se centra
-en `cws_services_jdbc`. Por ello, algunas interfaces del contrato general
-pueden conservar operaciones o menús todavía no implementados para esta
-ampliación. En el código actual esas operaciones deben permanecer claramente
-identificadas mediante `NotYetImplementedException`.
-
-Esta documentación describe tanto el modelo completo exigido por el dominio
-como la superficie efectivamente relevante para la implementación JDBC. No
-debe interpretarse que un método declarado en una interfaz está implementado
-solo porque exista su firma.
-
----
-
-## 19. Documentación de referencia
-
-El modelo visual utilizado en este README está versionado en:
-
-```text
-docs/reference/domain-model-extended-v2627.png
+**Patrón de flujo siempre igual:**
+```
+UI → Service (DTO) → Command → Gateway → BD → Gateway → Assembler → Service → UI
 ```
 
-También se incluye la especificación de la ampliación de bonos:
-
-```text
-docs/reference/generacion-de-bonos-2026-2027.pdf
-```
-
-La descripción textual de este README se ha contrastado con el enunciado de la
-práctica, especialmente en lo relativo a:
-
-- estados de órdenes y facturas;
-- condiciones de facturación;
-- pagos fraccionados;
-- validez y consumo de medios de pago;
-- restricciones de borrado;
-- generación de bonos de 20, 25 y 30 euros;
-- separación entre contratos, servicios y persistencia JDBC.
+Este patrón garantiza que el código sea mantenible, testeable y siga los principios SOLID.

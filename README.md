@@ -6,7 +6,8 @@
 3. [Conceptos Fundamentales](#conceptos-fundamentales)
 4. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
 5. [Patrones de Diseño](#patrones-de-diseño)
-6. [Guía de Implementación de una Nueva Entidad](#guía-de-implementación-de-una-nueva-entidad)
+6. [Explicación: Por qué PaymentMean está en Persistence pero no en Service](#explicación-por-qué-paymentmean-está-en-persistence-pero-no-en-service)
+7. [Guía de Implementación de una Nueva Entidad](#guía-de-implementación-de-una-nueva-entidad)
 
 ---
 
@@ -462,6 +463,98 @@ public class Factories {
 ```
 
 **Ubicación:** `Factories.java`
+
+---
+
+## Explicación: Por qué PaymentMean está en Persistence pero no en Service
+
+Una pregunta muy común es: **¿Por qué existe `PaymentMeanGateway` en la capa de persistencia si no hay `PaymentMeanService` en la capa de aplicación?**
+
+### Respuesta: Arquitectura vs. Requisitos
+
+#### 1. **PaymentMeanGateway SÍ se usa (internamente)**
+
+Cuando agregas un cliente mediante `AddClient`, el sistema automáticamente:
+
+```java
+// En AddClient.execute() - uo/ri/cws/application/service/client/commands/AddClient.java
+
+// 1. Se crea el cliente
+ClientRecord record = ClientDtoAssembler.toRecord(client);
+clients.add(record);
+
+// 2. Se crea automáticamente un medio de pago CASH por defecto
+PaymentMeanRecord cashRecord = new PaymentMeanRecord();
+cashRecord.id = UUID.randomUUID().toString();
+cashRecord.dtype = "Cash";
+cashRecord.clientId = record.id;
+cashRecord.accumulated = java.math.BigDecimal.ZERO;
+paymentMeans.add(cashRecord);  // ← Usa PaymentMeanGateway
+
+// 3. Se registra el Cash específico
+CashGateway.CashRecord child = new CashGateway.CashRecord();
+child.id = cashRecord.id;
+cash.add(child);
+```
+
+**Conclusión: PaymentMeanGateway se usa, pero internamente, no expuesto al usuario.**
+
+#### 2. **No hay PaymentMeanService porque no lo requieren los tests**
+
+```
+┌─ Test 0 (UO % 3 == 0)
+│  └─ Bonos por recomendaciones + Gestión CASH + Listado bonos
+│     └─ REQUERIRÍA: PaymentMeanService (gestionar CASH manualmente)
+│
+├─ Test 1 (UO % 3 == 1) ✅ TÚ LO TIENES
+│  └─ Bonos por 3 órdenes + Gestión clientes
+│     └─ Solo genera VOUCHERS automáticamente
+│     └─ CASH se crea automáticamente en AddClient
+│     └─ NO REQUIERE: PaymentMeanService
+│
+└─ Test 2 (UO % 3 == 2)
+   └─ Bonos por órdenes + Facturas + Gestión CASH
+      └─ REQUERIRÍA: PaymentMeanService (gestionar pagos CASH)
+```
+
+#### 3. **Estructura de capas**
+
+```
+CAPA UI (Menus):
+├─ ClientMenu ✅ (Agregar, buscar, eliminar clientes)
+├─ VoucherMenu ✅ (Listar bonos generados)
+└─ PaymentMeanMenu ❌ (NO existe - No requerido en Test 1)
+                       ↓
+CAPA SERVICE (Lógica de negocio):
+├─ ClientCrudService ✅ (add, delete, find)
+├─ VoucherGenerationService ✅ (generateVouchers, findVouchers)
+└─ PaymentMeanService ❌ (NO implementada - No requerida)
+                       ↓
+CAPA PERSISTENCE (Acceso a BD):
+├─ ClientGateway ✅ (add, delete, find)
+├─ VoucherGateway ✅ (add, findByClient)
+├─ PaymentMeanGateway ✅ (add - usado internamente por AddClient)
+└─ CashGateway ✅ (add - usado internamente por AddClient)
+```
+
+#### 4. **¿Por qué mantener PaymentMeanGateway si no está expuesto?**
+
+**Razones arquitectónicas:**
+
+1. **Extensibilidad**: Si en el futuro necesitas agregar Test 0 o Test 2, el Gateway ya existe
+2. **Separación de responsabilidades**: La lógica de pagos está centralizada en su propio Gateway
+3. **Mantenibilidad**: El código es más limpio y estructurado
+4. **Principio SOLID**: Cada Gateway maneja una única entidad
+
+#### 5. **Resumen**
+
+| Componente | Ubicación | ¿Se usa? | ¿Para qué? |
+|---|---|---|---|
+| `PaymentMeanGateway` | Persistence | ✅ Sí (internamente) | Crear medio de pago CASH al agregar cliente |
+| `PaymentMeanService` | Service | ❌ No | Gestionar pagos manualmente (requieren Tests 0 o 2) |
+| `PaymentMeanMenu` | UI | ❌ No | Interfaz para gestionar pagos (requieren Tests 0 o 2) |
+
+**Conclusión: Es correcto y necesario tener `PaymentMeanGateway` en persistence aunque no haya `PaymentMeanService` en la capa de aplicación. El Gateway se usa internamente en `AddClient` para crear un medio de pago CASH automático cuando se registra un nuevo cliente.**
 
 ---
 

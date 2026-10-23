@@ -6,8 +6,9 @@
 3. [Conceptos Fundamentales](#conceptos-fundamentales)
 4. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
 5. [Patrones de Diseño](#patrones-de-diseño)
-6. [Explicación: Por qué PaymentMean está en Persistence pero no en Service](#explicación-por-qué-paymentmean-está-en-persistence-pero-no-en-service)
-7. [Guía de Implementación de una Nueva Entidad](#guía-de-implementación-de-una-nueva-entidad)
+6. [Patrón: Table Data Gateway (TDG) Puro](#patrón-table-data-gateway-tdg-puro)
+7. [Explicación: Por qué PaymentMean está en Persistence pero no en Service](#explicación-por-qué-paymentmean-está-en-persistence-pero-no-en-service)
+8. [Guía de Implementación de una Nueva Entidad](#guía-de-implementación-de-una-nueva-entidad)
 
 ---
 
@@ -463,6 +464,257 @@ public class Factories {
 ```
 
 **Ubicación:** `Factories.java`
+
+---
+
+## Patrón: Table Data Gateway (TDG) Puro
+
+### ¿Qué es TDG (Table Data Gateway)?
+
+**TDG** es un patrón arquitectónico que establece: **Un Gateway por tabla, un Record por tabla**.
+
+**Principio fundamental:**
+```
+1 Tabla de BD = 1 Gateway = 1 Record
+```
+
+### Implementación en este Proyecto
+
+Este proyecto implementa **TDG Puro**, donde cada tabla en la base de datos tiene su Gateway correspondiente:
+
+#### Estructura de Persistencia
+
+```
+BASE DE DATOS                   GATEWAYS (Java)
+┌─────────────────────┐        ┌──────────────────────────┐
+│ TPAYMENTMEANS       │ ←────→ │ PaymentMeanGateway       │
+│ (tabla base)        │        │ ├─ PaymentMeanRecord     │
+└─────────────────────┘        └──────────────────────────┘
+
+┌─────────────────────┐        ┌──────────────────────────┐
+│ TCREDITCARDS        │ ←────→ │ CardGateway              │
+│ (tabla específica)  │        │ ├─ CardRecord            │
+└─────────────────────┘        └──────────────────────────┘
+
+┌─────────────────────┐        ┌──────────────────────────┐
+│ TVOUCHERS           │ ←────→ │ VoucherGateway           │
+│ (tabla específica)  │        │ ├─ VoucherRecord         │
+└─────────────────────┘        └──────────────────────────┘
+
+┌─────────────────────┐        ┌──────────────────────────┐
+│ TCASH               │ ←────→ │ CashGateway              │
+│ (tabla específica)  │        │ ├─ CashRecord            │
+└─────────────────────┘        └──────────────────────────┘
+```
+
+### Ejemplo Detallado: PaymentMean
+
+#### Tabla Base: TPAYMENTMEANS
+
+```sql
+CREATE TABLE TPAYMENTMEANS (
+    id VARCHAR(255) PRIMARY KEY,
+    dtype VARCHAR(50) NOT NULL,    -- Tipo: Cash, CreditCard, Voucher
+    client_id VARCHAR(255),
+    accumulated DECIMAL(10,2),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    version BIGINT
+);
+```
+
+#### Gateway Base: PaymentMeanGateway
+
+```java
+public interface PaymentMeanGateway extends Gateway<PaymentMeanRecord> {
+    
+    // ✓ Responsabilidad: Gestionar TPAYMENTMEANS (tabla base)
+    Optional<PaymentMeanRecord> findById(String id);
+    void add(PaymentMeanRecord record);
+    void update(PaymentMeanRecord record);
+    
+    // ✓ Método polimórfico que retorna Record base
+    List<PaymentMeanRecord> findByClientNif(String nif);
+    
+    class PaymentMeanRecord extends BaseRecord {
+        public String clientId;
+        public BigDecimal accumulated;
+        public String dtype;        // Discriminador: Cash, CreditCard, Voucher
+    }
+    // ✗ SIN Records de subclases (CashRecord, CardRecord, VoucherRecord)
+    // Cada subclase vive en su Gateway correspondiente
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/persistence/paymentmean/`
+
+#### Tabla Específica: TCREDITCARDS
+
+```sql
+CREATE TABLE TCREDITCARDS (
+    id VARCHAR(255) PRIMARY KEY,
+    card_number VARCHAR(19) UNIQUE NOT NULL,
+    card_type VARCHAR(50),
+    card_valid_thru DATE,
+    FOREIGN KEY (id) REFERENCES TPAYMENTMEANS(id)
+);
+```
+
+#### Gateway Específico: CardGateway
+
+```java
+public interface CardGateway extends Gateway<CardRecord> {
+    
+    // ✓ Responsabilidad: Gestionar TCREDITCARDS (tabla específica)
+    Optional<CardRecord> findById(String id);
+    void add(CardRecord record);
+    Optional<CardRecord> findByNumber(String number);
+    
+    class CardRecord extends BaseRecord {
+        public String number;
+        public String type;
+        public YearMonth validThru;
+        // ✓ Campos completos de TCREDITCARDS
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/persistence/card/`
+
+#### Tabla Específica: TVOUCHERS
+
+```sql
+CREATE TABLE TVOUCHERS (
+    id VARCHAR(255) PRIMARY KEY,
+    voucher_code VARCHAR(255) UNIQUE NOT NULL,
+    voucher_description VARCHAR(255),
+    voucher_available DECIMAL(10,2),
+    FOREIGN KEY (id) REFERENCES TPAYMENTMEANS(id)
+);
+```
+
+#### Gateway Específico: VoucherGateway
+
+```java
+public interface VoucherGateway extends Gateway<VoucherRecord> {
+    
+    // ✓ Responsabilidad: Gestionar TVOUCHERS (tabla específica)
+    Optional<VoucherRecord> findById(String id);
+    void add(VoucherRecord record);
+    Optional<VoucherRecord> findByCode(String code);
+    
+    class VoucherRecord extends BaseRecord {
+        public String clientId;
+        public BigDecimal accumulated;
+        public String code;
+        public String description;
+        public BigDecimal available;
+        // ✓ Campos completos de TVOUCHERS + herencia
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/persistence/voucher/`
+
+#### Tabla Específica: TCASH
+
+```sql
+CREATE TABLE TCASH (
+    id VARCHAR(255) PRIMARY KEY,
+    FOREIGN KEY (id) REFERENCES TPAYMENTMEANS(id)
+);
+```
+
+#### Gateway Específico: CashGateway
+
+```java
+public interface CashGateway extends Gateway<CashRecord> {
+    
+    // ✓ Responsabilidad: Gestionar TCASH (tabla específica)
+    void add(CashRecord record);
+    
+    class CashRecord extends BaseRecord {
+        // ✓ No tiene campos específicos, solo hereda id y campos base
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/persistence/cash/`
+
+### Conversión de Registros: Assembler
+
+El **Assembler** es responsable de convertir ResultSet → Records específicos:
+
+```java
+public class PaymentMeanRecordAssembler extends BaseRecordAssembler<PaymentMeanRecord> {
+    
+    private PaymentMeanRecord toCurrentRecord(ResultSet rs) throws SQLException {
+        String type = rs.getString("dtype");
+        PaymentMeanRecord record;
+        
+        if ("CreditCard".equals(type)) {
+            // ✓ Importa de CardGateway, NO de PaymentMeanGateway
+            CardRecord card = new CardRecord();
+            card.number = rs.getString("card_number");
+            card.type = rs.getString("card_type");
+            card.validThru = rs.getYearMonth("card_valid_thru");
+            record = card;
+        } else if ("Voucher".equals(type)) {
+            // ✓ Importa de VoucherGateway, NO de PaymentMeanGateway
+            VoucherRecord voucher = new VoucherRecord();
+            voucher.code = rs.getString("voucher_code");
+            voucher.description = rs.getString("voucher_description");
+            voucher.available = rs.getBigDecimal("voucher_available");
+            record = voucher;
+        } else {
+            // ✓ Importa de CashGateway, NO de PaymentMeanGateway
+            record = new CashRecord();
+        }
+        
+        // Campos comunes a todos
+        record.id = rs.getString("id");
+        record.clientId = rs.getString("client_id");
+        record.accumulated = rs.getBigDecimal("accumulated");
+        record.dtype = type;
+        return record;
+    }
+}
+```
+
+**Ubicación:** `uo/ri/cws/application/persistence/paymentmean/impl/PaymentMeanRecordAssembler.java`
+
+### Ventajas de TDG Puro
+
+1. **Claridad arquitectónica:** Cada Gateway = Una tabla, sin excepciones
+2. **Separación de responsabilidades:** Cada Gateway es responsable SOLO de su tabla
+3. **Escalabilidad:** Nuevo tipo de pago = Nuevo Gateway (sin modificar existentes)
+4. **Mantenibilidad:** Fácil localizar dónde se accede a qué tabla
+5. **Testabilidad:** Cada Gateway es independiente y fácil de mockear
+
+### Flujo Completo: Creación de Cliente con CASH
+
+```
+1. [UI] Usuario agrega cliente
+   ↓
+2. [SERVICE] AddClient.execute()
+   ├─ Crea ClientRecord
+   ├─ Llama: clients.add(clientRecord)
+   │
+   ├─ Crea PaymentMeanRecord (base)
+   ├─ Llama: paymentMeans.add(paymentMeanRecord)  // PaymentMeanGateway
+   │
+   ├─ Crea CashRecord (específico)
+   └─ Llama: cash.add(cashRecord)                 // CashGateway
+   ↓
+3. [PERSISTENCE] Se ejecutan 3 INSERTs:
+   ├─ INSERT INTO TCLIENTS (...)
+   ├─ INSERT INTO TPAYMENTMEANS (..., dtype='Cash')
+   └─ INSERT INTO TCASH (id)
+```
+
+### Conclusión sobre TDG Puro
+
+Este proyecto implementa **Table Data Gateway Puro**: cada Gateway gestiona exactamente una tabla, y cada Record representa exactamente los campos de esa tabla. Esto proporciona una arquitectura limpia, escalable y mantenible.
 
 ---
 

@@ -9,7 +9,7 @@ import uo.ri.cws.application.service.mechanic.MechanicCrudService;
 import uo.ri.cws.application.service.mechanic.crud.MechanicCrudServiceImpl;
 import uo.ri.cws.application.service.paymentmean.PaymentMeanCrudService;
 import uo.ri.cws.application.service.paymentmean.VoucherGenerationService;
-import uo.ri.cws.application.service.paymentmean.VoucherGenerationServiceImpl;
+import uo.ri.cws.application.service.paymentmean.voucher.VoucherGenerationServiceImpl;
 import uo.ri.cws.application.service.spare.SparePartCrudService;
 import uo.ri.cws.application.service.vehicle.VehicleCrudService;
 import uo.ri.cws.application.service.vehicletype.VehicleTypeCrudService;

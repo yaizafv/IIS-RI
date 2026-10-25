@@ -67,33 +67,13 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public List<PaymentMeanRecord> findByClientNif(String nif) throws PersistenceException {
-        return findMany(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CLIENT_NIF"), nif);
-    }
-
-    @Override
-    public Optional<PaymentMeanRecord> findByVoucherCode(String code) throws PersistenceException {
-        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_VOUCHER_CODE"), code);
-    }
-
-    @Override
-    public Optional<PaymentMeanRecord> findByCardNumber(String number) throws PersistenceException {
-        return findOne(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CARD_NUMBER"), number);
+    public List<PaymentMeanRecord> findByClientId(String clientId) throws PersistenceException {
+        return findMany(Queries.getSQLSentence("TPAYMENTMEANS_FIND_FULL_BY_CLIENT_ID"), clientId);
     }
 
     @Override
     public boolean existsClient(String clientId) throws PersistenceException {
         return exists("TCLIENTS_EXISTS_BY_ID", clientId);
-    }
-
-    @Override
-    public boolean existsCardNumber(String number) throws PersistenceException {
-        return exists("TCREDITCARDS_EXISTS_BY_NUMBER", number);
-    }
-
-    @Override
-    public boolean existsVoucherCode(String code) throws PersistenceException {
-        return exists("TVOUCHERS_EXISTS_BY_CODE", code);
     }
 
     @Override
@@ -114,23 +94,11 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
     }
 
     @Override
-    public void decreaseVoucherAvailable(String id, BigDecimal amount) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_DECREASE_AVAILABLE"))) {
-            pst.setBigDecimal(1, amount);
-            pst.setString(2, id);
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public void removeForClient(String clientId) {
+    public void removeForClient(String clientId) throws PersistenceException {
         execute("TPAYMENTMEANS_DELETE_FOR_CLIENT", clientId);
     }
 
-    private Optional<PaymentMeanRecord> findOne(String sql, String value) {
+    private Optional<PaymentMeanRecord> findOne(String sql, String value) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(sql)) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
@@ -142,7 +110,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
         }
     }
 
-    private List<PaymentMeanRecord> findMany(String sql, String value) {
+    private List<PaymentMeanRecord> findMany(String sql, String value) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(sql)) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
@@ -168,7 +136,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
         pst.setString(8, record.clientId);
     }
 
-    private static boolean exists(String key, String value) {
+    private static boolean exists(String key, String value) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
@@ -179,7 +147,7 @@ public class PaymentMeanGatewayImpl implements PaymentMeanGateway {
         }
     }
 
-    private static void execute(String key, String id) {
+    private static void execute(String key, String id) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, id);
             pst.executeUpdate();

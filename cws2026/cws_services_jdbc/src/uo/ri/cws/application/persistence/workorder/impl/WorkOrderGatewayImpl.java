@@ -152,4 +152,33 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
             throw new PersistenceException(e);
         }
     }
+
+    @Override
+    public List<WorkOrderRecord> findEligibleForVoucher() throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_WORKORDERS_ELIGIBLE"));
+            ResultSet rs = pst.executeQuery()) {
+            List<WorkOrderRecord> result = new ArrayList<>();
+            while (rs.next()) {
+                WorkOrderRecord record = new WorkOrderRecord();
+                record.vehicleId = rs.getString("client_id");
+                record.id = rs.getString("workorder_id");
+                result.add(record);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public void markUsedForVoucher(String id) throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TWORKORDERS_MARK_USED_FOR_VOUCHER"))) {
+            pst.setString(1, id);
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
 }

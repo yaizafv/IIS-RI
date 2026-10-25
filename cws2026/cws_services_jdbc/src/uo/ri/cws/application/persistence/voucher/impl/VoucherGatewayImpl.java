@@ -1,15 +1,12 @@
 package uo.ri.cws.application.persistence.voucher.impl;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
@@ -68,10 +65,10 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     @Override
-    public List<VoucherRecord> findByClientNif(String nif) throws PersistenceException {
+    public List<VoucherRecord> findByClientId(String clientId) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_FIND_FULL_BY_CLIENT_NIF"))) {
-            pst.setString(1, nif);
+            .prepareStatement(Queries.getSQLSentence("TVOUCHERS_FIND_FULL_BY_CLIENT_ID"))) {
+            pst.setString(1, clientId);
             try (ResultSet rs = pst.executeQuery()) {
                 List<VoucherRecord> result = new ArrayList<>();
                 while (rs.next()) {
@@ -85,84 +82,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
     }
 
     @Override
-    public void removeForClient(String clientId) {
+    public void removeForClient(String clientId) throws PersistenceException {
         execute("TVOUCHERS_DELETE_FOR_CLIENT", clientId);
-    }
-
-    @Override
-    public List<SummaryRecord> findSummary() throws PersistenceException {
-        try (
-            PreparedStatement pst = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence("TVOUCHERS_SUMMARY"));
-            ResultSet rs = pst.executeQuery()) {
-            List<SummaryRecord> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(new SummaryRecord(rs.getString("nif"), rs.getString("name"), rs.getString("surname"),
-                    rs.getLong("issuedQty"), rs.getBigDecimal("totalAmount"), rs.getBigDecimal("availableAmount"),
-                    rs.getBigDecimal("consumedAmount")));
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public List<EligibleRecord> findEligibleWorkOrders() throws PersistenceException {
-        return findEligible("TVOUCHERS_WORKORDERS_ELIGIBLE");
-    }
-
-    @Override
-    public List<EligibleRecord> findEligibleRecommendations() throws PersistenceException {
-        return findEligible("TVOUCHERS_RECOMMENDATIONS_ELIGIBLE");
-    }
-
-    @Override
-    public List<EligibleRecord> findEligibleInvoices() throws PersistenceException {
-        return findEligible("TVOUCHERS_INVOICES_ELIGIBLE");
-    }
-
-    @Override
-    public void markWorkOrderUsed(String id) throws PersistenceException {
-        execute("TWORKORDERS_MARK_USED_FOR_VOUCHER", id);
-    }
-
-    @Override
-    public void markRecommendationUsed(String id) throws PersistenceException {
-        execute("TRECOMMENDATIONS_MARK_USED_FOR_VOUCHER", id);
-    }
-
-    @Override
-    public void markInvoiceUsed(String id) throws PersistenceException {
-        execute("TINVOICES_MARK_USED_FOR_VOUCHER", id);
-    }
-
-    @Override
-    public void addGenerated(String clientId, BigDecimal amount, String description) throws PersistenceException {
-        String id = UUID.randomUUID().toString();
-        LocalDateTime now = LocalDateTime.now();
-        try (
-            PreparedStatement parent = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence("TPAYMENTMEANS_ADD_GENERATED"));
-            PreparedStatement voucher = Jdbc.getCurrentConnection()
-                .prepareStatement(Queries.getSQLSentence("TVOUCHERS_ADD"))) {
-            parent.setString(1, id);
-            parent.setTimestamp(2, Timestamp.valueOf(now));
-            parent.setTimestamp(3, Timestamp.valueOf(now));
-            parent.setLong(4, 1);
-            parent.setString(5, "ENABLED");
-            parent.setBigDecimal(6, BigDecimal.ZERO);
-            parent.setString(7, clientId);
-            parent.executeUpdate();
-
-            voucher.setString(1, id);
-            voucher.setString(2, description);
-            voucher.setBigDecimal(3, amount);
-            voucher.setString(4, "V-" + UUID.randomUUID());
-            voucher.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
     }
 
     @Override
@@ -181,7 +102,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
         }
     }
 
-    private Optional<VoucherRecord> findOne(String key, String value) {
+    private Optional<VoucherRecord> findOne(String key, String value) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
@@ -193,20 +114,7 @@ public class VoucherGatewayImpl implements VoucherGateway {
         }
     }
 
-    private List<EligibleRecord> findEligible(String key) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key));
-            ResultSet rs = pst.executeQuery()) {
-            List<EligibleRecord> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(new EligibleRecord(rs.getString(1), rs.getString(2)));
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    private static void execute(String key, String id) {
+    private static void execute(String key, String id) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, id);
             pst.executeUpdate();

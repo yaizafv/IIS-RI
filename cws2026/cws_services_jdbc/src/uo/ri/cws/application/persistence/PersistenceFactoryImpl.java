@@ -22,6 +22,8 @@ import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
 import uo.ri.cws.application.persistence.recommendation.impl.RecommendationGatewayImpl;
 import uo.ri.cws.application.persistence.cash.CashGateway;
 import uo.ri.cws.application.persistence.cash.impl.CashGatewayImpl;
+import uo.ri.cws.application.persistence.vehicle.VehicleGateway;
+import uo.ri.cws.application.persistence.vehicle.impl.VehicleGatewayImpl;
 
 public class PersistenceFactoryImpl implements PersistenceFactory {
 
@@ -78,6 +80,11 @@ public class PersistenceFactoryImpl implements PersistenceFactory {
     @Override
     public CashGateway forCash() {
         return new CashGatewayImpl();
+    }
+
+    @Override
+    public VehicleGateway forVehicle() {
+        return new VehicleGatewayImpl();
     }
 
 }

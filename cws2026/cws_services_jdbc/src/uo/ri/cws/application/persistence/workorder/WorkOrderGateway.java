@@ -57,4 +57,8 @@ public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderReco
     List<WorkOrderRecord> findByClientNif(String nif);
 
     void setInvoiced(String workOrderId, String invoiceId);
+
+    List<WorkOrderRecord> findEligibleForVoucher() throws PersistenceException;
+
+    void markUsedForVoucher(String id) throws PersistenceException;
 }

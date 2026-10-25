@@ -11,6 +11,7 @@ import java.util.UUID;
 import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
 
 public class RecommendationGatewayImpl implements RecommendationGateway {
@@ -46,22 +47,22 @@ public class RecommendationGatewayImpl implements RecommendationGateway {
 
     @Override
     public void remove(String id) {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
     public void update(RecommendationRecord record) {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
     public Optional<RecommendationRecord> findById(String id) {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<RecommendationRecord> findAll() {
-        throw unsupported();
+        throw new NotYetImplementedException();
     }
 
     private static void execute(String recommenderId, String recommendedId) {
@@ -73,10 +74,5 @@ public class RecommendationGatewayImpl implements RecommendationGateway {
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
-    }
-
-    private static PersistenceException unsupported() {
-        return new PersistenceException(
-            new UnsupportedOperationException("Recommendations are managed through their specific operations"));
     }
 }

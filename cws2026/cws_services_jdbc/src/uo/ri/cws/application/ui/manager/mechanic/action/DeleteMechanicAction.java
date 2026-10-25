@@ -12,13 +12,10 @@ public class DeleteMechanicAction implements Action {
 
     @Override
     public void execute() throws BusinessException {
-        // Pedir el ID del mecánico por consola
         String idMechanic = Console.readString("Type mechanic id");
 
-        // Llamar al servicio para borrar
         mechanicService.delete(idMechanic);
 
-        // Mensaje de éxito
         Console.println("Mechanic deleted");
     }
 

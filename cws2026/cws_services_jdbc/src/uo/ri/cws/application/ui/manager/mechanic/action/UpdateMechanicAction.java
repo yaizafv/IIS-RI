@@ -17,14 +17,12 @@ public class UpdateMechanicAction implements Action {
     public void execute() throws BusinessException {
         String id = Console.readString("Type mechanic id to update");
 
-        // Comprobar si existe usando findById del servicio
         Optional<MechanicDto> opt = mechanicService.findById(id);
         if (!opt.isPresent()) {
             Console.println("Mechanic does not exist");
             return;
         }
 
-        // Pedir los nuevos datos
         String name = Console.readString("Name");
         String surname = Console.readString("Surname");
 
@@ -32,7 +30,6 @@ public class UpdateMechanicAction implements Action {
         dto.name = name;
         dto.surname = surname;
 
-        // Actualizar mediante el servicio
         mechanicService.update(dto);
 
         Console.println("Mechanic updated");

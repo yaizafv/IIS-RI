@@ -10,33 +10,34 @@ import java.util.Optional;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
 import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.cws.application.persistence.vehicle.VehicleGateway;
+import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
 
 public class VehicleGatewayImpl implements VehicleGateway {
 
     @Override
     public void add(VehicleRecord record) throws PersistenceException {
-        throw new PersistenceException(new UnsupportedOperationException("Not implemented for Test 1"));
+        throw new NotYetImplementedException();
     }
 
     @Override
     public void remove(String id) throws PersistenceException {
-        throw new PersistenceException(new UnsupportedOperationException("Not implemented for Test 1"));
+        throw new NotYetImplementedException();
     }
 
     @Override
     public void update(VehicleRecord record) throws PersistenceException {
-        throw new PersistenceException(new UnsupportedOperationException("Not implemented for Test 1"));
+        throw new NotYetImplementedException();
     }
 
     @Override
     public Optional<VehicleRecord> findById(String id) throws PersistenceException {
-        throw new PersistenceException(new UnsupportedOperationException("Not implemented for Test 1"));
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<VehicleRecord> findAll() throws PersistenceException {
-        throw new PersistenceException(new UnsupportedOperationException("Not implemented for Test 1"));
+        throw new NotYetImplementedException();
     }
 
     @Override

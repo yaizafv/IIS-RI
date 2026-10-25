@@ -40,7 +40,7 @@ public class GenerateVouchers implements Command<int[]> {
     }
 
     private int generateFromWorkOrders(WorkOrderGateway workOrders, VoucherGateway vouchers,
-            PaymentMeanGateway paymentMeans) {
+        PaymentMeanGateway paymentMeans) {
         List<WorkOrderRecord> eligible = workOrders.findEligibleForVoucher();
         List<EligibleWorkOrder> eligibleList = convertToEligible(eligible);
         Map<String, List<String>> byClientId = groupByClientId(eligibleList);

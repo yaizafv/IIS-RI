@@ -9,32 +9,12 @@ import uo.ri.util.exception.PersistenceException;
 
 public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderRecord> {
 
-    /**
-     * @param workorder Ids, list of workorders to retrieve
-     * @return list of workorder dto whose id is included in the parameter, probably
-     *         empty
-     * @throws PersistenceException
-     */
     List<WorkOrderRecord> findByIds(List<String> workOrderIds);
 
-    /**
-     * @return a list of all work orders for an specific vehicle id
-     * @throws PersistenceException
-     */
     List<WorkOrderRecord> findByVehicleId(String id);
 
-    /**
-     * @param a mechanic id
-     * @return a list of all work orders assigned to this specific mechanic
-     * @throws PersistenceException
-     */
     List<WorkOrderRecord> findByMechanicId(String id);
 
-    /**
-     * @param the state
-     * @return a list of all work orders in the specific state
-     * 
-     */
     List<WorkOrderRecord> findByState(String state);
 
     public static class WorkOrderRecord extends Gateway.BaseRecord {

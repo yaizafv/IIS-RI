@@ -1,6 +1,9 @@
 package uo.ri.cws.application.service.invoice.create;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
 import uo.ri.cws.application.service.invoice.FindNotInvoicedWorkOrdersByClientNif;
@@ -35,21 +38,17 @@ public class InvoicingServiceImpl implements InvoicingService {
     }
 
     @Override
-    public java.util.Optional<InvoiceDto> findInvoiceByNumber(Long number)
-            throws BusinessException {
+    public Optional<InvoiceDto> findInvoiceByNumber(Long number) throws BusinessException {
         throw new NotYetImplementedException();
     }
 
     @Override
-    public List<PaymentMeanDto> findPayMeansByClientNif(String nif)
-            throws BusinessException {
+    public List<PaymentMeanDto> findPayMeansByClientNif(String nif) throws BusinessException {
         throw new NotYetImplementedException();
     }
 
     @Override
-    public void settleInvoice(String invoiceId,
-            java.util.Map<String, java.math.BigDecimal> charges)
-            throws BusinessException {
+    public void settleInvoice(String invoiceId, Map<String, BigDecimal> charges) throws BusinessException {
         throw new NotYetImplementedException();
     }
 

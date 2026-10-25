@@ -3,6 +3,7 @@ package uo.ri.cws.application.service.paymentmean.voucher;
 import java.util.List;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
+import uo.ri.cws.application.service.paymentmean.VoucherGenerationService;
 import uo.ri.cws.application.service.paymentmean.voucher.commands.FindVouchersByClientNif;
 import uo.ri.cws.application.service.paymentmean.voucher.commands.GenerateVouchers;
 import uo.ri.util.exception.BusinessException;

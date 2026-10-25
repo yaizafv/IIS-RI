@@ -1,7 +1,6 @@
 package uo.ri.cws.application.persistence.vehicle;
 
 import java.util.List;
-import java.util.Optional;
 
 import uo.ri.cws.application.persistence.Gateway;
 import uo.ri.util.exception.PersistenceException;

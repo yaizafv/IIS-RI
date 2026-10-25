@@ -1,4 +1,4 @@
-package uo.ri.cws.application.service.paymentmean.commands;
+package uo.ri.cws.application.service.paymentmean.voucher.commands;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

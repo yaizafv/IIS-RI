@@ -3,7 +3,6 @@ package uo.ri.cws.application.persistence.voucher.impl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +42,8 @@ public class VoucherGatewayImpl implements VoucherGateway {
             pst.setString(1, record.description);
             pst.setBigDecimal(2, record.available);
             pst.setString(3, record.code);
-            pst.setTimestamp(4, Timestamp.valueOf(record.updatedAt));
-            pst.setString(5, record.id);
-            pst.setLong(6, record.version);
-            if (pst.executeUpdate() != 1) {
-                throw new PersistenceException(new SQLException("Voucher was not updated"));
-            }
+            pst.setString(4, record.id);
+            pst.executeUpdate();
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }

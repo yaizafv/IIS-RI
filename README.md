@@ -570,11 +570,12 @@ public interface CardGateway extends Gateway<CardRecord> {
     void add(CardRecord record);
     Optional<CardRecord> findByNumber(String number);
     
-    class CardRecord extends BaseRecord {
+    class CardRecord extends PaymentMeanRecord {
         public String number;
         public String type;
         public YearMonth validThru;
-        // ✓ Campos completos de TCREDITCARDS
+        // ✓ Campos completos de TCREDITCARDS + herencia de PaymentMeanRecord
+        // (clientId, accumulated, dtype, id, version, createdAt, updatedAt, entityState)
     }
 }
 ```
@@ -603,13 +604,12 @@ public interface VoucherGateway extends Gateway<VoucherRecord> {
     void add(VoucherRecord record);
     Optional<VoucherRecord> findByCode(String code);
     
-    class VoucherRecord extends BaseRecord {
-        public String clientId;
-        public BigDecimal accumulated;
+    class VoucherRecord extends PaymentMeanRecord {
         public String code;
         public String description;
         public BigDecimal available;
-        // ✓ Campos completos de TVOUCHERS + herencia
+        // ✓ Campos completos de TVOUCHERS + herencia de PaymentMeanRecord
+        // (clientId, accumulated, dtype, id, version, createdAt, updatedAt, entityState)
     }
 }
 ```
@@ -633,8 +633,9 @@ public interface CashGateway extends Gateway<CashRecord> {
     // ✓ Responsabilidad: Gestionar TCASH (tabla específica)
     void add(CashRecord record);
     
-    class CashRecord extends BaseRecord {
-        // ✓ No tiene campos específicos, solo hereda id y campos base
+    class CashRecord extends PaymentMeanRecord {
+        // ✓ No tiene campos específicos, solo hereda campos de PaymentMeanRecord
+        // (clientId, accumulated, dtype, id, version, createdAt, updatedAt, entityState)
     }
 }
 ```

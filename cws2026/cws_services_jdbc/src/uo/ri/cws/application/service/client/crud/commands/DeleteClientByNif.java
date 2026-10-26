@@ -67,8 +67,7 @@ public class DeleteClientByNif implements Command<Void> {
 
     private void checkNoPaidInvoices(ClientRecord client) throws BusinessException {
         for (InvoiceRecord invoice : invoices.findByPayerId(client.id)) {
-            BusinessChecks.isTrue(!PAID.equals(invoice.state),
-                "No se puede eliminar un cliente con facturas pagadas");
+            BusinessChecks.isTrue(!PAID.equals(invoice.state), "No se puede eliminar un cliente con facturas pagadas");
         }
     }
 

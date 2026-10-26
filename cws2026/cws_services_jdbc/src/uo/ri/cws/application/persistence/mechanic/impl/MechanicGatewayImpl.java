@@ -87,8 +87,7 @@ public class MechanicGatewayImpl implements MechanicGateway {
     }
 
     private Optional<MechanicRecord> findOne(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence(key))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
                 return Optional.ofNullable(assembler.toRecord(rs));

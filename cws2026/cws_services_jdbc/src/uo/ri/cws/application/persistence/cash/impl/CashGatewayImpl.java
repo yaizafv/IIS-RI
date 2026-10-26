@@ -39,8 +39,7 @@ public class CashGatewayImpl implements CashGateway {
     }
 
     private static void execute(String queryKey, String id) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence(queryKey))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(queryKey))) {
             pst.setString(1, id);
             pst.executeUpdate();
         } catch (SQLException e) {

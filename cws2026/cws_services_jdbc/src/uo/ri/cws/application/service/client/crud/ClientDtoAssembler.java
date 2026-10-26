@@ -46,8 +46,7 @@ public final class ClientDtoAssembler {
         return record;
     }
 
-    public static RecommendationRecord toRecommendationRecord(String recommenderId,
-        String recommendedId) {
+    public static RecommendationRecord toRecommendationRecord(String recommenderId, String recommendedId) {
         RecommendationRecord record = new RecommendationRecord();
         record.id = UUID.randomUUID().toString();
         record.version = 1;

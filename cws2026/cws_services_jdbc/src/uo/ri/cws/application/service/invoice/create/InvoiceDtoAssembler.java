@@ -9,7 +9,7 @@ import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRec
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
 
-public class DtoAssembler {
+public class InvoiceDtoAssembler {
 
     public static InvoiceDto toDto(InvoiceRecord r) {
         InvoiceDto dto = new InvoiceDto();

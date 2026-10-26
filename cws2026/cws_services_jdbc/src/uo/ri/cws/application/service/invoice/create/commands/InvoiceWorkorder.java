@@ -14,7 +14,7 @@ import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
-import uo.ri.cws.application.service.invoice.create.DtoAssembler;
+import uo.ri.cws.application.service.invoice.create.InvoiceDtoAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 
@@ -54,7 +54,7 @@ public class InvoiceWorkorder implements Command<InvoiceDto> {
             workOrders.add(workOrder);
         }
 
-        InvoiceRecord invoice = DtoAssembler.newInvoiceRecord();
+        InvoiceRecord invoice = InvoiceDtoAssembler.newInvoiceRecord();
         invoice.number = invoiceGateway.findLastNumber().orElse(0L) + 1;
         invoice.vatRate = VAT_RATE;
         invoice.subtotal = subtotal.setScale(2, RoundingMode.HALF_EVEN);
@@ -69,7 +69,7 @@ public class InvoiceWorkorder implements Command<InvoiceDto> {
             workOrder.updatedAt = LocalDateTime.now();
             workOrderGateway.update(workOrder);
         }
-        return DtoAssembler.toDto(invoice);
+        return InvoiceDtoAssembler.toDto(invoice);
     }
 
 }

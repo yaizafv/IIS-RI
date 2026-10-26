@@ -89,8 +89,9 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public Optional<Long> findLastNumber() throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence("TINVOICES_FIND_LAST_NUMBER"));
+        try (
+            PreparedStatement pst = Jdbc.getCurrentConnection()
+                .prepareStatement(Queries.getSQLSentence("TINVOICES_FIND_LAST_NUMBER"));
             ResultSet rs = pst.executeQuery()) {
             if (rs.next()) {
                 long last = rs.getLong(1);

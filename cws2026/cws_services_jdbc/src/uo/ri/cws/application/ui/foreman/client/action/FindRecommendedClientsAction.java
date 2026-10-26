@@ -17,8 +17,7 @@ public class FindRecommendedClientsAction implements Action {
     public void execute() throws BusinessException, UserInteractionException {
         String nif = Console.readString("Recommender nif");
         UserInteractionChecks.isNotEmpty(nif, "The nif cannot be empty");
-        List<ClientDto> clients = Factories.service.forClientCrudService()
-            .findClientsRecommendedBy(nif);
+        List<ClientDto> clients = Factories.service.forClientCrudService().findClientsRecommendedBy(nif);
         Console.println("\nList of recommended clients\n");
         for (ClientDto client : clients) {
             Printer.printClient(client);

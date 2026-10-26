@@ -17,8 +17,7 @@ public class FindVouchersByClientNifAction implements Action {
     public void execute() throws BusinessException, UserInteractionException {
         String nif = Console.readString("Client nif");
         UserInteractionChecks.isNotEmpty(nif, "The nif cannot be empty");
-        List<VoucherDto> vouchers = Factories.service.forVoucherService()
-            .findVouchersByClientNif(nif);
+        List<VoucherDto> vouchers = Factories.service.forVoucherService().findVouchersByClientNif(nif);
         Console.println("\nClient vouchers\n");
         BigDecimal available = BigDecimal.ZERO;
         BigDecimal consumed = BigDecimal.ZERO;

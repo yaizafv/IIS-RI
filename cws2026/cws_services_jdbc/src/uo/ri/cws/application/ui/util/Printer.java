@@ -9,11 +9,9 @@ import uo.ri.util.console.Console;
 public class Printer {
 
     public static void printClient(ClientDto client) {
-        Console.printf(
-            "    %s %-10.10s %-15.15s %-25.25s %-20.20s %-15.15s %-15.15s %-10.10s %-15.15s %-25.25s\n",
-            client.id, client.nif, client.name, client.surname, client.addressStreet,
-            client.addressCity, client.addressCountry, client.addressZipcode, client.phone,
-            client.email);
+        Console.printf("    %s %-10.10s %-15.15s %-25.25s %-20.20s %-15.15s %-15.15s %-10.10s %-15.15s %-25.25s\n",
+            client.id, client.nif, client.name, client.surname, client.addressStreet, client.addressCity,
+            client.addressCountry, client.addressZipcode, client.phone, client.email);
     }
 
     public static void printInvoice(InvoiceDto invoice) {
@@ -26,8 +24,8 @@ public class Printer {
     }
 
     public static void printWorkOrder(InvoicingWorkOrderDto rep) {
-        Console.printf("    %s %-40.40s %td/%<tm/%<tY %-12.12s %.2f\n", rep.id, rep.description,
-            rep.date, rep.state, rep.amount);
+        Console.printf("    %s %-40.40s %td/%<tm/%<tY %-12.12s %.2f\n", rep.id, rep.description, rep.date, rep.state,
+            rep.amount);
     }
 
     public static void printMechanic(MechanicDto m) {

@@ -17,8 +17,7 @@ public class FindClientByNifAction implements Action {
     public void execute() throws BusinessException, UserInteractionException {
         String nif = Console.readString("Client nif");
         UserInteractionChecks.isNotEmpty(nif, "The nif cannot be empty");
-        Optional<ClientDto> client = Factories.service.forClientCrudService()
-            .findClientByNif(nif);
+        Optional<ClientDto> client = Factories.service.forClientCrudService().findClientByNif(nif);
         if (client.isEmpty()) {
             Console.println("There is no client with that nif");
             return;

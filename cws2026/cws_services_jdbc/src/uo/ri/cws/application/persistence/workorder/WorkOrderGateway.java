@@ -13,7 +13,6 @@ public interface WorkOrderGateway extends Gateway<WorkOrderGateway.WorkOrderReco
 
     List<WorkOrderRecord> findByMechanicId(String mechanicId) throws PersistenceException;
 
-
     List<WorkOrderRecord> findNotInvoicedWorkOrdersByClientNif(String nif) throws PersistenceException;
 
     public static class WorkOrderRecord extends Gateway.BaseRecord {

@@ -61,8 +61,7 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
     }
 
     @Override
-    public List<WorkOrderRecord> findNotUsedForVoucherByInvoiceState(String invoiceState)
-        throws PersistenceException {
+    public List<WorkOrderRecord> findNotUsedForVoucherByInvoiceState(String invoiceState) throws PersistenceException {
         return findMany("TWORKORDERS_FIND_NOT_USED_FOR_VOUCHER_BY_INVOICE_STATE", invoiceState);
     }
 
@@ -77,8 +76,7 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
     }
 
     private List<WorkOrderRecord> findMany(String queryKey, String parameter) throws PersistenceException {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence(queryKey))) {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(queryKey))) {
             pst.setString(1, parameter);
             try (ResultSet rs = pst.executeQuery()) {
                 return assembler.toRecordList(rs);

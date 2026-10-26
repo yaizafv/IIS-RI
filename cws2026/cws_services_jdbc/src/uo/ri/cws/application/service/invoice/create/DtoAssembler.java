@@ -1,8 +1,6 @@
 package uo.ri.cws.application.service.invoice.create;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway.InvoiceRecord;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
@@ -35,14 +33,6 @@ public class DtoAssembler {
         return dto;
     }
 
-    public static List<InvoicingWorkOrderDto> toInvoicingWorkOrderDtoList(List<WorkOrderRecord> records) {
-        List<InvoicingWorkOrderDto> res = new ArrayList<>();
-        for (WorkOrderRecord r : records) {
-            res.add(toInvoicingWorkOrderDto(r));
-        }
-        return res;
-    }
-    
     public static InvoiceRecord toRecord(InvoiceDto dto) {
         InvoiceRecord record = new InvoiceRecord();
         record.id = dto.id;

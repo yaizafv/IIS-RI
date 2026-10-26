@@ -72,11 +72,6 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
     }
 
     @Override
-    public List<WorkOrderRecord> findByClientNif(String nif) throws PersistenceException {
-        return findMany("TWORKORDERS_FIND_BY_CLIENT_NIF", nif);
-    }
-
-    @Override
     public List<WorkOrderRecord> findNotInvoicedWorkOrdersByClientNif(String nif) throws PersistenceException {
         return findMany("TWORKORDERS_FIND_NOT_INVOICED_WORK_ORDERS_BY_CLIENT_NIF", nif);
     }

@@ -1,75 +1,56 @@
 package uo.ri.cws.application.persistence.charge.impl;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import uo.ri.cws.application.persistence.charge.ChargeGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.util.jdbc.Queries;
 import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
+import uo.ri.util.jdbc.Queries;
 
 public class ChargeGatewayImpl implements ChargeGateway {
 
+    private final ChargeRecordAssembler assembler = new ChargeRecordAssembler();
+
     @Override
-    public void add(String invoiceId, String paymentMeanId, BigDecimal amount) throws PersistenceException {
-        LocalDateTime now = LocalDateTime.now();
+    public void add(ChargeRecord record) throws PersistenceException {
+        throw new NotYetImplementedException();
+    }
+
+    @Override
+    public void remove(String id) throws PersistenceException {
+        throw new NotYetImplementedException();
+    }
+
+    @Override
+    public void update(ChargeRecord record) throws PersistenceException {
+        throw new NotYetImplementedException();
+    }
+
+    @Override
+    public Optional<ChargeRecord> findById(String id) throws PersistenceException {
+        throw new NotYetImplementedException();
+    }
+
+    @Override
+    public List<ChargeRecord> findAll() throws PersistenceException {
+        throw new NotYetImplementedException();
+    }
+
+    @Override
+    public List<ChargeRecord> findByPaymentMeanId(String paymentMeanId) throws PersistenceException {
         try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence("TCHARGES_ADD"))) {
-            pst.setString(1, UUID.randomUUID().toString());
-            pst.setTimestamp(2, Timestamp.valueOf(now));
-            pst.setString(3, "ENABLED");
-            pst.setTimestamp(4, Timestamp.valueOf(now));
-            pst.setLong(5, 1);
-            pst.setBigDecimal(6, amount);
-            pst.setString(7, invoiceId);
-            pst.setString(8, paymentMeanId);
-            pst.executeUpdate();
+            .prepareStatement(Queries.getSQLSentence("TCHARGES_FIND_BY_PAYMENT_MEAN_ID"))) {
+            pst.setString(1, paymentMeanId);
+            try (ResultSet rs = pst.executeQuery()) {
+                return assembler.toRecordList(rs);
+            }
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
     }
-
-    @Override
-    public void add(ChargeRecord t) {
-        throw new NotYetImplementedException();
-    }
-
-    @Override
-    public void remove(String id) {
-        throw new NotYetImplementedException();
-    }
-
-    @Override
-    public void update(ChargeRecord t) {
-        throw new NotYetImplementedException();
-    }
-
-    @Override
-    public Optional<ChargeRecord> findById(String id) {
-        throw new NotYetImplementedException();
-    }
-
-    @Override
-    public List<ChargeRecord> findAll() {
-        throw new NotYetImplementedException();
-    }
-
-    @Override
-    public void removeForClient(String clientId) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection()
-            .prepareStatement(Queries.getSQLSentence("TCHARGES_DELETE_FOR_CLIENT"))) {
-            pst.setString(1, clientId);
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
 }

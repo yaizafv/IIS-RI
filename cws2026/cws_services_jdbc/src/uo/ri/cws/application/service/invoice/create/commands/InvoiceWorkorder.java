@@ -62,7 +62,7 @@ public class InvoiceWorkorder implements Command<InvoiceDto> {
         dto.subtotal = subtotal.setScale(2, RoundingMode.HALF_EVEN);
         dto.vatAmount = dto.subtotal.multiply(dto.vatPercentage).divide(new BigDecimal("100"), 2,
             RoundingMode.HALF_EVEN);
-        dto.total = dto.subtotal.add(dto.vatAmount).setScale(2, RoundingMode.HALF_UP);
+        dto.total = dto.subtotal.add(dto.vatAmount).setScale(2, RoundingMode.HALF_EVEN);
 
         InvoiceRecord invoice = new InvoiceRecord();
         invoice.id = dto.id;
@@ -79,7 +79,11 @@ public class InvoiceWorkorder implements Command<InvoiceDto> {
         invoiceGateway.add(invoice);
 
         for (String workOrderId : workOrderIds) {
-            workOrderGateway.setInvoiced(workOrderId, dto.id);
+            WorkOrderRecord workOrder = workOrderGateway.findById(workOrderId).get();
+            workOrder.state = "INVOICED";
+            workOrder.invoiceId = dto.id;
+            workOrder.updatedAt = LocalDateTime.now();
+            workOrderGateway.update(workOrder);
         }
         return dto;
     }

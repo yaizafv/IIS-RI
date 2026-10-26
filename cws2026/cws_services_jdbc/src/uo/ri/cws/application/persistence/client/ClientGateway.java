@@ -14,10 +14,6 @@ public interface ClientGateway extends Gateway<ClientGateway.ClientRecord> {
 
     List<ClientRecord> findRecommendedBy(String recommenderNif) throws PersistenceException;
 
-    boolean hasVehicles(String clientId) throws PersistenceException;
-
-    boolean hasPaidInvoices(String clientId) throws PersistenceException;
-
     class ClientRecord extends Gateway.BaseRecord {
         public String nif;
         public String name;

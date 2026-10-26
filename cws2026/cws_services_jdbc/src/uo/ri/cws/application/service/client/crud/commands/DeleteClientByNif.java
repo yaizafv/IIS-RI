@@ -1,4 +1,4 @@
-package uo.ri.cws.application.service.client.commands;
+package uo.ri.cws.application.service.client.crud.commands;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.card.CardGateway;

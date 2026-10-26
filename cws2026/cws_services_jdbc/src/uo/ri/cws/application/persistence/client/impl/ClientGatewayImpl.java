@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class ClientGatewayImpl implements ClientGateway {

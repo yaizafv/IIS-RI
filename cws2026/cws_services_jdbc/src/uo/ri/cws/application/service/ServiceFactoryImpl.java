@@ -1,7 +1,7 @@
 package uo.ri.cws.application.service;
 
 import uo.ri.cws.application.service.client.ClientCrudService;
-import uo.ri.cws.application.service.client.ClientCrudServiceImpl;
+import uo.ri.cws.application.service.client.crud.ClientCrudServiceImpl;
 import uo.ri.cws.application.service.client.ClientHistoryService;
 import uo.ri.cws.application.service.invoice.InvoicingService;
 import uo.ri.cws.application.service.invoice.create.InvoicingServiceImpl;

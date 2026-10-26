@@ -1,15 +1,16 @@
-package uo.ri.cws.application.service.client;
+package uo.ri.cws.application.service.client.crud;
 
 import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.client.commands.AddClient;
-import uo.ri.cws.application.service.client.commands.DeleteClientByNif;
-import uo.ri.cws.application.service.client.commands.FindAllClients;
-import uo.ri.cws.application.service.client.commands.FindClientByNif;
-import uo.ri.cws.application.service.client.commands.FindClientsRecommendedBy;
-import uo.ri.cws.application.service.client.commands.UpdateClient;
+import uo.ri.cws.application.service.client.ClientCrudService;
+import uo.ri.cws.application.service.client.crud.commands.AddClient;
+import uo.ri.cws.application.service.client.crud.commands.DeleteClientByNif;
+import uo.ri.cws.application.service.client.crud.commands.FindAllClients;
+import uo.ri.cws.application.service.client.crud.commands.FindClientByNif;
+import uo.ri.cws.application.service.client.crud.commands.FindClientsRecommendedBy;
+import uo.ri.cws.application.service.client.crud.commands.UpdateClient;
 import uo.ri.util.exception.BusinessException;
 
 public class ClientCrudServiceImpl implements ClientCrudService {

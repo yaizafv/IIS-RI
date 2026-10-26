@@ -33,8 +33,4 @@ public class Jdbc {
         return connection;
     }
 
-    public static void clearThreadConnection() {
-        threadConnection.remove();
-    }
-
 }

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import uo.ri.cws.application.persistence.cash.CashGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.jdbc.Queries;
 import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
 

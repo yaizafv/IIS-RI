@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import uo.ri.cws.application.persistence.charge.ChargeGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.jdbc.Queries;
 import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
 

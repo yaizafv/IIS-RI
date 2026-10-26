@@ -8,6 +8,7 @@ import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoicingWorkOrderDto;
+import uo.ri.cws.application.service.invoice.create.DtoAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 
@@ -33,13 +34,7 @@ public class FindNotInvoicedWorkOrdersByClientNif implements Command<List<Invoic
             if (!"APPROVED".equals(record.state)) {
                 continue;
             }
-            InvoicingWorkOrderDto dto = new InvoicingWorkOrderDto();
-            dto.id = record.id;
-            dto.date = record.date;
-            dto.description = record.description;
-            dto.state = record.state;
-            dto.amount = record.amount;
-            workOrders.add(dto);
+            workOrders.add(DtoAssembler.toInvoicingWorkOrderDto(record));
         }
         return workOrders;
     }

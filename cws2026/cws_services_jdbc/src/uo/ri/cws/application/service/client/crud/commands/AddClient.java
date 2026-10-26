@@ -1,9 +1,5 @@
 package uo.ri.cws.application.service.client.crud.commands;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.cash.CashGateway;
 import uo.ri.cws.application.persistence.cash.CashGateway.CashRecord;
@@ -11,7 +7,6 @@ import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
 import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
-import uo.ri.cws.application.persistence.recommendation.RecommendationGateway.RecommendationRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.service.client.crud.ClientDtoAssembler;
@@ -55,29 +50,11 @@ public class AddClient implements Command<ClientDto> {
 
         ClientRecord record = ClientDtoAssembler.toRecord(client);
         clients.add(record);
-        LocalDateTime now = LocalDateTime.now();
-        CashRecord cashRecord = new CashRecord();
-        cashRecord.id = UUID.randomUUID().toString();
-        cashRecord.version = 1;
-        cashRecord.createdAt = now;
-        cashRecord.updatedAt = now;
-        cashRecord.entityState = "ENABLED";
-        cashRecord.dtype = "Cash";
-        cashRecord.accumulated = BigDecimal.ZERO;
-        cashRecord.clientId = record.id;
+        CashRecord cashRecord = ClientDtoAssembler.toCashRecord(record.id);
         paymentMeans.add(cashRecord);
         cash.add(cashRecord);
         if (recommenderId != null) {
-            RecommendationRecord recommendation = new RecommendationRecord();
-            recommendation.id = UUID.randomUUID().toString();
-            recommendation.version = 1;
-            recommendation.createdAt = now;
-            recommendation.updatedAt = now;
-            recommendation.entityState = "ENABLED";
-            recommendation.recommenderId = recommenderId;
-            recommendation.recommendedId = record.id;
-            recommendation.usedForVoucher = false;
-            recommendations.add(recommendation);
+            recommendations.add(ClientDtoAssembler.toRecommendationRecord(recommenderId, record.id));
         }
         client.id = record.id;
         client.version = record.version;

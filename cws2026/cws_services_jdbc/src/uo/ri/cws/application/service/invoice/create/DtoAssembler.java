@@ -1,5 +1,6 @@
 package uo.ri.cws.application.service.invoice.create;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,10 @@ public class DtoAssembler {
         record.vatAmount = dto.vatAmount;
         record.vatRate = dto.vatPercentage;
         record.total = dto.total;
+        record.usedForVoucher = false;
+        record.entityState = "ENABLED";
+        record.createdAt = LocalDateTime.now();
+        record.updatedAt = record.createdAt;
         return record;
     }
 

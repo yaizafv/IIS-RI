@@ -2,9 +2,7 @@ package uo.ri.cws.application.service.paymentmean.voucher.commands;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
@@ -29,36 +27,32 @@ public class GenerateVouchers implements Command<int[]> {
     @Override
     public int[] execute() {
         int generated = 0;
-        Map<String, List<WorkOrderRecord>> byClientId = groupByClientId(
-            workOrders.findNotUsedForVoucherByInvoiceState(PAID));
+        String currentClientId = null;
+        List<WorkOrderRecord> batch = new ArrayList<>();
 
-        for (Map.Entry<String, List<WorkOrderRecord>> entry : byClientId.entrySet()) {
-            List<WorkOrderRecord> clientOrders = entry.getValue();
-            for (int i = 0; i + WORK_ORDERS_PER_VOUCHER <= clientOrders.size();
-                i += WORK_ORDERS_PER_VOUCHER) {
-                for (int j = i; j < i + WORK_ORDERS_PER_VOUCHER; j++) {
-                    WorkOrderRecord workOrder = clientOrders.get(j);
-                    workOrder.usedForVoucher = true;
-                    workOrder.updatedAt = LocalDateTime.now();
-                    workOrders.update(workOrder);
-                }
-                createVoucher(entry.getKey());
+        for (WorkOrderRecord workOrder : workOrders.findNotUsedForVoucherByInvoiceState(PAID)) {
+            String clientId = vehicles.findById(workOrder.vehicleId).get().clientId;
+            if (!clientId.equals(currentClientId)) {
+                currentClientId = clientId;
+                batch.clear();
+            }
+            batch.add(workOrder);
+            if (batch.size() == WORK_ORDERS_PER_VOUCHER) {
+                markAsUsed(batch);
+                createVoucher(clientId);
                 generated++;
+                batch.clear();
             }
         }
         return new int[] { generated, 0, 0 };
     }
 
-    private Map<String, List<WorkOrderRecord>> groupByClientId(List<WorkOrderRecord> records) {
-        Map<String, List<WorkOrderRecord>> result = new LinkedHashMap<>();
-        for (WorkOrderRecord record : records) {
-            String clientId = vehicles.findById(record.vehicleId).get().clientId;
-            if (!result.containsKey(clientId)) {
-                result.put(clientId, new ArrayList<WorkOrderRecord>());
-            }
-            result.get(clientId).add(record);
+    private void markAsUsed(List<WorkOrderRecord> batch) {
+        for (WorkOrderRecord workOrder : batch) {
+            workOrder.usedForVoucher = true;
+            workOrder.updatedAt = LocalDateTime.now();
+            workOrders.update(workOrder);
         }
-        return result;
     }
 
     private void createVoucher(String clientId) {

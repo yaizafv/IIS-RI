@@ -9,6 +9,7 @@ import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.voucher.VoucherGateway;
 import uo.ri.cws.application.persistence.voucher.VoucherGateway.VoucherRecord;
 import uo.ri.cws.application.service.paymentmean.VoucherGenerationService.VoucherDto;
+import uo.ri.cws.application.service.paymentmean.voucher.VoucherDtoAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 
 public class FindVouchersByClientNif implements Command<List<VoucherDto>> {
@@ -31,15 +32,7 @@ public class FindVouchersByClientNif implements Command<List<VoucherDto>> {
         }
 
         for (VoucherRecord record : voucherGateway.findByClientId(client.get().id)) {
-            VoucherDto dto = new VoucherDto();
-            dto.id = record.id;
-            dto.version = record.version;
-            dto.clientId = record.clientId;
-            dto.accumulatedAmount = record.accumulated;
-            dto.code = record.code;
-            dto.description = record.description;
-            dto.availableAmount = record.available;
-            result.add(dto);
+            result.add(VoucherDtoAssembler.toDto(record));
         }
         return result;
     }

@@ -15,6 +15,7 @@ import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
+import uo.ri.cws.application.service.invoice.create.DtoAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 
@@ -62,24 +63,17 @@ public class InvoiceWorkorder implements Command<InvoiceDto> {
         dto.subtotal = subtotal.setScale(2, RoundingMode.HALF_EVEN);
         dto.vatAmount = dto.subtotal.multiply(dto.vatPercentage).divide(new BigDecimal("100"), 2,
             RoundingMode.HALF_EVEN);
-        dto.total = dto.subtotal.add(dto.vatAmount).setScale(2, RoundingMode.HALF_UP);
+        dto.total = dto.subtotal.add(dto.vatAmount).setScale(2, RoundingMode.HALF_EVEN);
 
-        InvoiceRecord invoice = new InvoiceRecord();
-        invoice.id = dto.id;
-        invoice.version = dto.version;
-        invoice.number = dto.number;
-        invoice.date = dto.date;
-        invoice.state = dto.state;
-        invoice.subtotal = dto.subtotal;
-        invoice.total = dto.total;
-        invoice.vatAmount = dto.vatAmount;
-        invoice.vatRate = dto.vatPercentage;
-        invoice.createdAt = LocalDateTime.now();
-        invoice.updatedAt = invoice.createdAt;
+        InvoiceRecord invoice = DtoAssembler.toRecord(dto);
         invoiceGateway.add(invoice);
 
         for (String workOrderId : workOrderIds) {
-            workOrderGateway.setInvoiced(workOrderId, dto.id);
+            WorkOrderRecord workOrder = workOrderGateway.findById(workOrderId).get();
+            workOrder.state = "INVOICED";
+            workOrder.invoiceId = dto.id;
+            workOrder.updatedAt = LocalDateTime.now();
+            workOrderGateway.update(workOrder);
         }
         return dto;
     }

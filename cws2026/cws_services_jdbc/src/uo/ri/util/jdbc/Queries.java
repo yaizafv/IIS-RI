@@ -1,6 +1,4 @@
-package uo.ri.cws.application.persistence.util.jdbc;
-
-import uo.ri.util.jdbc.PropertyFile;
+package uo.ri.util.jdbc;
 
 public class Queries {
     private static final PropertyFile config = new PropertyFile(

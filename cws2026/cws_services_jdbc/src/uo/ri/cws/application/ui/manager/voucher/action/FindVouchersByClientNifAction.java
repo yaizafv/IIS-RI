@@ -7,14 +7,18 @@ import uo.ri.conf.Factories;
 import uo.ri.cws.application.service.paymentmean.VoucherGenerationService.VoucherDto;
 import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessException;
+import uo.ri.util.exception.UserInteractionChecks;
+import uo.ri.util.exception.UserInteractionException;
 import uo.ri.util.menu.Action;
 
 public class FindVouchersByClientNifAction implements Action {
 
     @Override
-    public void execute() throws BusinessException {
+    public void execute() throws BusinessException, UserInteractionException {
+        String nif = Console.readString("Client nif");
+        UserInteractionChecks.isNotEmpty(nif, "The nif cannot be empty");
         List<VoucherDto> vouchers = Factories.service.forVoucherService()
-            .findVouchersByClientNif(Console.readString("Client nif"));
+            .findVouchersByClientNif(nif);
         Console.println("\nClient vouchers\n");
         BigDecimal available = BigDecimal.ZERO;
         BigDecimal consumed = BigDecimal.ZERO;

@@ -10,24 +10,24 @@ import uo.ri.util.exception.PersistenceException;
 public class CommandExecutor {
 
     public <T> T execute(Command<T> cmd) throws BusinessException {
-        try (Connection c = Jdbc.createThreadConnection()) {
+
+        try (Connection c = Jdbc.createThreadConnection();) {
             c.setAutoCommit(false);
+
             try {
                 T res = cmd.execute();
                 c.commit();
                 return res;
-            } catch (BusinessException | RuntimeException e) {
-                try {
-                    c.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
+
+            } catch (Exception e) {
+                c.rollback();
                 throw e;
+
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
-        } finally {
-            Jdbc.clearThreadConnection();
         }
+
     }
+
 }

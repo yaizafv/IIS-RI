@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
+import uo.ri.util.jdbc.Queries;
 import uo.ri.util.exception.PersistenceException;
 
 public class ClientGatewayImpl implements ClientGateway {
@@ -124,32 +124,11 @@ public class ClientGatewayImpl implements ClientGateway {
         }
     }
 
-    @Override
-    public boolean hasVehicles(String clientId) {
-        return exists("TVEHICLES_EXISTS_BY_CLIENT", clientId);
-    }
-
-    @Override
-    public boolean hasPaidInvoices(String clientId) {
-        return exists("TCLIENTS_HAS_PAID_INVOICES", clientId);
-    }
-
     private Optional<ClientRecord> findOne(String key, String value) {
         try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
             pst.setString(1, value);
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next() ? Optional.of(assembler.toCurrentRecord(rs)) : Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    private static boolean exists(String key, String value) {
-        try (PreparedStatement pst = Jdbc.getCurrentConnection().prepareStatement(Queries.getSQLSentence(key))) {
-            pst.setString(1, value);
-            try (ResultSet rs = pst.executeQuery()) {
-                return rs.next();
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);

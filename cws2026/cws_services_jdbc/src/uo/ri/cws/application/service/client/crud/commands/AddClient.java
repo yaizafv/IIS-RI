@@ -1,6 +1,4 @@
-package uo.ri.cws.application.service.client.commands;
-
-import java.math.BigDecimal;
+package uo.ri.cws.application.service.client.crud.commands;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.cash.CashGateway;
@@ -52,14 +50,11 @@ public class AddClient implements Command<ClientDto> {
 
         ClientRecord record = ClientDtoAssembler.toRecord(client);
         clients.add(record);
-        CashRecord cashRecord = new CashRecord();
-        cashRecord.dtype = "Cash";
-        cashRecord.accumulated = BigDecimal.ZERO;
-        cashRecord.clientId = record.id;
+        CashRecord cashRecord = ClientDtoAssembler.toCashRecord(record.id);
         paymentMeans.add(cashRecord);
-        cash.add(cashRecord);        
+        cash.add(cashRecord);
         if (recommenderId != null) {
-            recommendations.add(recommenderId, record.id);
+            recommendations.add(ClientDtoAssembler.toRecommendationRecord(recommenderId, record.id));
         }
         client.id = record.id;
         client.version = record.version;

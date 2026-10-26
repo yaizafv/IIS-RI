@@ -3,18 +3,17 @@ package uo.ri.cws.application.persistence.vehicle.impl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.jdbc.Jdbc;
-import uo.ri.cws.application.persistence.util.jdbc.Queries;
 import uo.ri.cws.application.persistence.vehicle.VehicleGateway;
 import uo.ri.util.exception.NotYetImplementedException;
 import uo.ri.util.exception.PersistenceException;
+import uo.ri.util.jdbc.Queries;
 
 public class VehicleGatewayImpl implements VehicleGateway {
-    
+
     private final VehicleRecordAssembler assembler = new VehicleRecordAssembler();
 
     @Override
@@ -34,7 +33,15 @@ public class VehicleGatewayImpl implements VehicleGateway {
 
     @Override
     public Optional<VehicleRecord> findById(String id) throws PersistenceException {
-        throw new NotYetImplementedException();
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TVEHICLES_FIND_BY_ID"))) {
+            pst.setString(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next() ? Optional.of(assembler.toRecord(rs)) : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
@@ -48,15 +55,10 @@ public class VehicleGatewayImpl implements VehicleGateway {
             .prepareStatement(Queries.getSQLSentence("TVEHICLES_FIND_BY_CLIENT_ID"))) {
             pst.setString(1, clientId);
             try (ResultSet rs = pst.executeQuery()) {
-                List<VehicleRecord> result = new ArrayList<>();
-                while (rs.next()) {
-                    result.add(assembler.toRecord(rs));
-                }
-                return result;
+                return assembler.toRecordList(rs);
             }
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
     }
-
 }

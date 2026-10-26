@@ -260,7 +260,7 @@ El proyecto sigue una arquitectura de **capas** (layered architecture):
 
 **Componentes:**
 - `*GatewayImpl`: implementaciones que manejan JDBC
-- `Queries`: carga queries desde `queries.properties`
+- `Queries` (`uo.ri.util.jdbc`): carga queries desde `queries.properties`
 - `*Record`: clases que representan registros de BD
 
 **Flujo:**
@@ -380,7 +380,7 @@ public interface ClientGateway {
 // Implementación (Persistence layer)
 public class ClientGatewayImpl implements ClientGateway {
     public void add(ClientRecord record) {
-        String sql = Queries.getQuery("TCLIENTS_ADD");
+        String sql = Queries.getSQLSentence("TCLIENTS_ADD");
         // Ejecutar SQL
     }
 }
@@ -435,7 +435,7 @@ public class ClientAssembler {
 }
 ```
 
-**Ubicación:** `uo/ri/cws/application/service/client/`
+**Ubicación:** `uo/ri/cws/application/service/client/crud/`
 
 ### 6. Patrón Service Locator
 
@@ -730,7 +730,7 @@ Una pregunta muy común es: **¿Por qué existe `PaymentMeanGateway` en la capa 
 Cuando agregas un cliente mediante `AddClient`, el sistema automáticamente:
 
 ```java
-// En AddClient.execute() - uo/ri/cws/application/service/client/commands/AddClient.java
+// En AddClient.execute() - uo/ri/cws/application/service/client/crud/commands/AddClient.java
 
 // 1. Se crea el cliente
 ClientRecord record = ClientDtoAssembler.toRecord(client);
@@ -1038,7 +1038,7 @@ public class VehicleGatewayImpl implements VehicleGateway {
     public VehicleRecord add(VehicleRecord record) throws PersistenceException {
         try (var connection = datasource.getConnection();
              var stmt = connection.prepareStatement(
-                 Queries.getQuery("TVEHICLES_ADD"))) {
+                 Queries.getSQLSentence("TVEHICLES_ADD"))) {
             
             stmt.setString(1, record.getId());
             stmt.setString(2, record.getLicensePlate());
@@ -1059,7 +1059,7 @@ public class VehicleGatewayImpl implements VehicleGateway {
     public VehicleRecord findById(String id) throws PersistenceException {
         try (var connection = datasource.getConnection();
              var stmt = connection.prepareStatement(
-                 Queries.getQuery("TVEHICLES_FIND_BY_ID"))) {
+                 Queries.getSQLSentence("TVEHICLES_FIND_BY_ID"))) {
             
             stmt.setString(1, id);
             var rs = stmt.executeQuery();

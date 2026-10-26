@@ -7,14 +7,18 @@ import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.cws.application.ui.util.Printer;
 import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessException;
+import uo.ri.util.exception.UserInteractionChecks;
+import uo.ri.util.exception.UserInteractionException;
 import uo.ri.util.menu.Action;
 
 public class FindClientByNifAction implements Action {
 
     @Override
-    public void execute() throws BusinessException {
+    public void execute() throws BusinessException, UserInteractionException {
+        String nif = Console.readString("Client nif");
+        UserInteractionChecks.isNotEmpty(nif, "The nif cannot be empty");
         Optional<ClientDto> client = Factories.service.forClientCrudService()
-            .findClientByNif(Console.readString("Client nif"));
+            .findClientByNif(nif);
         if (client.isEmpty()) {
             Console.println("There is no client with that nif");
             return;

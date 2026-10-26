@@ -4,12 +4,14 @@ import uo.ri.conf.Factories;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
 import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessException;
+import uo.ri.util.exception.UserInteractionChecks;
+import uo.ri.util.exception.UserInteractionException;
 import uo.ri.util.menu.Action;
 
 public class AddClientAction implements Action {
 
     @Override
-    public void execute() throws BusinessException {
+    public void execute() throws BusinessException, UserInteractionException {
         ClientDto client = new ClientDto();
         client.nif = Console.readString("Nif");
         client.name = Console.readString("Name");
@@ -21,6 +23,9 @@ public class AddClientAction implements Action {
         client.phone = Console.readString("Phone");
         client.email = Console.readString("Email");
         String recommender = Console.readString("Recommender nif (empty if none)");
+        UserInteractionChecks.isNotEmpty(client.nif, "The nif cannot be empty");
+        UserInteractionChecks.isNotEmpty(client.name, "The name cannot be empty");
+        UserInteractionChecks.isNotEmpty(client.surname, "The surname cannot be empty");
 
         client = Factories.service.forClientCrudService().addClient(client, recommender.isBlank() ? null : recommender);
         Console.println("New client added: " + client.id);

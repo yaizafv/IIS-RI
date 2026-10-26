@@ -1,4 +1,4 @@
-package uo.ri.cws.application.service.client.commands;
+package uo.ri.cws.application.service.client.crud.commands;
 
 import java.util.ArrayList;
 import java.util.List;

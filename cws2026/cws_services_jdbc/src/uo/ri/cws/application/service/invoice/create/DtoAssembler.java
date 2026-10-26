@@ -1,8 +1,8 @@
 package uo.ri.cws.application.service.invoice.create;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway.InvoiceRecord;
 import uo.ri.cws.application.persistence.workorder.WorkOrderGateway.WorkOrderRecord;
@@ -35,25 +35,12 @@ public class DtoAssembler {
         return dto;
     }
 
-    public static List<InvoicingWorkOrderDto> toInvoicingWorkOrderDtoList(List<WorkOrderRecord> records) {
-        List<InvoicingWorkOrderDto> res = new ArrayList<>();
-        for (WorkOrderRecord r : records) {
-            res.add(toInvoicingWorkOrderDto(r));
-        }
-        return res;
-    }
-    
-    public static InvoiceRecord toRecord(InvoiceDto dto) {
+    public static InvoiceRecord newInvoiceRecord() {
         InvoiceRecord record = new InvoiceRecord();
-        record.id = dto.id;
-        record.version = dto.version;
-        record.number = dto.number;
-        record.date = dto.date;
-        record.state = dto.state;
-        record.subtotal = dto.subtotal;
-        record.vatAmount = dto.vatAmount;
-        record.vatRate = dto.vatPercentage;
-        record.total = dto.total;
+        record.id = UUID.randomUUID().toString();
+        record.version = 1;
+        record.date = LocalDate.now();
+        record.state = "ISSUED";
         record.usedForVoucher = false;
         record.entityState = "ENABLED";
         record.createdAt = LocalDateTime.now();

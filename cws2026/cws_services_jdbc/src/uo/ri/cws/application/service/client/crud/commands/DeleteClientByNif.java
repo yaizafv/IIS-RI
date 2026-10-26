@@ -5,8 +5,6 @@ import java.util.List;
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.card.CardGateway;
 import uo.ri.cws.application.persistence.cash.CashGateway;
-import uo.ri.cws.application.persistence.charge.ChargeGateway;
-import uo.ri.cws.application.persistence.charge.ChargeGateway.ChargeRecord;
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway;
@@ -34,7 +32,6 @@ public class DeleteClientByNif implements Command<Void> {
     private final VehicleGateway vehicles = Factories.persistence.forVehicle();
     private final RecommendationGateway recommendations = Factories.persistence.forRecommendation();
     private final PaymentMeanGateway paymentMeans = Factories.persistence.forPaymentMean();
-    private final ChargeGateway charges = Factories.persistence.forCharge();
     private final InvoiceGateway invoices = Factories.persistence.forInvoice();
     private final CashGateway cash = Factories.persistence.forCash();
     private final CardGateway cards = Factories.persistence.forCard();
@@ -54,10 +51,8 @@ public class DeleteClientByNif implements Command<Void> {
         BusinessChecks.isTrue(vehicles.findByClientId(client.id).isEmpty(),
             "No se puede eliminar un cliente con vehículos");
 
+        checkNoPaidInvoices(client);
         List<PaymentMeanRecord> means = paymentMeans.findByClientId(client.id);
-        for (PaymentMeanRecord mean : means) {
-            checkNoPaidInvoices(mean);
-        }
 
         for (RecommendationRecord recommendation : recommendations.findByClientId(client.id)) {
             recommendations.remove(recommendation.id);
@@ -70,14 +65,10 @@ public class DeleteClientByNif implements Command<Void> {
         return null;
     }
 
-    private void checkNoPaidInvoices(PaymentMeanRecord mean) throws BusinessException {
-        for (ChargeRecord charge : charges.findByPaymentMeanId(mean.id)) {
-            var invoice = invoices.findById(charge.invoiceId);
-            if (invoice.isPresent()) {
-                InvoiceRecord record = invoice.get();
-                BusinessChecks.isTrue(!PAID.equals(record.state),
-                    "No se puede eliminar un cliente con facturas pagadas");
-            }
+    private void checkNoPaidInvoices(ClientRecord client) throws BusinessException {
+        for (InvoiceRecord invoice : invoices.findByPayerId(client.id)) {
+            BusinessChecks.isTrue(!PAID.equals(invoice.state),
+                "No se puede eliminar un cliente con facturas pagadas");
         }
     }
 

@@ -2,7 +2,6 @@ package uo.ri.cws.application.persistence;
 
 import uo.ri.cws.application.persistence.card.CardGateway;
 import uo.ri.cws.application.persistence.cash.CashGateway;
-import uo.ri.cws.application.persistence.charge.ChargeGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.intervention.InterventionGateway;
 import uo.ri.cws.application.persistence.invoice.InvoiceGateway;
@@ -26,8 +25,6 @@ public interface PersistenceFactory {
     PaymentMeanGateway forPaymentMean();
 
     VoucherGateway forVoucher();
-
-    ChargeGateway forCharge();
 
     CardGateway forCard();
 

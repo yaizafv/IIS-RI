@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +68,23 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
     @Override
     public List<InvoiceRecord> findAll() throws PersistenceException {
         throw new NotYetImplementedException();
+    }
+
+    @Override
+    public List<InvoiceRecord> findByPayerId(String clientId) throws PersistenceException {
+        try (PreparedStatement pst = Jdbc.getCurrentConnection()
+            .prepareStatement(Queries.getSQLSentence("TINVOICES_FIND_BY_PAYER_ID"))) {
+            pst.setString(1, clientId);
+            try (ResultSet rs = pst.executeQuery()) {
+                List<InvoiceRecord> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(assembler.toRecord(rs));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override

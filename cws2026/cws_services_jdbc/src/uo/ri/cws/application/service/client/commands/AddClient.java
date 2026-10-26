@@ -1,13 +1,13 @@
 package uo.ri.cws.application.service.client.commands;
 
-import java.util.UUID;
+import java.math.BigDecimal;
 
 import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.cash.CashGateway;
+import uo.ri.cws.application.persistence.cash.CashGateway.CashRecord;
 import uo.ri.cws.application.persistence.client.ClientGateway;
 import uo.ri.cws.application.persistence.client.ClientGateway.ClientRecord;
 import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway;
-import uo.ri.cws.application.persistence.paymentmean.PaymentMeanGateway.PaymentMeanRecord;
 import uo.ri.cws.application.persistence.recommendation.RecommendationGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.client.ClientCrudService.ClientDto;
@@ -52,17 +52,12 @@ public class AddClient implements Command<ClientDto> {
 
         ClientRecord record = ClientDtoAssembler.toRecord(client);
         clients.add(record);
-        PaymentMeanRecord cashRecord = new PaymentMeanRecord();
-        cashRecord.id = UUID.randomUUID().toString();
+        CashRecord cashRecord = new CashRecord();
         cashRecord.dtype = "Cash";
+        cashRecord.accumulated = BigDecimal.ZERO;
         cashRecord.clientId = record.id;
-        cashRecord.accumulated = java.math.BigDecimal.ZERO;
-        cashRecord.createdAt = record.createdAt;
-        cashRecord.updatedAt = record.updatedAt;
         paymentMeans.add(cashRecord);
-        CashGateway.CashRecord child = new CashGateway.CashRecord();
-        child.id = cashRecord.id;
-        cash.add(child);
+        cash.add(cashRecord);        
         if (recommenderId != null) {
             recommendations.add(recommenderId, record.id);
         }

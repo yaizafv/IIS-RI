@@ -46,21 +46,18 @@ public class DeleteMechanic implements Command<Void> {
     }
 
     private void checkCanBeDeleted() throws BusinessException {
-        List<InterventionRecord> interventions = ig
-            .findByMechanicId(mechanicId);
+        List<InterventionRecord> interventions = ig.findByMechanicId(mechanicId);
         Optional<InterventionRecord> optionalIntervention = Optional.empty();
         if (!interventions.isEmpty()) {
             optionalIntervention = Optional.of(interventions.get(0));
         }
-        BusinessChecks.doesNotExist(optionalIntervention,
-            "It has an intervention associated");
+        BusinessChecks.doesNotExist(optionalIntervention, "It has an intervention associated");
 
         List<WorkOrderRecord> workOrders = wog.findByMechanicId(mechanicId);
         Optional<WorkOrderRecord> optionalWorkOrder = Optional.empty();
         if (!workOrders.isEmpty()) {
             optionalWorkOrder = Optional.of(workOrders.get(0));
         }
-        BusinessChecks.doesNotExist(optionalWorkOrder,
-            "It has a work order associated");
+        BusinessChecks.doesNotExist(optionalWorkOrder, "It has a work order associated");
     }
 }

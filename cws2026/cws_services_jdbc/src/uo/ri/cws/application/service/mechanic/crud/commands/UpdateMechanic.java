@@ -13,7 +13,7 @@ import uo.ri.util.assertion.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
 
 public class UpdateMechanic implements Command<Void> {
-    
+
     private final MechanicDto dto;
     private MechanicGateway mg = Factories.persistence.forMechanic();
 

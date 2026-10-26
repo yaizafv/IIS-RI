@@ -37,8 +37,8 @@ public class WorkOrderRecordAssembler extends BaseRecordAssembler<WorkOrderRecor
         return result;
     }
 
-    public Optional<WorkOrderRecord> toWorkOrderRecord(ResultSet m) throws SQLException {
-        return m.next() ? Optional.of(resultSetToWorkOrderRecord(m)) : Optional.ofNullable(null);
+    public Optional<WorkOrderRecord> toWorkOrderRecord(ResultSet rs) throws SQLException {
+        return rs.next() ? Optional.of(resultSetToWorkOrderRecord(rs)) : Optional.ofNullable(null);
     }
 
     public List<WorkOrderRecord> toWorkOrderRecordList(ResultSet rs) throws SQLException {

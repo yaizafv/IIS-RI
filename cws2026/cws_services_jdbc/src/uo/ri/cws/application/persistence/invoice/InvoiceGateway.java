@@ -15,7 +15,7 @@ public interface InvoiceGateway extends Gateway<InvoiceGateway.InvoiceRecord> {
 
     void setPaid(String id) throws PersistenceException;
 
-    class InvoiceRecord extends Gateway.BaseRecord {
+    public class InvoiceRecord extends Gateway.BaseRecord {
         public LocalDate date;
         public long number;
         public String state;

@@ -14,6 +14,8 @@ import uo.ri.util.assertion.ArgumentChecks;
 public class FindVouchersByClientNif implements Command<List<VoucherDto>> {
 
     private final String nif;
+    private ClientGateway clientGateway = Factories.persistence.forClient();
+    private VoucherGateway voucherGateway = Factories.persistence.forVoucher();
 
     public FindVouchersByClientNif(String nif) {
         ArgumentChecks.isNotBlank(nif, "El NIF del cliente no puede estar vacío");
@@ -22,9 +24,6 @@ public class FindVouchersByClientNif implements Command<List<VoucherDto>> {
 
     @Override
     public List<VoucherDto> execute() {
-        ClientGateway clientGateway = Factories.persistence.forClient();
-        VoucherGateway voucherGateway = Factories.persistence.forVoucher();
-
         List<VoucherDto> result = new ArrayList<>();
         var client = clientGateway.findByNif(nif);
         if (client.isEmpty()) {

@@ -12,7 +12,7 @@ import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.assertion.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
 
-public class AddMechanic implements Command<MechanicDto>{
+public class AddMechanic implements Command<MechanicDto> {
 
     private MechanicGateway mg = Factories.persistence.forMechanic();
     private MechanicDto dto;
@@ -29,7 +29,7 @@ public class AddMechanic implements Command<MechanicDto>{
     public MechanicDto execute() throws BusinessException {
         Optional<MechanicRecord> mr = mg.findByNif(dto.nif);
         BusinessChecks.doesNotExist(mr, "The mechanic already exists");
-        
+
         var record = MechanicDtoAssembler.toRecord(dto);
         mg.add(record);
 

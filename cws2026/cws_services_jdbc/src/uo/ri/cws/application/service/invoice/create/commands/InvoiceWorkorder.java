@@ -18,13 +18,13 @@ import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 
-public class CreateInvoice implements Command<InvoiceDto> {
+public class InvoiceWorkorder implements Command<InvoiceDto> {
 
     private final List<String> workOrderIds;
     private final WorkOrderGateway workOrderGateway = Factories.persistence.forWorkOrder();
     private final InvoiceGateway invoiceGateway = Factories.persistence.forInvoice();
 
-    public CreateInvoice(List<String> workOrderIds) {
+    public InvoiceWorkorder(List<String> workOrderIds) {
         ArgumentChecks.isNotNull(workOrderIds, "La lista de órdenes de trabajo no puede ser nula");
         ArgumentChecks.isTrue(!workOrderIds.isEmpty(), "La lista de órdenes de trabajo no puede estar vacía");
         for (String workOrderId : workOrderIds) {
@@ -83,4 +83,5 @@ public class CreateInvoice implements Command<InvoiceDto> {
         }
         return dto;
     }
+
 }

@@ -23,12 +23,6 @@ public class FindWorkOrdersByClientNif implements Command<List<InvoicingWorkOrde
 
     private static void validateNif(String nif) {
         ArgumentChecks.isNotBlank(nif, "El NIF no puede estar vacío");
-        ArgumentChecks.isTrue(nif.matches("[0-9]{8}[A-Z]"),
-                "El NIF no tiene un formato válido");
-        int number = Integer.parseInt(nif.substring(0, 8));
-        String letters = "TRWAGMYFPDXBNJZSQVHLCKE";
-        ArgumentChecks.isTrue(nif.charAt(8) == letters.charAt(number % 23),
-                "La letra del NIF no es válida");
     }
 
     @Override

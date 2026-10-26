@@ -8,6 +8,6 @@ public interface CashGateway extends Gateway<CashGateway.CashRecord> {
 
     void removeForClient(String clientId) throws PersistenceException;
 
-    class CashRecord extends PaymentMeanRecord {
+    public class CashRecord extends PaymentMeanRecord {
     }
 }

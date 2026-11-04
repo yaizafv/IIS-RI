@@ -5,14 +5,14 @@
 - Jefe de taller (Foreman): **gestión de clientes** (CRUD + listar recomendados).
 
 > Esta guía está hecha a partir de TU código (`cws2026/cws_services_jdbc`), de los enunciados (P3, P4, Generación de bonos, Enunciado de referencia), de la checklist comentada y de las diapositivas de JDBC.
-> Está pensada para leerla en orden. Si vas justa de tiempo: lee las secciones **3, 4, 5, 7 y 8** como mínimo.
+> Está pensada para leerla en orden. Si vas justa de tiempo: lee las secciones **2.4 (JOINs), 3, 4, 5, 7 y 8** como mínimo.
 
 ---
 
 ## Índice
 
 1. [Qué es la prueba de autoría y qué te pueden pedir](#1-qué-es-la-prueba-de-autoría-y-qué-te-pueden-pedir)
-2. [Conceptos básicos que necesitas (Java, SQL, JDBC)](#2-conceptos-básicos-que-necesitas)
+2. [Conceptos básicos que necesitas (Java, SQL, **JOINs explicados desde cero** en 2.4, JDBC)](#2-conceptos-básicos-que-necesitas)
 3. [La arquitectura del proyecto: las capas y los patrones](#3-la-arquitectura-del-proyecto-capas-y-patrones)
 4. [Recorrido completo de una operación (de la pantalla a la BD y vuelta)](#4-recorrido-completo-de-una-operación)
 5. [Tu código explicado clase por clase](#5-tu-código-explicado-clase-por-clase)
@@ -122,7 +122,273 @@ DELETE FROM TClients WHERE id = ?
 
 El `?` es un **parámetro**: se rellena desde Java con `pst.setString(1, valor)` (los índices **empiezan en 1**, no en 0).
 
-### 2.4 JDBC mínimo (diapositivas del tema)
+### 2.4 Los JOIN explicados (si aprendiste a unir tablas con `,` y `AND`)
+
+#### 2.4.1 Lo que ya sabes hacer
+
+Tú aprendiste a unir tablas así: pones las tablas separadas por comas en el `FROM` y la condición que las relaciona en el `WHERE`, junto al resto de filtros con `AND`:
+
+```sql
+SELECT c.name, v.licensePlate
+FROM TClients c, TVehicles v
+WHERE v.client_id = c.id          -- condición de UNIÓN (cómo se relacionan)
+  AND c.city = 'Oviedo'           -- condición de FILTRO (qué filas quiero)
+```
+
+**Un `JOIN` hace exactamente lo mismo.** Solo cambia dónde escribes cada cosa:
+
+```sql
+SELECT c.name, v.licensePlate
+FROM TClients c
+JOIN TVehicles v ON v.client_id = c.id   -- la condición de UNIÓN va en el ON
+WHERE c.city = 'Oviedo'                  -- los FILTROS se quedan en el WHERE
+```
+
+Las dos consultas devuelven el mismo resultado. Con `JOIN` se lee mejor, porque cada tabla lleva su condición de unión justo al lado y el `WHERE` queda solo para los filtros.
+
+> Las dos formas funcionan en HSQLDB. Si en la prueba te sale más natural la de comas, es válida. Pero tu `queries.properties` usa `JOIN`, así que tienes que saber leerlo.
+
+#### 2.4.2 Regla para traducir de tu forma a JOIN
+
+1. Deja la **primera tabla** del `FROM`.
+2. Cada **tabla que venía después de una coma** pasa a ser `JOIN tabla alias`.
+3. Busca en el `WHERE` la condición que **relaciona esa tabla** con las anteriores (normalmente `algo_id = otro.id`). Quítala del `WHERE` y ponla tras `ON`.
+4. Lo que queda en el `WHERE` (los filtros normales) se queda en el `WHERE`.
+
+Ejemplo con tres tablas, en tu forma:
+```sql
+SELECT w.id, w.description
+FROM TWorkOrders w, TVehicles v, TClients c
+WHERE w.vehicle_id = v.id
+  AND v.client_id = c.id
+  AND c.nif = ?
+  AND w.invoice_id IS NULL
+```
+Traducción:
+```sql
+SELECT w.id, w.description
+FROM TWorkOrders w
+JOIN TVehicles v ON w.vehicle_id = v.id   -- condición que relaciona TVehicles
+JOIN TClients  c ON v.client_id  = c.id   -- condición que relaciona TClients
+WHERE c.nif = ?                           -- filtros
+  AND w.invoice_id IS NULL
+```
+Esta es, casi literalmente, tu consulta `TWORKORDERS_FIND_NOT_INVOICED_WORK_ORDERS_BY_CLIENT_NIF`.
+
+#### 2.4.3 Qué hace un JOIN por dentro, con datos
+
+Imagina estas tablas pequeñas:
+
+```
+TClients                      TVehicles
+id  | nif | name              id  | licensePlate | client_id
+----+-----+------             ----+--------------+----------
+c1  | 111 | Ana               v1  | 1111BBB      | c1
+c2  | 222 | Luis              v2  | 2222CCC      | c1
+c3  | 333 | Eva               v3  | 3333DDD      | c2
+```
+
+`FROM TClients c JOIN TVehicles v ON v.client_id = c.id` toma **cada pareja (cliente, vehículo)** y se queda solo con las parejas que cumplen el `ON`:
+
+```
+c.id | c.name | v.id | v.licensePlate
+-----+--------+------+---------------
+c1   | Ana    | v1   | 1111BBB
+c1   | Ana    | v2   | 2222CCC      ← Ana sale DOS veces porque tiene dos vehículos
+c2   | Luis   | v3   | 3333DDD
+                                     ← Eva (c3) NO sale porque no tiene vehículos
+```
+
+Fíjate en dos cosas que causan muchos errores:
+- **Una fila se repite tantas veces como "parejas" tenga** en la otra tabla. Por eso a veces hace falta `DISTINCT` (ver 2.4.7).
+- **Las filas sin pareja desaparecen.** Si las quieres, necesitas `LEFT JOIN` (ver 2.4.6).
+
+Si te olvidas del `ON` (o del `AND` en tu forma), salen **todas las combinaciones** (3 × 3 = 9 filas): es el producto cartesiano, y casi siempre es un error.
+
+#### 2.4.4 Alias
+
+`TClients c` significa "a partir de aquí, llamo `c` a TClients". Sirve para escribir menos y es **obligatorio** cuando dos tablas tienen columnas con el mismo nombre (`id`, `version`, `createdAt`...). Si escribes solo `id`, la BD no sabe de qué tabla es y da error de columna ambigua. Por eso en tus consultas pone `c.id`, `pm.id`, `w.id`...
+
+#### 2.4.5 La misma tabla dos veces (caso de las recomendaciones)
+
+`TRecommendations` tiene **dos** claves ajenas a `TClients`: `recommender_id` (quien recomienda) y `recommended_id` (el recomendado). Si quieres datos de los dos clientes, metes `TClients` dos veces con **alias distintos**. Es tu consulta `TCLIENTS_FIND_RECOMMENDED_BY_NIF`:
+
+```sql
+SELECT c.id, c.nif, c.name, ...                                   -- datos del RECOMENDADO
+FROM TClients c                                                   -- c = el recomendado
+JOIN TRecommendations r       ON r.recommended_id = c.id          -- sus recomendaciones recibidas
+JOIN TClients recommender     ON recommender.id = r.recommender_id -- recommender = quien recomendó
+WHERE recommender.nif = ?                                         -- filtro: NIF de quien recomendó
+```
+En tu forma de siempre sería:
+```sql
+SELECT c.id, c.nif, c.name, ...
+FROM TClients c, TRecommendations r, TClients recommender
+WHERE r.recommended_id = c.id
+  AND recommender.id = r.recommender_id
+  AND recommender.nif = ?
+```
+
+#### 2.4.6 LEFT JOIN: cuando quieres también las filas "sin pareja"
+
+Esto **no se puede hacer** con la forma de comas y `AND`, así que es lo realmente nuevo.
+
+- `JOIN` (o `INNER JOIN`): solo filas que tienen pareja.
+- `LEFT JOIN`: **todas** las filas de la tabla de la izquierda; si no tienen pareja, las columnas de la derecha salen a `NULL`.
+
+Con los datos de antes:
+```sql
+SELECT c.name, v.licensePlate
+FROM TClients c
+LEFT JOIN TVehicles v ON v.client_id = c.id
+```
+```
+Ana  | 1111BBB
+Ana  | 2222CCC
+Luis | 3333DDD
+Eva  | NULL       ← ahora Eva sí sale
+```
+
+Usos típicos en una ampliación:
+
+**"Clientes que NO tienen vehículos":**
+```sql
+SELECT c.id, c.nif, c.name
+FROM TClients c
+LEFT JOIN TVehicles v ON v.client_id = c.id
+WHERE v.id IS NULL
+```
+(La alternativa sin JOIN, también válida: `WHERE NOT EXISTS (SELECT 1 FROM TVehicles v WHERE v.client_id = c.id)`.)
+
+**"Nº de vehículos de cada cliente, incluidos los que tienen 0":**
+```sql
+SELECT c.nif, COUNT(v.id)              -- COUNT(v.id) no cuenta los NULL → da 0 a Eva
+FROM TClients c
+LEFT JOIN TVehicles v ON v.client_id = c.id
+GROUP BY c.nif
+```
+Con `JOIN` normal, Eva no aparecería. Con `COUNT(*)` en vez de `COUNT(v.id)`, a Eva le saldría 1 (contaría la fila con NULL).
+
+> **Cuidado con LEFT JOIN y WHERE:** si filtras una columna de la tabla derecha en el `WHERE` (por ejemplo `WHERE v.make = 'Seat'`), las filas con `NULL` se eliminan y el LEFT JOIN se comporta como un JOIN normal. Si quieres conservarlas, pon esa condición en el `ON`: `LEFT JOIN TVehicles v ON v.client_id = c.id AND v.make = 'Seat'`.
+
+#### 2.4.7 JOIN + DISTINCT: evitar repetidos
+
+Una factura pagada con **dos** medios de pago tiene **dos** cargos en `TCharges`. Si haces JOIN con los cargos, la factura sale dos veces. Por eso tu consulta `TINVOICES_FIND_BY_PAYER_ID` lleva `DISTINCT`:
+
+```sql
+SELECT DISTINCT i.id, i.number, i.total, ...
+FROM TInvoices i
+JOIN TCharges ch      ON ch.invoice_id = i.id
+JOIN TPaymentMeans pm ON pm.id = ch.paymentMean_id
+WHERE pm.client_id = ?
+```
+Regla práctica: si **devuelves filas de la tabla "de un lado"** (facturas) pero haces JOIN con la tabla "de muchos" (cargos) solo para filtrar, piensa si necesitas `DISTINCT`. Otra opción equivalente es `WHERE i.id IN (SELECT ch.invoice_id FROM ...)` o un `EXISTS`, que no duplica filas.
+
+#### 2.4.8 JOIN + GROUP BY
+
+```sql
+-- Nº de bonos y saldo disponible total por cliente (solo clientes con bonos)
+SELECT c.nif, COUNT(v.id), SUM(v.available)
+FROM TClients c
+JOIN TPaymentMeans pm ON pm.client_id = c.id
+JOIN TVouchers v      ON v.id = pm.id
+GROUP BY c.nif
+ORDER BY SUM(v.available) DESC
+```
+Primero se hace el JOIN (una fila por cada bono con su cliente), después `GROUP BY` agrupa por cliente y `COUNT`/`SUM` resumen cada grupo. Si filtras **grupos** (por ejemplo "con más de 2 bonos"), usa `HAVING COUNT(v.id) > 2`, no `WHERE`.
+
+#### 2.4.9 Cómo construir un JOIN desde cero (método)
+
+1. **¿Qué filas quiero devolver?** Esa tabla va en el `FROM`. (En el proyecto, esa tabla también decide en qué Gateway va el método.)
+2. **¿Dónde está el dato por el que filtro?** Por ejemplo: "por NIF del cliente" → `TClients`.
+3. **Camino entre las dos tablas:** sigue las claves ajenas (sección 6). Cada salto es un `JOIN ... ON hija.x_id = padre.id`.
+4. Escribe los **filtros** en el `WHERE`.
+5. ¿Pueden salir filas repetidas? → `DISTINCT`. ¿Necesito las filas sin pareja? → `LEFT JOIN`.
+
+Ejemplo: *"órdenes de trabajo del cliente con NIF ?"*
+- Devuelvo OTs → `FROM TWorkOrders w`.
+- Filtro por NIF → está en `TClients`.
+- Camino: `TWorkOrders.vehicle_id → TVehicles.id`, y `TVehicles.client_id → TClients.id`.
+- Resultado:
+```sql
+FROM TWorkOrders w
+JOIN TVehicles v ON w.vehicle_id = v.id
+JOIN TClients  c ON v.client_id  = c.id
+WHERE c.nif = ?
+```
+
+**Truco para no liarte con el `ON`:** casi siempre es `<tabla_hija>.<algo>_id = <tabla_padre>.id`. La columna que acaba en `_id` es la clave ajena; la apunta al `id` de la otra tabla.
+
+#### 2.4.10 Tus consultas del proyecto, traducidas a tu forma de siempre
+
+| Clave en `queries.properties` | Con JOIN (como está) | Con comas y AND (equivalente) |
+|---|---|---|
+| `TVOUCHERS_FIND_BY_CLIENT_ID` | `FROM TVouchers v JOIN TPaymentMeans pm ON pm.id = v.id WHERE pm.client_id = ?` | `FROM TVouchers v, TPaymentMeans pm WHERE pm.id = v.id AND pm.client_id = ?` |
+| `TWORKORDERS_FIND_NOT_USED_FOR_VOUCHER_BY_INVOICE_STATE` | `FROM TWorkOrders w JOIN TInvoices i ON i.id = w.invoice_id JOIN TVehicles v ON v.id = w.vehicle_id WHERE i.state = ? AND w.usedForVoucher = FALSE` | `FROM TWorkOrders w, TInvoices i, TVehicles v WHERE i.id = w.invoice_id AND v.id = w.vehicle_id AND i.state = ? AND w.usedForVoucher = FALSE` |
+| `TINVOICES_FIND_BY_PAYER_ID` | `FROM TInvoices i JOIN TCharges ch ON ch.invoice_id = i.id JOIN TPaymentMeans pm ON pm.id = ch.paymentMean_id WHERE pm.client_id = ?` | `FROM TInvoices i, TCharges ch, TPaymentMeans pm WHERE ch.invoice_id = i.id AND pm.id = ch.paymentMean_id AND pm.client_id = ?` |
+
+(El `SELECT` y el `ORDER BY` no cambian.)
+
+#### 2.4.11 Ejercicios (con solución)
+
+Intenta escribirlos con JOIN antes de mirar la solución.
+
+**1. Matrículas de los vehículos del cliente con NIF `?`.**
+```sql
+SELECT v.licensePlate
+FROM TVehicles v
+JOIN TClients c ON v.client_id = c.id
+WHERE c.nif = ?
+```
+
+**2. Bonos (código y disponible) de clientes de la ciudad `?`.**
+```sql
+SELECT v.code, v.available
+FROM TVouchers v
+JOIN TPaymentMeans pm ON pm.id = v.id
+JOIN TClients c       ON c.id = pm.client_id
+WHERE c.city = ?
+```
+
+**3. Facturas que incluyen alguna orden de trabajo de un vehículo con matrícula `?`.**
+```sql
+SELECT DISTINCT i.id, i.number, i.total
+FROM TInvoices i
+JOIN TWorkOrders w ON w.invoice_id = i.id
+JOIN TVehicles v   ON v.id = w.vehicle_id
+WHERE v.licensePlate = ?
+```
+(`DISTINCT` porque una factura puede tener varias OTs del mismo vehículo.)
+
+**4. Clientes que no han recomendado a nadie.**
+```sql
+SELECT c.id, c.nif, c.name
+FROM TClients c
+LEFT JOIN TRecommendations r ON r.recommender_id = c.id
+WHERE r.id IS NULL
+```
+
+**5. Para cada cliente, cuántos clientes ha recomendado, incluidos los que no han recomendado a nadie (0).**
+```sql
+SELECT c.nif, COUNT(r.id)
+FROM TClients c
+LEFT JOIN TRecommendations r ON r.recommender_id = c.id
+GROUP BY c.nif
+```
+
+**6. Clientes que han pagado alguna factura de más de 500 €** (quien paga se sabe por los cargos).
+```sql
+SELECT DISTINCT c.id, c.nif, c.name
+FROM TClients c
+JOIN TPaymentMeans pm ON pm.client_id = c.id
+JOIN TCharges ch      ON ch.paymentMean_id = pm.id
+JOIN TInvoices i      ON i.id = ch.invoice_id
+WHERE i.state = 'PAID' AND i.total > 500
+```
+
+> Recuerda: si una de estas consultas va al proyecto, el `SELECT` debe incluir **todas** las columnas que lee el assembler del Record (`id, version, createdAt, updatedAt, entityState` + las propias), y los valores fijos como `'PAID'` o `500` es mejor pasarlos como parámetros `?`.
+
+### 2.5 JDBC mínimo (diapositivas del tema)
 
 JDBC = API de Java para hablar con bases de datos relacionales. Piezas:
 

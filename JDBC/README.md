@@ -1,5 +1,7 @@
 # Guía para la prueba de autoría — CWS2026 (JDBC)
 
+> **IMPORTANTE:** en el examen te dan **tests nuevos** y la ampliación tiene que hacer que pasen (si no pasan, es un 0). Lee también **`EXAMEN_CON_TESTS.md`**, que explica cómo leer, ejecutar e interpretar esos tests. Tu proyecto actual pasa toda su batería (128 de 128).
+
 **Caso de implementación: UO % 3 == 1**
 - Administrador: generación automática de bonos **por 3 órdenes de trabajo** (bono de 20 €).
 - Jefe de taller (Foreman): **gestión de clientes** (CRUD + listar recomendados).

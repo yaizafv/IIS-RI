@@ -650,6 +650,82 @@ Caminos típicos para unir tablas (apréndetelos, salen en todos los finds):
 - **Bono → cliente**: `TVouchers v JOIN TPaymentMeans pm ON pm.id = v.id` → `pm.client_id`
 - **Cliente → recomendados**: `TRecommendations r WHERE r.recommender_id = <id cliente>` → `r.recommended_id`
 
+### 6.1 Cómo ver el esquema si no te lo dan en el examen
+
+Todo está dentro del proyecto. De más fiable a menos:
+
+**1) `cws2026/cws_database/test.script`: la definición REAL de las tablas.**
+Es un fichero de texto. Ábrelo en Eclipse o en el Bloc de notas y busca (`Ctrl+F`) `CREATE MEMORY TABLE PUBLIC.TCLIENTS` (o la tabla que quieras). Ahí aparecen:
+- todas las columnas con su tipo: `NIF VARCHAR(255)`, `TOTAL NUMERIC(19,2)`, `USEDFORVOUCHER BOOLEAN`...;
+- la clave primaria: `ID VARCHAR(255) NOT NULL PRIMARY KEY`;
+- los valores únicos: `CONSTRAINT UNQ_TCLIENTS_12 UNIQUE(NIF)`;
+- las claves ajenas, que te dicen cómo hacer los JOIN: `FOREIGN KEY(CLIENT_ID) REFERENCES PUBLIC.TCLIENTS(ID)`. Algunas están dentro del `CREATE TABLE` y otras justo debajo, en las líneas `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`.
+
+> Es un fichero grande (miles de `INSERT` con los datos), pero los `CREATE TABLE` están todos juntos al principio, en las líneas 36-57 aproximadamente. **No lo modifiques.**
+
+**2) Las clases `XxxRecordAssembler` de tu proyecto: qué columna se corresponde con qué campo de Java.**
+Ejemplo en `persistence/workorder/impl/WorkOrderRecordAssembler.java`:
+```java
+result.vehicleId = rs.getString("vehicle_id");     // columna vehicle_id  →  campo vehicleId
+result.amount    = rs.getBigDecimal("total_amount"); // columna total_amount → campo amount
+```
+Lo que va **entre comillas** dentro de `rs.getXxx("...")` es el **nombre de la columna** en la BD. Lo que va a la izquierda del `=` es el **campo del Record** en Java.
+
+**3) `queries.properties`: tus consultas ya hechas.**
+Cada `SELECT` existente te da la lista de columnas de su tabla ya escrita. Lo más rápido en el examen es **copiar las columnas de un `SELECT` que ya funciona** de esa tabla y cambiar solo el `WHERE`.
+
+**4) Los records de los tests: una clase por tabla con todas sus columnas.**
+`cws_service_tests/test/uo/ri/cws/application/service/acceptance/util/dbfixture/records/` tiene `TClientsRecord`, `TWorkOrdersRecord`, `TChargesRecord`... Sus campos son las columnas de la tabla (por ejemplo `total_amount`, `vehicle_Id`). Es útil para tablas que tú no usas, como `TCharges`.
+
+**5) Ver la BD con datos (opcional): el gestor gráfico de HSQLDB.**
+Arranca el servidor con `cws_database/1.startup.bat` y luego abre `2.runManagerSwing.bat`. Se abre una ventana con el árbol de tablas y columnas a la izquierda y un cuadro donde puedes **escribir y probar un SELECT** antes de pasarlo a `queries.properties`. Esto es muy útil para comprobar un JOIN. (Cierra el gestor y el servidor antes de lanzar tu aplicación en modo fichero, o cambia `DB_URL` a modo servidor.)
+
+**6) `domain-model-extended-v2627.png` (en la carpeta `JDBC`).**
+Es el **modelo de dominio** (clases, atributos, relaciones), no las tablas. Sirve para entender qué se relaciona con qué. Pero los nombres de las clases y sus atributos **no** son los que se escriben en el SQL (ver 6.2).
+
+### 6.2 ¿Qué nombres uso en el SQL: los de las tablas o los de Java?
+
+**En el SQL siempre se usan los nombres de las TABLAS y COLUMNAS de la base de datos.** La BD no sabe nada de tus clases Java.
+
+En el proyecto hay **tres niveles de nombres** para el mismo dato, y es fácil confundirlos:
+
+| Dato | Columna en la BD (→ **SQL** y `rs.getXxx("...")`) | Campo del Record (persistencia, Java) | Campo del DTO (servicio/UI, Java) | Modelo de dominio (PNG) |
+|---|---|---|---|---|
+| Importe de una OT | `total_amount` | `WorkOrderRecord.amount` | `InvoicingWorkOrderDto.amount` | `WorkOrder.amount` |
+| Vehículo de una OT | `vehicle_id` | `WorkOrderRecord.vehicleId` | — | `WorkOrder.vehicle` |
+| Calle del cliente | `street` | `ClientRecord.street` | `ClientDto.addressStreet` | `Client.address` |
+| Código postal | `postalCode` | `ClientRecord.postalCode` | `ClientDto.addressZipcode` | `Client.address` |
+| Saldo del bono | `available` (en `TVouchers`) | `VoucherRecord.available` | `VoucherDto.availableAmount` | `Voucher.available` |
+| Acumulado | `accumulated` (en `TPaymentMeans`) | `PaymentMeanRecord.accumulated` | `VoucherDto.accumulatedAmount` | `PaymentMean.accumulated` |
+| Quién recomienda | `recommender_id` | `RecommendationRecord.recommenderId` | — | — |
+| Caducidad tarjeta | `validThru` (en `TCreditCards`) | `CardRecord.validThru` | `CardDto.cardExpiration` | `CreditCard.expiration` |
+
+Dónde va cada nombre:
+
+```java
+// 1) En queries.properties: nombres de TABLA y COLUMNA
+TWORKORDERS_FIND_... = SELECT ..., total_amount, vehicle_id ... FROM TWorkOrders WHERE ...
+
+// 2) En el RecordAssembler: entre comillas, la COLUMNA; a la izquierda, el campo del Record
+result.amount = rs.getBigDecimal("total_amount");
+
+// 3) En el GatewayImpl, al rellenar los ?: los campos del Record
+pst.setBigDecimal(2, record.amount);
+
+// 4) En los comandos y en el DtoAssembler: campos de Record y de DTO
+dto.availableAmount = record.available;
+```
+
+Notas:
+- **Mayúsculas y minúsculas no importan en HSQLDB** si no pones comillas: `createdAt`, `CREATEDAT` y `createdat` son la misma columna. `TClients` y `TCLIENTS` son la misma tabla. **Los guiones bajos sí importan**: `total_amount` ≠ `totalamount`.
+- En el modelo de dominio, una relación es un atributo-objeto (`WorkOrder.vehicle`). **En la BD esa relación es una columna `xxx_id`** con el id del otro objeto (`vehicle_id`). Ese `_id` es lo que usas en el `ON` del JOIN.
+- La herencia del modelo (`PaymentMean` → `Cash` / `CreditCard` / `Voucher`) son **varias tablas con el mismo `id`** (`TPaymentMeans` + `TVouchers`...) y una columna `dtype` que dice el tipo. En el modelo es un solo objeto; en SQL necesitas un JOIN `ON pm.id = v.id`.
+- Los value objects del modelo (`Address`, `Money`, `Nif`...) **no existen como tablas**. `Address` son cuatro columnas sueltas (`street`, `city`, `country`, `postalCode`) y `Money` es una columna `NUMERIC`.
+
+**Resumen:** para escribir una consulta, mira el `CREATE TABLE` de `test.script` o un `SELECT` que ya tengas en `queries.properties`. Para pasar el resultado a Java, mira el `RecordAssembler`.
+
+> Posible pregunta: la P4 dice que los campos del Record deben llamarse *"exactamente los nombres de los campos de las tablas, todo en minúscula"*. En tu código algunos no coinciden (`vehicleId` en vez de `vehicle_id`, `amount` en vez de `total_amount`). Funciona, porque el assembler hace la correspondencia, pero si te preguntan por qué, esa es la explicación.
+
 ---
 
 ## 7. LA RECETA: cómo añadir una consulta nueva ("un find")

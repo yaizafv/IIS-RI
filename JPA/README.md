@@ -8,6 +8,53 @@ completando poco a poco.
 Léela en orden. Al final de cada parte hay un recuadro **"Lo importante"** con lo que deberías
 quedarte. Si al llegar a uno no lo entiendes, vuelve atrás antes de seguir.
 
+## Índice
+
+* [Parte 1. ¿Qué problema resuelve este programa?](#parte-1-qué-problema-resuelve-este-programa)
+* [Parte 2. ¿Dónde se guardan los datos? La base de datos](#parte-2-dónde-se-guardan-los-datos-la-base-de-datos)
+  * [2.1 Tablas, filas y columnas](#21-tablas-filas-y-columnas)
+  * [2.2 Tablas que se apuntan entre sí: la clave ajena](#22-tablas-que-se-apuntan-entre-sí-la-clave-ajena)
+  * [2.3 SQL: el idioma de la base de datos](#23-sql-el-idioma-de-la-base-de-datos)
+* [Parte 3. ¿Cómo se representa lo mismo en Java? Las clases del dominio](#parte-3-cómo-se-representa-lo-mismo-en-java-las-clases-del-dominio)
+  * [3.1 ¿Qué es "el dominio"?](#31-qué-es-el-dominio)
+  * [3.2 Entidades y "value types"](#32-entidades-y-value-types)
+* [Parte 4. El traductor: JPA](#parte-4-el-traductor-jpa)
+  * [4.1 El diccionario del traductor: `orm.xml`](#41-el-diccionario-del-traductor-ormxml)
+  * [4.2 Una consecuencia: casi no hay SQL en el proyecto](#42-una-consecuencia-casi-no-hay-sql-en-el-proyecto)
+* [Parte 5. Un viaje completo: dar de alta un mecánico](#parte-5-un-viaje-completo-dar-de-alta-un-mecánico)
+  * [5.1 La analogía del restaurante](#51-la-analogía-del-restaurante)
+  * [5.2 Paso 1: la pantalla pide el servicio](#52-paso-1-la-pantalla-pide-el-servicio)
+  * [5.3 Paso 2: el camarero (servicio, también llamado "fachada")](#53-paso-2-el-camarero-servicio-también-llamado-fachada)
+  * [5.4 Paso 3: el jefe de cocina (el ejecutor)](#54-paso-3-el-jefe-de-cocina-el-ejecutor)
+  * [5.5 Paso 4: el cocinero (el comando)](#55-paso-4-el-cocinero-el-comando)
+  * [5.6 Paso 5: la despensa (el repositorio)](#56-paso-5-la-despensa-el-repositorio)
+  * [5.7 El viaje completo, de un vistazo](#57-el-viaje-completo-de-un-vistazo)
+  * [5.8 ¿Por qué tantas piezas? (la "arquitectura")](#58-por-qué-tantas-piezas-la-arquitectura)
+* [Parte 6. Los tres tipos de error](#parte-6-los-tres-tipos-de-error)
+* [Parte 7. Relaciones entre objetos: por qué existe `Associations`](#parte-7-relaciones-entre-objetos-por-qué-existe-associations)
+* [Parte 8. Leer uno de tus casos de uso: dar de alta un cliente](#parte-8-leer-uno-de-tus-casos-de-uso-dar-de-alta-un-cliente)
+* [Parte 9. Tu primera ampliación, muy despacio](#parte-9-tu-primera-ampliación-muy-despacio)
+  * [Paso 1. El dominio: añadir el dato a la clase](#paso-1-el-dominio-añadir-el-dato-a-la-clase)
+  * [Paso 2. El mapeo: ¿hay que tocar `orm.xml`?](#paso-2-el-mapeo-hay-que-tocar-ormxml)
+  * [Paso 3. La base de datos: crear la columna](#paso-3-la-base-de-datos-crear-la-columna)
+  * [Paso 4. El servicio: usar el dato en un caso de uso](#paso-4-el-servicio-usar-el-dato-en-un-caso-de-uso)
+* [Parte 10. Ejercicios resueltos tipo examen, paso a paso](#parte-10-ejercicios-resueltos-tipo-examen-paso-a-paso)
+  * [Ejercicio 1. Stock de repuestos](#ejercicio-1-stock-de-repuestos)
+  * [Ejercicio 2. Certificados de mecánicos (una clase nueva)](#ejercicio-2-certificados-de-mecánicos-una-clase-nueva)
+  * [Ejercicio 3. Asignar una orden de trabajo (caso de uso con lo que ya hay)](#ejercicio-3-asignar-una-orden-de-trabajo-caso-de-uso-con-lo-que-ya-hay)
+  * [La plantilla mental para cualquier ejercicio](#la-plantilla-mental-para-cualquier-ejercicio)
+* [Parte 11. El simulacro de la prueba de autoría (TG), resuelto paso a paso](#parte-11-el-simulacro-de-la-prueba-de-autoría-tg-resuelto-paso-a-paso)
+  * [11.1 Qué es la prueba, en una frase](#111-qué-es-la-prueba-en-una-frase)
+  * [11.2 Fase 1: antes de empezar (con internet)](#112-fase-1-antes-de-empezar-con-internet)
+  * [11.3 Fase 2: preparar los materiales (sin internet)](#113-fase-2-preparar-los-materiales-sin-internet)
+  * [11.4 Fase 3: entender el enunciado](#114-fase-3-entender-el-enunciado)
+  * [11.5 Fase 4: resolverlo, paso a paso](#115-fase-4-resolverlo-paso-a-paso)
+  * [11.6 Fase 5: comprobar y entregar](#116-fase-5-comprobar-y-entregar)
+  * [11.7 Qué podrían cambiar el día de la prueba (y cómo lo adaptarías)](#117-qué-podrían-cambiar-el-día-de-la-prueba-y-cómo-lo-adaptarías)
+* [Parte 12. Glosario (para cuando te pierdas)](#parte-12-glosario-para-cuando-te-pierdas)
+* [Parte 13. Comprueba si lo has entendido](#parte-13-comprueba-si-lo-has-entendido)
+* [¿Y ahora qué?](#y-ahora-qué)
+
 ---
 
 ## Parte 1. ¿Qué problema resuelve este programa?

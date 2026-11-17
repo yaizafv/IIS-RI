@@ -2,15 +2,8 @@ package uo.ri.cws.domain;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import uo.ri.cws.domain.base.BaseEntity;
 import uo.ri.cws.domain.types.Address;
 import uo.ri.cws.domain.types.Email;
@@ -20,14 +13,11 @@ import uo.ri.cws.domain.types.PhoneNumber;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.assertion.StateChecks;
 
-@Entity
-@Table(name = "TCLIENTS")
 public class Client extends BaseEntity {
 	private static final int VOUCHER_25_RECOMMENDATIONS = 3;
 	private static final int VOUCHER_20_WORK_ORDERS = 3;
 
 	// Natural attributes
-	@AttributeOverride(name = "nif", column = @Column(name = "NIF", unique = true))
 	private Nif nif;
 	private FullName fullName;
 	private Email email;
@@ -35,19 +25,15 @@ public class Client extends BaseEntity {
 	private Address address;
 
 	// ACCIDENTAL ATTRIBUTES
-	@OneToMany(mappedBy = "client")
 	private Set<Vehicle> vehicles = new HashSet<>();
-	@OneToMany(mappedBy = "client")
 	private Set<PaymentMean> paymentMeans = new HashSet<>();
 
-	@OneToMany(mappedBy = "recommender")
 	private Set<Recommendation> recommendations = new HashSet<>(); // made by this client
-	@OneToOne(mappedBy = "recommended")
 	private Recommendation recommendation; // received by this client
 
 	// ---- Constructors ----
-	public Client() {
-
+	Client() {
+		// for JPA
 	}
 
 	public Client(Nif nif) {
@@ -120,6 +106,13 @@ public class Client extends BaseEntity {
 		return recommendations;
 	}
 
+	/**
+	 * @return a new list with the work orders of all the vehicles of the client
+	 */
+	public List<WorkOrder> getWorkOrders() {
+		return allWorkOrders();
+	}
+
 	public Recommendation getRecommendation() {
 		return recommendation;
 	}
@@ -129,6 +122,38 @@ public class Client extends BaseEntity {
 	}
 
 	// ---- Business methods ----
+
+	/**
+	 * Updates the contact data of the client
+	 */
+	public void update(FullName fullName, Email email, PhoneNumber phone, Address address) {
+		ArgumentChecks.isNotNull(fullName, "Full name cannot be null");
+		ArgumentChecks.isNotNull(email, "Email cannot be null");
+		ArgumentChecks.isNotNull(phone, "Phone number cannot be null");
+		ArgumentChecks.isNotNull(address, "Address cannot be null");
+
+		this.fullName = fullName;
+		this.email = email;
+		this.phone = phone;
+		this.address = address;
+	}
+
+	/**
+	 * Changes the nif of the client, as allowed by the update use case. The
+	 * uniqueness of the new nif must be checked by the caller.
+	 */
+	public void changeNif(Nif nif) {
+		ArgumentChecks.isNotNull(nif, "NIF cannot be null");
+		this.nif = nif;
+	}
+
+	/**
+	 * A client is eligible for a 20€ voucher if it has, at least, three work
+	 * orders not yet used for a voucher and included in paid invoices.
+	 */
+	public boolean isEligibleForVoucher20() {
+		return getWorkOrdersAvailableForVoucher20().size() >= VOUCHER_20_WORK_ORDERS;
+	}
 
 	/**
 	 * A client is eligible for a 25€ voucher if it has, at least, one paid invoice
@@ -143,8 +168,10 @@ public class Client extends BaseEntity {
 	 *         client has, at least, one paid invoice
 	 */
 	public List<Recommendation> getRecommendationsAvailableForVoucher25() {
-		return recommendations.stream().filter(r -> !r.isUsedForVoucher())
-				.filter(r -> r.getRecommended().hasPaidInvoices()).toList();
+		return recommendations.stream()
+				.filter(r -> !r.isUsedForVoucher())
+				.filter(r -> r.getRecommended().hasPaidInvoices())
+				.toList();
 	}
 
 	/**
@@ -155,7 +182,8 @@ public class Client extends BaseEntity {
 	public void markThreeRecommendationsAsUsedForVoucher25() {
 		StateChecks.isTrue(isEligibleForVoucher25(), "Client is not eligible for a 25€ voucher");
 
-		getRecommendationsAvailableForVoucher25().stream().limit(VOUCHER_25_RECOMMENDATIONS)
+		getRecommendationsAvailableForVoucher25().stream()
+				.limit(VOUCHER_25_RECOMMENDATIONS)
 				.forEach(Recommendation::markAsUsedForVoucher);
 	}
 
@@ -164,8 +192,10 @@ public class Client extends BaseEntity {
 	 *         and included in a paid invoice
 	 */
 	public List<WorkOrder> getWorkOrdersAvailableForVoucher20() {
-		return allWorkOrders().stream().filter(wo -> !wo.isUsedForVoucher())
-				.filter(wo -> wo.getInvoice() != null && wo.getInvoice().isSettled()).toList();
+		return allWorkOrders().stream()
+				.filter(wo -> !wo.isUsedForVoucher())
+				.filter(WorkOrder::isPaid)
+				.toList();
 	}
 
 	/**
@@ -175,18 +205,22 @@ public class Client extends BaseEntity {
 	 *                               orders
 	 */
 	public void markThreeWorkOrdersAsUsedForVoucher20() {
-		List<WorkOrder> available = getWorkOrdersAvailableForVoucher20();
-		StateChecks.isTrue(available.size() >= VOUCHER_20_WORK_ORDERS, "Not enough work orders for a 20€ voucher");
+		StateChecks.isTrue(isEligibleForVoucher20(), "Not enough work orders for a 20€ voucher");
 
-		available.stream().limit(VOUCHER_20_WORK_ORDERS).forEach(WorkOrder::markAsUsedForVoucher);
+		getWorkOrdersAvailableForVoucher20().stream()
+				.limit(VOUCHER_20_WORK_ORDERS)
+				.forEach(WorkOrder::markAsUsedForVoucher);
 	}
 
 	private boolean hasPaidInvoices() {
-		return allWorkOrders().stream().anyMatch(wo -> wo.getInvoice() != null && wo.getInvoice().isSettled());
+		return allWorkOrders().stream()
+				.anyMatch(WorkOrder::isPaid);
 	}
 
 	private List<WorkOrder> allWorkOrders() {
-		return vehicles.stream().flatMap(v -> v._getWorkOrders().stream()).toList();
+		return vehicles.stream()
+				.flatMap(v -> v._getWorkOrders().stream())
+				.toList();
 	}
 
 	// -- Object methods ----
@@ -197,21 +231,8 @@ public class Client extends BaseEntity {
 				+ address + "]";
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(nif);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Client other = (Client) obj;
-		return Objects.equals(nif, other.nif);
-	}
+	// equals() and hashCode() are inherited from BaseEntity (artificial
+	// identity): the nif can be changed by the update use case, so it cannot
+	// define the identity of the client. Its uniqueness is a database constraint.
 
 }

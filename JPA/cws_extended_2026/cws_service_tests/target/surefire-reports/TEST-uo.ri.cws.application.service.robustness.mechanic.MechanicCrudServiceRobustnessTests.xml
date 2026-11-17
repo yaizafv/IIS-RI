@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.111" tests="76" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="25"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.class.path" value="C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests\target\test-classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_services_jpa\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_interfaces\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_util\target\classes;C:\Users\yaiza\.m2\repository\org\hsqldb\hsqldb\2.7.2\hsqldb-2.7.2.jar;C:\Users\yaiza\.m2\repository\org\eclipse\persistence\eclipselink\5.0.0\eclipselink-5.0.0.jar;C:\Users\yaiza\.m2\repository\jakarta\persistence\jakarta.persistence-api\3.2.0\jakarta.persistence-api-3.2.0.jar;C:\Users\yaiza\.m2\repository\jakarta\xml\bind\jakarta.xml.bind-api\4.0.5\jakarta.xml.bind-api-4.0.5.jar;C:\Users\yaiza\.m2\repository\com\sun\xml\bind\jaxb-xjc\4.0.7\jaxb-xjc-4.0.7.jar;C:\Users\yaiza\.m2\repository\com\sun\xml\bind\jaxb-core\4.0.7\jaxb-core-4.0.7.jar;C:\Users\yaiza\.m2\repository\org\eclipse\angus\angus-activation\2.0.3\angus-activation-2.0.3.jar;C:\Users\yaiza\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.4\jakarta.activation-api-2.1.4.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm\9.9.1\asm-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-commons\9.9.1\asm-commons-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-tree\9.9.1\asm-tree-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-util\9.9.1\asm-util-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-analysis\9.9.1\asm-analysis-9.9.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-java\7.18.1\cucumber-java-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-core\7.18.1\cucumber-core-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-gherkin\7.18.1\cucumber-gherkin-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-gherkin-messages\7.18.1\cucumber-gherkin-messages-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\gherkin\28.0.0\gherkin-28.0.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\messages\24.1.0\messages-24.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\testng-xml-formatter\0.2.0\testng-xml-formatter-0.2.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\query\12.2.0\query-12.2.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\tag-expressions\6.1.0\tag-expressions-6.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-expressions\17.1.0\cucumber-expressions-17.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\datatable\7.18.1\datatable-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-plugin\7.18.1\cucumber-plugin-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\docstring\7.18.1\docstring-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\html-formatter\21.4.1\html-formatter-21.4.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\junit-xml-formatter\0.5.0\junit-xml-formatter-0.5.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\ci-environment\10.0.1\ci-environment-10.0.1.jar;C:\Users\yaiza\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-junit-platform-engine\7.18.1\cucumber-junit-platform-engine-7.18.1.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-engine\1.10.3\junit-platform-engine-1.10.3.jar;C:\Users\yaiza\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-commons\1.10.3\junit-platform-commons-1.10.3.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite\1.11.0\junit-platform-suite-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-api\1.11.0\junit-platform-suite-api-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-engine\1.11.0\junit-platform-suite-engine-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-commons\1.11.0\junit-platform-suite-commons-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-launcher\1.11.0\junit-platform-launcher-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter\5.9.1\junit-jupiter-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.9.1\junit-jupiter-api-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.9.1\junit-jupiter-params-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.9.1\junit-jupiter-engine-5.9.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-picocontainer\7.18.1\cucumber-picocontainer-7.18.1.jar;C:\Users\yaiza\.m2\repository\org\picocontainer\picocontainer\2.15\picocontainer-2.15.jar;C:\Users\yaiza\.m2\repository\org\apache\commons\commons-lang3\3.11\commons-lang3-3.11.jar;C:\Users\yaiza\.m2\repository\c3p0\c3p0\0.9.1.2\c3p0-0.9.1.2.jar;"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="https://java.oracle.com/"/>
+    <property name="user.timezone" value="Europe/Madrid"/>
+    <property name="os.name" value="Windows 11"/>
+    <property name="java.vm.specification.version" value="25"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="ES"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-25.0.4.1\bin"/>
+    <property name="sun.java.command" value="C:\Users\yaiza\AppData\Local\Temp\surefire119459172746537847\surefirebooter-20261117113037270_3.jar C:\Users\yaiza\AppData\Local\Temp\surefire119459172746537847 2026-11-17T11-30-36_223-jvmRun1 surefire-20261117113037270_1tmp surefire_0-20261117113037270_2tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="test" value="RunServiceTests_2"/>
+    <property name="surefire.test.class.path" value="C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests\target\test-classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_services_jpa\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_interfaces\target\classes;C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_util\target\classes;C:\Users\yaiza\.m2\repository\org\hsqldb\hsqldb\2.7.2\hsqldb-2.7.2.jar;C:\Users\yaiza\.m2\repository\org\eclipse\persistence\eclipselink\5.0.0\eclipselink-5.0.0.jar;C:\Users\yaiza\.m2\repository\jakarta\persistence\jakarta.persistence-api\3.2.0\jakarta.persistence-api-3.2.0.jar;C:\Users\yaiza\.m2\repository\jakarta\xml\bind\jakarta.xml.bind-api\4.0.5\jakarta.xml.bind-api-4.0.5.jar;C:\Users\yaiza\.m2\repository\com\sun\xml\bind\jaxb-xjc\4.0.7\jaxb-xjc-4.0.7.jar;C:\Users\yaiza\.m2\repository\com\sun\xml\bind\jaxb-core\4.0.7\jaxb-core-4.0.7.jar;C:\Users\yaiza\.m2\repository\org\eclipse\angus\angus-activation\2.0.3\angus-activation-2.0.3.jar;C:\Users\yaiza\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.4\jakarta.activation-api-2.1.4.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm\9.9.1\asm-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-commons\9.9.1\asm-commons-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-tree\9.9.1\asm-tree-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-util\9.9.1\asm-util-9.9.1.jar;C:\Users\yaiza\.m2\repository\org\ow2\asm\asm-analysis\9.9.1\asm-analysis-9.9.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-java\7.18.1\cucumber-java-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-core\7.18.1\cucumber-core-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-gherkin\7.18.1\cucumber-gherkin-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-gherkin-messages\7.18.1\cucumber-gherkin-messages-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\gherkin\28.0.0\gherkin-28.0.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\messages\24.1.0\messages-24.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\testng-xml-formatter\0.2.0\testng-xml-formatter-0.2.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\query\12.2.0\query-12.2.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\tag-expressions\6.1.0\tag-expressions-6.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-expressions\17.1.0\cucumber-expressions-17.1.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\datatable\7.18.1\datatable-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-plugin\7.18.1\cucumber-plugin-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\docstring\7.18.1\docstring-7.18.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\html-formatter\21.4.1\html-formatter-21.4.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\junit-xml-formatter\0.5.0\junit-xml-formatter-0.5.0.jar;C:\Users\yaiza\.m2\repository\io\cucumber\ci-environment\10.0.1\ci-environment-10.0.1.jar;C:\Users\yaiza\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-junit-platform-engine\7.18.1\cucumber-junit-platform-engine-7.18.1.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-engine\1.10.3\junit-platform-engine-1.10.3.jar;C:\Users\yaiza\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-commons\1.10.3\junit-platform-commons-1.10.3.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite\1.11.0\junit-platform-suite-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-api\1.11.0\junit-platform-suite-api-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-engine\1.11.0\junit-platform-suite-engine-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-suite-commons\1.11.0\junit-platform-suite-commons-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\platform\junit-platform-launcher\1.11.0\junit-platform-launcher-1.11.0.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter\5.9.1\junit-jupiter-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.9.1\junit-jupiter-api-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.9.1\junit-jupiter-params-5.9.1.jar;C:\Users\yaiza\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.9.1\junit-jupiter-engine-5.9.1.jar;C:\Users\yaiza\.m2\repository\io\cucumber\cucumber-picocontainer\7.18.1\cucumber-picocontainer-7.18.1.jar;C:\Users\yaiza\.m2\repository\org\picocontainer\picocontainer\2.15\picocontainer-2.15.jar;C:\Users\yaiza\.m2\repository\org\apache\commons\commons-lang3\3.11\commons-lang3-3.11.jar;C:\Users\yaiza\.m2\repository\c3p0\c3p0\0.9.1.2\c3p0-0.9.1.2.jar;"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\yaiza"/>
+    <property name="user.language" value="es"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-08-18"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk-25.0.4.1"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="C:\Users\yaiza\AppData\Local\Temp\surefire119459172746537847\surefirebooter-20261117113037270_3.jar"/>
+    <property name="user.script" value=""/>
+    <property name="java.util.logging.config.file" value="C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests\target\test-classes/logging.properties"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="25.0.4.1+1-LTS-5"/>
+    <property name="user.name" value="yaiza"/>
+    <property name="stdout.encoding" value="Cp1252"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="surefire.failIfNoSpecifiedTests" value="false"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="localRepository" value="C:\Users\yaiza\.m2\repository"/>
+    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
+    <property name="java.io.tmpdir" value="C:\Users\yaiza\AppData\Local\Temp\"/>
+    <property name="java.version" value="25.0.4.1"/>
+    <property name="user.dir" value="C:\Users\yaiza\Desktop\RI\JPA\cws_extended_2026\cws_service_tests"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="native.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk-25.0.4.1\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Users\yaiza\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\yaiza\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\PuTTY;C:\Program Files\Git\cmd;C:\Users\yaiza\AppData\Local\Microsoft\WindowsApps;C:\Users\yaiza\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\yaiza\AppData\Local\Programs\Microsoft VS Code\bin\copilot-shim;C:\Users\yaiza\.local\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl;."/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="Cp1252"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.version" value="25.0.4.1+1-LTS-5"/>
+    <property name="stdin.encoding" value="Cp1252"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="69.0"/>
+  </properties>
+  <testcase name="[M.A.1] Add a non existing mechanic" classname="[M.A] Add a mechanic" time="2.35">
+    <system-out><![CDATA[
+Scenario: [M.A.1] Add a non existing mechanic           &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Add.feature:7&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.A.1] a new non existing mechanic&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA1.givenNewNonExistingMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.A.1] I add a that mechanic&amp#27;[0m                    &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA1.whenIAddANewNonExistingMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.A.1] the mechanic results added to the system&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA1.thenTheMechanicResultsAddedToTheSystem()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.A.2] Try to add a mechanic with a repeated nif" classname="[M.A] Add a mechanic" time="0.501">
+    <system-out><![CDATA[
+Scenario: [M.A.2] Try to add a mechanic with a repeated nif        &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Add.feature:12&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.A.2] a registered mechanic&amp#27;[0m                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA2.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.A.2] I try to add a new mechanic with same nif&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA2.whenITryToAddANewMechanicWithSameNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.A.2] a business error happens with an explaining message&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.add.ScenarioMA2.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.D.1] Delete an existing unused mechanic" classname="[M.D] Delete a mechanic" time="0.441">
+    <system-out><![CDATA[
+Scenario: [M.D.1] Delete an existing unused mechanic &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Delete.feature:7&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.D.1] a registered mechanic&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD1.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.D.1] I remove the mechanic&amp#27;[0m                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD1.whenIRemoveTheMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.D.1] the mechanic no longer exists&amp#27;[0m         &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD1.thenTheMechanicNoLongerExists()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.D.2] Try to remove a non existing mechanic" classname="[M.D] Delete a mechanic" time="0.379">
+    <system-out><![CDATA[
+Scenario: [M.D.2] Try to remove a non existing mechanic            &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Delete.feature:12&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.D.2] I try to remove a non existent mechanic&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD2.whenITryToRemoveANonExistentMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.D.2] a business error happens with an explaining message&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD2.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.D.3] Try to remove a used mechanic with work orders" classname="[M.D] Delete a mechanic" time="0.332">
+    <system-out><![CDATA[
+Scenario: [M.D.3] Try to remove a used mechanic with work orders   &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Delete.feature:16&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.D.3] a mechanic with work orders registered&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD3.givenAMechanicWithWorkOrdersRegistered()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.D.3] I try to remove the mechanic&amp#27;[0m                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD3.whenITryToRemoveTheMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.D.3] a business error happens with an explaining message&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD3.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.D.4] Try to remove a used mechanic with interventions in work orders" classname="[M.D] Delete a mechanic" time="0.31">
+    <system-out><![CDATA[
+Scenario: [M.D.4] Try to remove a used mechanic with interventions in work orders &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Delete.feature:21&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.D.4] a mechanic with interventions registered&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD4.givenAMechanicWithInterventionsRegistered()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.D.4] I try to remove the mechanic&amp#27;[0m                                       &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD4.whenITryToRemoveTheMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.D.4] a business error happens with an explaining message&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.delete.ScenarioMD4.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.FA.1] Find all existing mechanic" classname="[M.FA] Find all mechanics" time="0.286">
+    <system-out><![CDATA[
+Scenario: [M.FA.1] Find all existing mechanic        &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/FindAll.feature:5&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.FA.1] the following relation of mechanics&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findall.ScenarioMFA1.givenTheFollowingRelationOfMechanics(io.cucumber.datatable.DataTable)&amp#27;[0m
+    | nif       | name   | surname   |
+    | 12345678Z | Name-1 | Surname-1 |
+    | 98765432M | Name-2 | Surname-2 |
+    | 45678912S | Name-3 | Surname-3 |
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.FA.1] we read all mechanics&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findall.ScenarioMFA1.whenWeReadAllMechanics()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.FA.1] we get all of them&amp#27;[0m                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findall.ScenarioMFA1.thenWeGetTheFollowingListOfMechanics()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.FbI.1] Find an existing mechanic" classname="[M.FbI] Find a mechanic by id" time="0.277">
+    <system-out><![CDATA[
+Scenario: [M.FbI.1] Find an existing mechanic &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/FindById.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.FbI.1] a mechanic&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbyid.ScenarioMFbI1.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.FbI.1] I look for mechanic&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbyid.ScenarioMFbI1.whenILookForMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.FbI.1] I get mechanic&amp#27;[0m               &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbyid.ScenarioMFbI1.thenIGetMechanic()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.FbI.2] Try to find a mechanic with non existing id" classname="[M.FbI] Find a mechanic by id" time="0.284">
+    <system-out><![CDATA[
+Scenario: [M.FbI.2] Try to find a mechanic with non existing id &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/FindById.feature:11&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.FbI.2] I try to find a non existent mechanic&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbyid.ScenarioMFbI2.whenITryToFindNonExistentMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.FbI.2] mechanic is not found&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbyid.ScenarioMFbI2.thenMechanicIsNotFound()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.FbN.1] Find an existing mechanic" classname="[M.FbN] Find a mechanic by nif" time="0.264">
+    <system-out><![CDATA[
+Scenario: [M.FbN.1] Find an existing mechanic &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/FindByNif.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.FbN.1] a mechanic&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbynif.ScenarioMFbN1.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.FbN.1] I look for mechanic by nif&amp#27;[0m   &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbynif.ScenarioMFbN1.whenILookForMechanicByNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.FbN.1] I get mechanic&amp#27;[0m               &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbynif.ScenarioMFbN1.thenIGetMechanic()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.FbN.2] Try to find a mechanic with non existing nif" classname="[M.FbN] Find a mechanic by nif" time="0.278">
+    <system-out><![CDATA[
+Scenario: [M.FbN.2] Try to find a mechanic with non existing nif &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/FindByNif.feature:11&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.FbN.2] I try to find a mechanic by a non existent nif&amp#27;[0m  &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbynif.ScenarioMFbN2.whenITryToFindMechanicByNonExistentNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.FbN.2] mechanic is not found&amp#27;[0m                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.findbynif.ScenarioMFbN2.thenMechanicIsNotFound()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.U.1] Update an existing mechanic" classname="[M.U] Update a mechanic" time="0.248">
+    <system-out><![CDATA[
+Scenario: [M.U.1] Update an existing mechanic &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Update.feature:5&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.U.1] a mechanic&amp#27;[0m                    &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU1.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.U.1] I update the mechanic&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU1.whenIUpdateTheMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.U.1] the mechanic results updated&amp#27;[0m   &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU1.thenTheMechanicResultsUpdatedForFieldsNameAndSurname()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[M.U.1] mechanic version increases&amp#27;[0m      &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU1.andMechanicVersionIncreases()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.U.2] Try to update a non existing mechanic" classname="[M.U] Update a mechanic" time="0.28">
+    <system-out><![CDATA[
+Scenario: [M.U.2] Try to update a non existing mechanic            &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Update.feature:11&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.U.2] I try to update a non existing mechanic&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU2.whenITryToUpdateANonExistingMechanic()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.U.2] a business error happens with an explaining message&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU2.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[M.U.3] Try to update a mechanic updated in the while (wrong version)" classname="[M.U] Update a mechanic" time="0.296">
+    <system-out><![CDATA[
+Scenario: [M.U.3] Try to update a mechanic updated in the while (wrong version) &amp#27;[90m# uo/ri/cws/application/service/acceptance/mechanic/Update.feature:15&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[M.U.3] a mechanic&amp#27;[0m                                                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU3.givenAMechanic()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[M.U.3] I try to update a mechanic updated in the while&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU3.whenITryToUpdateAMechanicUpdatedInTheWhile()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[M.U.3] a business error happens with an explaining message&amp#27;[0m              &amp#27;[90m# uo.ri.cws.application.service.acceptance.mechanic.update.ScenarioMU3.thenABusinessErrorHappensWithAnExplainingMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.1] Create one invoice for an existing workorder" classname="[I.C] Create one invoice for one or multiple jobs" time="0.431">
+    <system-out><![CDATA[
+Scenario: [I.C.1] Create one invoice for an existing workorder                &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.1] a client registered with a vehicle and one approved workorder&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC1.givenClientWithVehicleAndApprovedWorkorder()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.1] I create an invoice for the workorders&amp#27;[0m                         &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC1.whenICreateInvoiceForWorkorders()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.1] an invoice is created&amp#27;[0m                                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC1.thenInvoiceIsCreated()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.C.1] the workorder is marked as INVOICED&amp#27;[0m                             &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC1.thenWorkOrderIsMarkedAsInvoiced()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.2] Create one invoice for multiple existing workorders" classname="[I.C] Create one invoice for one or multiple jobs" time="0.375">
+    <system-out><![CDATA[
+Scenario: [I.C.2] Create one invoice for multiple existing workorders                        &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:17&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.2] a client registered with a vehicle and a list of several approved workorders&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC2.givenClientWithVehicleAndFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.2] I create an invoice for the workorders&amp#27;[0m                                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC2.whenICreateInvoiceForWorkorders()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.2] an invoice is created&amp#27;[0m                                                         &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC2.thenInvoiceIsCreated()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.C.2] the workorders are marked as INVOICED&amp#27;[0m                                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC2.thenWorkOrdersAreMarkedAsInvoiced()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.3] Trying to create one invoice there is one non existing workorder" classname="[I.C] Create one invoice for one or multiple jobs" time="0.394">
+    <system-out><![CDATA[
+Scenario: [I.C.3] Trying to create one invoice there is one non existing workorder           &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:27&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.3] a client registered with a vehicle and a list of several finished workorders&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC3.givenClientWithVehicleAndFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.3] I try to create an invoice including one non existent workorder id&amp#27;[0m            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC3.whenITryToCreateInvoiceWithNonExistentWorkorderId()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.3] a business error happens with an explaining message&amp#27;[0m                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC3.thenBusinessErrorWithMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.4] Trying to create one invoice there is one workorder ASSIGNED" classname="[I.C] Create one invoice for one or multiple jobs" time="0.324">
+    <system-out><![CDATA[
+Scenario: [I.C.4] Trying to create one invoice there is one workorder ASSIGNED              &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:32&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.4] a client registered with a vehicle and a list of several finished workorder&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC4.givenClientWithVehicleAndFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.C.4] one ASSIGNED workorder&amp#27;[0m                                                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC4.andOneAssignedWorkorder()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.4] I try to create an invoice&amp#27;[0m                                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC4.whenITryToCreateInvoice()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.4] a business error happens with an explaining message&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC4.thenBusinessErrorWithMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.5] Trying to create one invoice there is one workorder OPEN" classname="[I.C] Create one invoice for one or multiple jobs" time="0.328">
+    <system-out><![CDATA[
+Scenario: [I.C.5] Trying to create one invoice there is one workorder OPEN                  &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:38&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.5] a client registered with a vehicle and a list of several finished workorder&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC5.givenClientWithVehicleAndFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.C.5] one OPEN workorder&amp#27;[0m                                                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC5.andOneOpenWorkorder()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.5] I try to create an invoice&amp#27;[0m                                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC5.whenITryToCreateInvoice()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.5] a business error happens with an explaining message&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC5.thenBusinessErrorWithMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.C.6] Trying to create one invoice but one workorder is INVOICED" classname="[I.C] Create one invoice for one or multiple jobs" time="0.336">
+    <system-out><![CDATA[
+Scenario: [I.C.6] Trying to create one invoice but one workorder is INVOICED                &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/CreateInvoiceFor.feature:44&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.C.6] a client registered with a vehicle and a list of several finished workorder&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC6.givenClientWithVehicleAndFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.C.6] one INVOICED workorder&amp#27;[0m                                                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC6.andOneInvoicedWorkorder()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.C.6] I try to create an invoice&amp#27;[0m                                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC6.whenITryToCreateInvoice()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.C.6] a business error happens with an explaining message&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.create.ScenarioIC6.thenBusinessErrorWithMessage()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[W.FnI.1] Find not invoiced workorders by client nif" classname="[W.FnI] Find not yet invoiced workorders for a client by client nif" time="0.366">
+    <system-out><![CDATA[
+Scenario: [W.FnI.1] Find not invoiced workorders by client nif                                 &amp#27;[90m# uo/ri/cws/application/service/acceptance/workorder/FindNotInvoicedWorkOrdersByClientNif.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[W.FnI.1] a client registered with a vehicle and a list of several approved workorders&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI1.givenClientWithVehicleAndSeveralFinishedWorkorders()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[W.FnI.1] I search not invoiced workorders by client nif&amp#27;[0m                                &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI1.whenISearchNotInvoicedWorkordersByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[W.FnI.1] I get only approved workorders&amp#27;[0m                                                &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI1.thenIGetOnlyFinishedWorkorders()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[W.FnI.2] Find not invoiced workorders by client nif with no workorders" classname="[W.FnI] Find not yet invoiced workorders for a client by client nif" time="0.297">
+    <system-out><![CDATA[
+Scenario: [W.FnI.2] Find not invoiced workorders by client nif with no workorders &amp#27;[90m# uo/ri/cws/application/service/acceptance/workorder/FindNotInvoicedWorkOrdersByClientNif.feature:11&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[W.FnI.2] a client registered&amp#27;[0m                                             &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI2.givenClientRegistered()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[W.FnI.2] I search not invoiced workorders by client nif&amp#27;[0m                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI2.whenISearchNotInvoicedWorkordersByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[W.FnI.2] I get an empty list&amp#27;[0m                                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI2.thenIGetAnEmptyList()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[W.FnI.3] Find not invoiced workorders by client nif with some not approved workorders" classname="[W.FnI] Find not yet invoiced workorders for a client by client nif" time="0.431">
+    <system-out><![CDATA[
+Scenario: [W.FnI.3] Find not invoiced workorders by client nif with some not approved workorders &amp#27;[90m# uo/ri/cws/application/service/acceptance/workorder/FindNotInvoicedWorkOrdersByClientNif.feature:16&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[W.FnI.3] a client registered with a vehicle and a list of several approved workorders&amp#27;[0m   &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.givenClientWithVehicleAndSeveralApprovedWorkorders()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[W.FnI.3] one INVOICED workorder&amp#27;[0m                                                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.andOneInvoicedWorkorder()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[W.FnI.3] one OPEN workorder&amp#27;[0m                                                               &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.andOneOpenWorkorder()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[W.FnI.3] one ASSIGNED workorder&amp#27;[0m                                                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.andOneAssignedWorkorder()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[W.FnI.3] one FINISHED workorder&amp#27;[0m                                                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.andOneFinishedWorkorder()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[W.FnI.3] I search not invoiced workorders by client nif&amp#27;[0m                                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.whenISearchNotInvoicedWorkordersByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[W.FnI.3] I get only approved workorders&amp#27;[0m                                                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI3.thenIGetOnlyApprovedWorkorders()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[W.FnI.4] Try to find workorders for a non existent client" classname="[W.FnI] Find not yet invoiced workorders for a client by client nif" time="0.263">
+    <system-out><![CDATA[
+Scenario: [W.FnI.4] Try to find workorders for a non existent client &amp#27;[90m# uo/ri/cws/application/service/acceptance/workorder/FindNotInvoicedWorkOrdersByClientNif.feature:34&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[W.FnI.4] I search workorders for a non existent nif&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI4.whenISearchWorkordersForNonExistentNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[W.FnI.4] I get an empty list&amp#27;[0m                                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.workorder.find.ScenarioWFnI4.thenIGetAnEmptyList()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.1] Generate one voucher for an invoice over 500 euro" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.3">
+    <system-out><![CDATA[
+Scenario: [V.GI.1] Generate one voucher for an invoice over 500 euro  &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.1] a client with a paid invoice over 500 euro&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI1.givenAClientWithAPaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.1] I generate vouchers&amp#27;[0m                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI1.whenIGenerateVouchers()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.1] one voucher of 30 euro is generated for the client&amp#27;[0m    &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI1.thenOneVoucherOf30EuroIsGeneratedForTheClient()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.1] the voucher description is &amp#27;[0m&amp#27;[32m&amp#27;[1m"Por factura de más de 500"&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI1.andTheVoucherDescriptionIs(java.lang.String)&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.1] the invoice is marked as used for the voucher&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI1.andTheInvoiceIsMarkedAsUsedForTheVoucher()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.2] Do not generate an invoice voucher for an invoice of 500 euro" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.241">
+    <system-out><![CDATA[
+Scenario: [V.GI.2] Do not generate an invoice voucher for an invoice of 500 euro &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:13&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.2] a client with a paid invoice of 500 euro&amp#27;[0m                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI2.givenAClientWithAPaidInvoiceOf500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.2] I generate vouchers&amp#27;[0m                                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI2.whenIGenerateVouchers()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.2] no voucher is generated&amp#27;[0m                                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI2.thenNoVoucherIsGenerated()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.3] Do not generate an invoice voucher for an unpaid invoice over 500 euro" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.234">
+    <system-out><![CDATA[
+Scenario: [V.GI.3] Do not generate an invoice voucher for an unpaid invoice over 500 euro &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:18&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.3] a client with an unpaid invoice over 500 euro&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI3.givenAClientWithAnUnpaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.3] I generate vouchers&amp#27;[0m                                                       &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI3.whenIGenerateVouchers()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.3] no voucher is generated&amp#27;[0m                                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI3.thenNoVoucherIsGenerated()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.4] Do not reuse an invoice already used for a voucher" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.218">
+    <system-out><![CDATA[
+Scenario: [V.GI.4] Do not reuse an invoice already used for a voucher                &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:23&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.4] a client with a voucher generated from a paid invoice over 500 euro&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI4.givenAClientWithAVoucherGeneratedFromAPaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.4] I generate vouchers again&amp#27;[0m                                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI4.whenIGenerateVouchersAgain()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.4] no new invoice voucher is generated for the client&amp#27;[0m                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI4.thenNoNewInvoiceVoucherIsGeneratedForTheClient()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.5] Generate several invoice vouchers for the same client" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.281">
+    <system-out><![CDATA[
+Scenario: [V.GI.5] Generate several invoice vouchers for the same client &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:28&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.5] a client with two paid invoices over 500 euro&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI5.givenAClientWithTwoPaidInvoicesOver500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.5] I generate vouchers&amp#27;[0m                                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI5.whenIGenerateVouchers()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.5] two vouchers of 30 euro are generated for the client&amp#27;[0m     &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI5.thenTwoVouchersOf30EuroAreGeneratedForTheClient()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.5] the voucher description is &amp#27;[0m&amp#27;[32m&amp#27;[1m"Por factura de más de 500"&amp#27;[0m    &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI5.andTheVoucherDescriptionIs(java.lang.String)&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.5] the invoices are marked as used for the voucher&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI5.andTheInvoicesAreMarkedAsUsedForTheVoucher()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.GI.6] Generate a new invoice voucher for a client that already has a previous one" classname="[V.GI] Generate vouchers for invoices over 500 euro" time="0.311">
+    <system-out><![CDATA[
+Scenario: [V.GI.6] Generate a new invoice voucher for a client that already has a previous one &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/GenerateForInvoicesOver500.feature:35&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.GI.6] a client with a voucher generated from a paid invoice over 500 euro&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.givenAClientWithAVoucherGeneratedFromAPaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.6] a new paid invoice over 500 euro&amp#27;[0m                                                &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.andANewPaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.6] another non-paid invoice over 500 euro&amp#27;[0m                                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.andAnotherNonPaidInvoiceOver500Euro()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.GI.6] I generate vouchers&amp#27;[0m                                                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.whenIGenerateVouchers()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.GI.6] one new voucher of 30 euro is generated for the client&amp#27;[0m                         &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.thenOneNewVoucherOf30EuroIsGeneratedForTheClient()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.6] the voucher description is &amp#27;[0m&amp#27;[32m&amp#27;[1m"Por factura de más de 500"&amp#27;[0m                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.andTheVoucherDescriptionIs(java.lang.String)&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.GI.6] the invoice is marked as used for the voucher&amp#27;[0m                                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.generateforinvoices.ScenarioVGI6.andTheInvoiceIsMarkedAsUsedForTheVoucher()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.FbN.1] Find vouchers for a client with vouchers" classname="[V.FbN] Find vouchers by client nif" time="0.24">
+    <system-out><![CDATA[
+Scenario: [V.FbN.1] Find vouchers for a client with vouchers &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/FindByClientNif.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.FbN.1] a registered client with several vouchers&amp#27;[0m  &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN1.givenARegisteredClientWithSeveralVouchers()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.FbN.1] I search vouchers by client nif&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN1.whenISearchVouchersByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.FbN.1] I get all client vouchers&amp#27;[0m                   &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN1.thenIGetAllClientVouchers()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.FbN.2] Find vouchers for a client without vouchers" classname="[V.FbN] Find vouchers by client nif" time="0.234">
+    <system-out><![CDATA[
+Scenario: [V.FbN.2] Find vouchers for a client without vouchers &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/FindByClientNif.feature:11&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.FbN.2] a registered client&amp#27;[0m                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN2.givenARegisteredClient()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.FbN.2] I search vouchers by client nif&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN2.whenISearchVouchersByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.FbN.2] I get an empty list&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN2.thenIGetAnEmptyList()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.FbN.3] Find vouchers for a non existing client" classname="[V.FbN] Find vouchers by client nif" time="0.21">
+    <system-out><![CDATA[
+Scenario: [V.FbN.3] Find vouchers for a non existing client      &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/FindByClientNif.feature:16&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.FbN.3] I search vouchers for a non existing client nif&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN3.whenISearchVouchersForANonExistingClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.FbN.3] I get an empty list&amp#27;[0m                             &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.findbyclientnif.ScenarioVFbN3.thenIGetAnEmptyList()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.S.1] Get voucher summary when there are no vouchers" classname="[V.S] Get voucher summary" time="0.237">
+    <system-out><![CDATA[
+Scenario: [V.S.1] Get voucher summary when there are no vouchers &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/Summary.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.S.1] there are no vouchers&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS1.givenThereAreNoVouchers()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.S.1] I ask for the voucher summary&amp#27;[0m                     &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS1.whenIAskForTheVoucherSummary()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.S.1] I get an empty list&amp#27;[0m                               &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS1.thenIGetAnEmptyList()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[V.S.2] Get voucher summary for several clients" classname="[V.S] Get voucher summary" time="0.227">
+    <system-out><![CDATA[
+Scenario: [V.S.2] Get voucher summary for several clients                     &amp#27;[90m# uo/ri/cws/application/service/acceptance/voucher/Summary.feature:11&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[V.S.2] several clients with consumed and available vouchers&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS2.givenSeveralClientsWithConsumedAndAvailableVouchers()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[V.S.2] I ask for the voucher summary&amp#27;[0m                                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS2.whenIAskForTheVoucherSummary()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[V.S.2] I get one aggregated row per client with vouchers&amp#27;[0m              &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS2.thenIGetOneAggregatedRowPerClientWithVouchers()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.S.2] the rows are sorted by available amount descending&amp#27;[0m              &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS2.andTheRowsAreSortedByAvailableAmountDescending()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[V.S.2] each row includes issued, total, consumed and available amounts&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.voucher.summary.ScenarioVS2.andEachRowIncludesIssuedTotalConsumedAndAvailableAmounts()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.1] Settle an issued invoice with cash" classname="[I.S] Settle an invoice with one or more payment means" time="0.247">
+    <system-out><![CDATA[
+Scenario: [I.S.1] Settle an issued invoice with cash                            &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.1] an issued invoice for 121.00 and a cash payment mean&amp#27;[0m            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS1.givenIssuedInvoiceAndCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.1] I settle the invoice by charging 121.00 to the cash payment mean&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS1.whenISettleWithCash()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.1] the invoice is marked as PAID&amp#27;[0m                                    &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS1.thenInvoiceIsPaid()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.1] one charge for 121.00 links the invoice and the cash payment mean&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS1.thenOneCashChargeExists()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.1] the cash payment mean accumulated amount increases by 121.00&amp#27;[0m      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS1.thenCashAccumulatedIncreases()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.2] Settle an invoice with a card valid through the current month" classname="[I.S] Settle an invoice with one or more payment means" time="0.253">
+    <system-out><![CDATA[
+Scenario: [I.S.2] Settle an invoice with a card valid through the current month         &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:13&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.2] an issued invoice for 121.00 and a card valid through the current month&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS2.givenIssuedInvoiceAndValidCard()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.2] I settle the invoice by charging 121.00 to the card&amp#27;[0m                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS2.whenISettleWithCard()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.2] the invoice is marked as PAID&amp#27;[0m                                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS2.thenInvoiceIsPaid()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.2] one charge for 121.00 links the invoice and the card&amp#27;[0m                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS2.thenOneCardChargeExists()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.2] the card accumulated amount increases by 121.00&amp#27;[0m                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS2.thenCardAccumulatedIncreases()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.3] Split an invoice between a voucher and cash" classname="[I.S] Settle an invoice with one or more payment means" time="0.299">
+    <system-out><![CDATA[
+Scenario: [I.S.3] Split an invoice between a voucher and cash                           &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:20&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.3] an issued invoice for 121.00&amp#27;[0m                                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.givenIssuedInvoiceFor121()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.3] a voucher with 50.00 available and a cash payment mean&amp#27;[0m                    &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.givenVoucherAndCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.3] I settle the invoice with 50.00 from the voucher and 71.00 in cash&amp#27;[0m       &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.whenISettleWithVoucherAndCash()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.3] the invoice is marked as PAID with two charges for the requested amounts&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.thenInvoiceIsPaidWithTwoCharges()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.3] the voucher available amount becomes 0.00&amp#27;[0m                                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.thenVoucherIsDepleted()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.3] each payment mean accumulated amount increases by its charge&amp#27;[0m              &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS3.thenAccumulatedAmountsIncrease()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.4] Settle an invoice with a payment mean owned by another client" classname="[I.S] Settle an invoice with one or more payment means" time="0.281">
+    <system-out><![CDATA[
+Scenario: [I.S.4] Settle an invoice with a payment mean owned by another client              &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:28&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.4] an issued invoice for 121.00 and a cash payment mean owned by another client&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS4.givenIssuedInvoiceAndOtherClientsCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.4] I settle the invoice by charging 121.00 to that payment mean&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS4.whenISettleWithOtherClientsCash()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.4] the invoice is marked as PAID&amp#27;[0m                                                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS4.thenInvoiceIsPaid()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.4] the charge is linked to that payment mean&amp#27;[0m                                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS4.thenChargeUsesOtherClientsCash()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.5] Reject settlement of a non-existing invoice" classname="[I.S] Settle an invoice with one or more payment means" time="0.329">
+    <system-out><![CDATA[
+Scenario: [I.S.5] Reject settlement of a non-existing invoice                &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:34&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.5] a cash payment mean&amp#27;[0m                                          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS5.givenCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.5] I try to settle a non-existing invoice with that payment mean&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS5.whenITryToSettleMissingInvoice()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.5] a business error happens with an explaining message&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS5.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.5] no charge is created or accumulated amount changed&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS5.thenNoChargeOrAccumulatedChange()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.6] Reject settlement of an invoice already paid" classname="[I.S] Settle an invoice with one or more payment means" time="0.26">
+    <system-out><![CDATA[
+Scenario: [I.S.6] Reject settlement of an invoice already paid              &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:40&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.6] a paid invoice and a cash payment mean&amp#27;[0m                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS6.givenPaidInvoiceAndCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.6] I try to settle the invoice again with that payment mean&amp#27;[0m     &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS6.whenITryToSettleAgain()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.6] a business error happens with an explaining message&amp#27;[0m          &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS6.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.6] the existing charges and accumulated amounts remain unchanged&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS6.thenExistingChargeAndBalanceRemain()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.7] Reject a non-existing payment mean" classname="[I.S] Settle an invoice with one or more payment means" time="0.331">
+    <system-out><![CDATA[
+Scenario: [I.S.7] Reject a non-existing payment mean                                &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:46&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.7] an issued invoice for 121.00&amp#27;[0m                                        &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS7.givenIssuedInvoiceFor121()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.7] I try to settle it by charging 121.00 to a non-existing payment mean&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS7.whenITryToUseMissingPaymentMean()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.7] a business error happens with an explaining message&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS7.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.7] the invoice remains ISSUED with no charges&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS7.thenInvoiceIsUnchanged()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.8] Reject charges whose sum differs from the invoice total" classname="[I.S] Settle an invoice with one or more payment means" time="0.341">
+    <system-out><![CDATA[
+Scenario: [I.S.8] Reject charges whose sum differs from the invoice total &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:52&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.8] an issued invoice for 121.00 and a cash payment mean&amp#27;[0m      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS8.givenIssuedInvoiceAndCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.8] I try to settle the invoice by charging 120.99&amp#27;[0m             &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS8.whenIChargeWrongTotal()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.8] a business error happens with an explaining message&amp#27;[0m        &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS8.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.8] the invoice remains ISSUED with no charges&amp#27;[0m                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS8.thenInvoiceIsUnchanged()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.8] the cash payment mean accumulated amount remains unchanged&amp#27;[0m  &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS8.thenCashIsUnchanged()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.9] Reject an expired card" classname="[I.S] Settle an invoice with one or more payment means" time="0.357">
+    <system-out><![CDATA[
+Scenario: [I.S.9] Reject an expired card                                                 &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:59&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.9] an issued invoice for 121.00 and a card expired before the current month&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS9.givenIssuedInvoiceAndExpiredCard()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.9] I try to settle the invoice by charging 121.00 to the card&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS9.whenITryToUseExpiredCard()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.9] a business error happens with an explaining message&amp#27;[0m                       &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS9.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.9] the invoice remains ISSUED with no charges&amp#27;[0m                                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS9.thenInvoiceIsUnchanged()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.9] the card accumulated amount remains unchanged&amp#27;[0m                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS9.thenCardIsUnchanged()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.10] Reject a voucher without enough available balance" classname="[I.S] Settle an invoice with one or more payment means" time="0.25">
+    <system-out><![CDATA[
+Scenario: [I.S.10] Reject a voucher without enough available balance              &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:66&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.10] an issued invoice for 121.00 and a voucher with 120.00 available&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS10.givenIssuedInvoiceAndVoucher()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.10] I try to settle the invoice by charging 121.00 to the voucher&amp#27;[0m     &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS10.whenITryToOverchargeVoucher()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.10] a business error happens with an explaining message&amp#27;[0m               &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS10.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.10] the invoice remains ISSUED with no charges&amp#27;[0m                         &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS10.thenInvoiceIsUnchanged()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.10] the voucher available and accumulated amounts remain unchanged&amp#27;[0m     &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS10.thenVoucherIsUnchanged()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.11] Reject all charges if one payment mean cannot be charged" classname="[I.S] Settle an invoice with one or more payment means" time="0.185">
+    <system-out><![CDATA[
+Scenario: [I.S.11] Reject all charges if one payment mean cannot be charged    &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:73&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.11] an issued invoice for 121.00&amp#27;[0m                                  &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.givenIssuedInvoiceFor121()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.11] a cash payment mean and a card expired before the current month&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.givenCashAndExpiredCard()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.11] I try to settle it with 71.00 in cash and 50.00 on the card&amp#27;[0m    &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.whenITryToSplitWithExpiredCard()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.11] a business error happens with an explaining message&amp#27;[0m            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.thenBusinessError()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.11] the invoice remains ISSUED with no charges&amp#27;[0m                      &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.thenInvoiceIsUnchanged()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.11] neither payment mean accumulated amount changes&amp#27;[0m                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS11.thenNeitherPaymentMeanChanges()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.S.12] Compare and record charge amounts at cent precision" classname="[I.S] Settle an invoice with one or more payment means" time="0.223">
+    <system-out><![CDATA[
+Scenario: [I.S.12] Compare and record charge amounts at cent precision                  &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/SettleInvoice.feature:81&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.S.12] an issued invoice for 121.00 and two cash payment means&amp#27;[0m                &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS12.givenIssuedInvoiceAndTwoCashPaymentMeans()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.S.12] I settle it by charging 60.005 to one and 60.995 to the other&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS12.whenISettleAtCentPrecision()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.S.12] the invoice is marked as PAID&amp#27;[0m                                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS12.thenInvoiceIsPaid()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.12] the charges are recorded as 60.00 and 61.00 respectively&amp#27;[0m                 &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS12.thenChargesAreRoundedToCents()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.S.12] the payment means accumulated amounts increase by those recorded amounts&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.settle.ScenarioIS12.thenAccumulatedAmountsIncreaseByRoundedCharges()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FbN.1] Find an invoice among several invoices" classname="[I.FbN] Find an invoice by its number" time="0.193">
+    <system-out><![CDATA[
+Scenario: [I.FbN.1] Find an invoice among several invoices                           &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindInvoiceByNumber.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.FbN.1] two invoices with different numbers&amp#27;[0m                                &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN1.givenTwoInvoicesWithDifferentNumbers()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FbN.1] I search for one invoice by its number&amp#27;[0m                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN1.whenISearchByNumber()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FbN.1] I get the invoice with the requested id, number, date and version&amp#27;[0m   &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN1.thenIdentityAndDateMatch()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.FbN.1] its subtotal, VAT percentage, VAT amount and total match the invoice&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN1.thenAmountsMatch()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FbN.2] Find an invoice with a non-existing number" classname="[I.FbN] Find an invoice by its number" time="0.19">
+    <system-out><![CDATA[
+Scenario: [I.FbN.2] Find an invoice with a non-existing number      &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindInvoiceByNumber.feature:12&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FbN.2] I search for an invoice with a non-existing number&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN2.whenISearchForMissingNumber()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FbN.2] I get an empty result&amp#27;[0m                              &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findbynumber.ScenarioIFbN2.thenResultIsEmpty()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FPM.1] Find a client&apos;s cash payment mean" classname="[I.FPM] Find a client&apos;s payment means for invoicing" time="0.25">
+    <system-out><![CDATA[
+Scenario: [I.FPM.1] Find a client's cash payment mean                                     &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindPayMeansByClientNif.feature:6&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.FPM.1] a registered client with a cash payment mean&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM1.givenClientWithCash()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FPM.1] I search for payment means by the client's nif&amp#27;[0m                           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM1.whenISearchByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FPM.1] I get one CashDto with its id, version, client id and accumulated amount&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM1.thenIGetTheCashPaymentMean()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FPM.2] Find cash, card and voucher payment means" classname="[I.FPM] Find a client&apos;s payment means for invoicing" time="0.246">
+    <system-out><![CDATA[
+Scenario: [I.FPM.2] Find cash, card and voucher payment means                      &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindPayMeansByClientNif.feature:11&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.FPM.2] a registered client with cash, a credit card and a voucher&amp#27;[0m       &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM2.givenClientWithThreePaymentMeans()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FPM.2] I search for payment means by the client's nif&amp#27;[0m                    &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM2.whenISearchByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FPM.2] I get exactly those three payment means with their common data&amp#27;[0m    &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM2.thenIGetExactlyThosePaymentMeans()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.FPM.2] the CardDto includes its number, type and expiration month&amp#27;[0m         &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM2.thenCardDetailsMatch()&amp#27;[0m
+  &amp#27;[32mAnd &amp#27;[0m&amp#27;[32m[I.FPM.2] the VoucherDto includes its code, description and available amount&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM2.thenVoucherDetailsMatch()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FPM.3] Exclude payment means owned by another client" classname="[I.FPM] Find a client&apos;s payment means for invoicing" time="0.217">
+    <system-out><![CDATA[
+Scenario: [I.FPM.3] Exclude payment means owned by another client     &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindPayMeansByClientNif.feature:18&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.FPM.3] two registered clients with payment means&amp#27;[0m           &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM3.givenTwoClientsWithPaymentMeans()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FPM.3] I search for the first client's payment means by nif&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM3.whenISearchForFirstClient()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FPM.3] I get only payment means owned by the first client&amp#27;[0m   &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM3.thenIGetOnlyFirstClientPaymentMeans()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FPM.4] Find a client without payment means" classname="[I.FPM] Find a client&apos;s payment means for invoicing" time="0.227">
+    <system-out><![CDATA[
+Scenario: [I.FPM.4] Find a client without payment means         &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindPayMeansByClientNif.feature:23&amp#27;[0m
+  &amp#27;[32mGiven &amp#27;[0m&amp#27;[32m[I.FPM.4] a registered client without payment means&amp#27;[0m     &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM4.givenClientWithoutPaymentMeans()&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FPM.4] I search for payment means by the client's nif&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM4.whenISearchByClientNif()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FPM.4] I get an empty list&amp#27;[0m                            &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM4.thenListIsEmpty()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="[I.FPM.5] Find payment means for a non-existing client" classname="[I.FPM] Find a client&apos;s payment means for invoicing" time="0.197">
+    <system-out><![CDATA[
+Scenario: [I.FPM.5] Find payment means for a non-existing client         &amp#27;[90m# uo/ri/cws/application/service/acceptance/invoice/FindPayMeansByClientNif.feature:28&amp#27;[0m
+  &amp#27;[32mWhen &amp#27;[0m&amp#27;[32m[I.FPM.5] I search for payment means by a non-existing client nif&amp#27;[0m &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM5.whenISearchForMissingClient()&amp#27;[0m
+  &amp#27;[32mThen &amp#27;[0m&amp#27;[32m[I.FPM.5] I get an empty list&amp#27;[0m                                     &amp#27;[90m# uo.ri.cws.application.service.acceptance.invoice.findpaymeansbyclientnif.ScenarioIFPM5.thenListIsEmpty()&amp#27;[0m
+]]></system-out>
+  </testcase>
+  <testcase name="createRejectsNullDto" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.017"/>
+  <testcase name="createRejectsNullOrBlankSurname(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.014"/>
+  <testcase name="createRejectsNullOrBlankSurname(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankSurname(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.0"/>
+  <testcase name="findByIdRejectsNullId" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="updateRejectsNullOrBlankNif(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.002"/>
+  <testcase name="updateRejectsNullOrBlankNif(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.0"/>
+  <testcase name="updateRejectsNullOrBlankNif(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="updateRejectsNullOrBlankSurname(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="updateRejectsNullOrBlankSurname(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.0"/>
+  <testcase name="updateRejectsNullOrBlankSurname(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="deleteRejectsNullId" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankName(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankName(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankName(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="findByNifRejectsNullNif" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankNif(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.002"/>
+  <testcase name="createRejectsNullOrBlankNif(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="createRejectsNullOrBlankNif(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.0"/>
+  <testcase name="updateRejectsNullOrBlankName(String)[1]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="updateRejectsNullOrBlankName(String)[2]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+  <testcase name="updateRejectsNullOrBlankName(String)[3]" classname="uo.ri.cws.application.service.robustness.mechanic.MechanicCrudServiceRobustnessTests" time="0.001"/>
+</testsuite>

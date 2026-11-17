@@ -1,0 +1,12 @@
+uo\ri\ui\foreman\client\action\FindRecommendedClientsAction.class
+uo\ri\ui\foreman\client\action\AddClientAction.class
+uo\ri\ui\foreman\vehicle\VehiclesMenu.class
+uo\ri\ui\util\Printer.class
+uo\ri\ui\foreman\client\action\DeleteClientAction.class
+uo\ri\ui\foreman\client\ClientsMenu.class
+uo\ri\ui\ForemanMain.class
+uo\ri\ui\foreman\client\action\FindClientByNifAction.class
+uo\ri\ui\foreman\reception\ReceptionMenu.class
+uo\ri\ui\foreman\client\action\UpdateClientAction.class
+uo\ri\ui\foreman\client\action\ListClientsAction.class
+uo\ri\ui\foreman\MainMenu.class

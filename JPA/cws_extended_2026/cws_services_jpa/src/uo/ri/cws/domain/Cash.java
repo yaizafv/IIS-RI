@@ -1,16 +1,13 @@
 package uo.ri.cws.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import uo.ri.cws.domain.types.Money;
 import uo.ri.util.assertion.ArgumentChecks;
 
-@Entity
-@Table(name = "TCASHES")
 public class Cash extends PaymentMean {
 
 	// ---- Constructors ----
-	public Cash() {
+	Cash() {
+		// for JPA
 	}
 
 	public Cash(Client client) {
@@ -24,6 +21,14 @@ public class Cash extends PaymentMean {
 	public boolean canBeCharged(Money amount) {
 		checkPositive(amount);
 		return true;
+	}
+
+	/**
+	 * Every client always keeps its cash payment mean
+	 */
+	@Override
+	public boolean isRemovable() {
+		return false;
 	}
 
 	// ---- toString ----

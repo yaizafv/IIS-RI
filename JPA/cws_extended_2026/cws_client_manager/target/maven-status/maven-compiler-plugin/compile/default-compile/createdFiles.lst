@@ -1,0 +1,14 @@
+uo\ri\ui\manager\mechanic\action\ListMechanicsAction.class
+uo\ri\ui\util\Printer.class
+uo\ri\ui\manager\voucher\action\ShowVoucherSummaryAction.class
+uo\ri\ui\manager\voucher\VouchersMenu.class
+uo\ri\ui\manager\mechanic\MechanicsMenu.class
+uo\ri\ui\manager\mechanic\action\AddMechanicAction.class
+uo\ri\ui\manager\spares\SparePartsManagementMenu.class
+uo\ri\ui\ManagerMain.class
+uo\ri\ui\manager\voucher\action\GenerateVouchersAction.class
+uo\ri\ui\manager\MainMenu.class
+uo\ri\ui\manager\mechanic\action\DeleteMechanicAction.class
+uo\ri\ui\manager\voucher\action\FindVouchersByClientNifAction.class
+uo\ri\ui\manager\mechanic\action\UpdateMechanicAction.class
+uo\ri\ui\manager\vehicletype\VehicleTypesMenu.class

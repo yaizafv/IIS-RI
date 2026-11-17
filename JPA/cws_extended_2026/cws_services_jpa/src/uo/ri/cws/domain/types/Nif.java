@@ -2,10 +2,8 @@ package uo.ri.cws.domain.types;
 
 import java.util.regex.Pattern;
 
-import jakarta.persistence.Embeddable;
 import uo.ri.util.assertion.ArgumentChecks;
 
-@Embeddable
 public record Nif(String nif) {
 
 	private static final String LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE";

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: uo.ri.cws.persistence.association.SettlesMappingTests
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.950 s -- in uo.ri.cws.persistence.association.SettlesMappingTests

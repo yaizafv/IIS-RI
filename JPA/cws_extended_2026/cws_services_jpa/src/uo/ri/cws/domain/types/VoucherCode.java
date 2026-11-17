@@ -1,9 +1,9 @@
 package uo.ri.cws.domain.types;
 
-import jakarta.persistence.Embeddable;
+import java.util.UUID;
+
 import uo.ri.util.assertion.ArgumentChecks;
 
-@Embeddable
 public record VoucherCode(String code) {
 
 	public VoucherCode {
@@ -27,8 +27,7 @@ public record VoucherCode(String code) {
 	 * @return a new VoucherCode instance with a unique code.
 	 */
 	public static VoucherCode generate() {
-		String code = "VOUCHER-" + System.currentTimeMillis() + "-" + (int) (Math.random() * 10_000);
-		return new VoucherCode(code);
+		return new VoucherCode(UUID.randomUUID().toString());
 	}
 
 	@Override

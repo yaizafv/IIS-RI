@@ -8,74 +8,57 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import uo.ri.cws.domain.base.BaseEntity;
 import uo.ri.cws.domain.types.Money;
 import uo.ri.cws.domain.types.Percentage;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.assertion.StateChecks;
 
-@Entity
-@Table(name = "TINVOICES")
 public class Invoice extends BaseEntity {
 	private static final LocalDate JULY_1_2012 = LocalDate.of(2012, 7, 1);
-	private static final Money VOUCHER_30_MIN_TOTAL = Money.of("500.00");
+	public static final Money VOUCHER_30_MIN_TOTAL = Money.of("500.00");
 
 	public enum InvoiceState {
 		ISSUED, PAID
 	}
 
 	// Natural attributes
-	@Column(unique = true)
 	private long number;
 	private LocalDate date;
-	@Enumerated(EnumType.STRING)
 	private InvoiceState state = InvoiceState.ISSUED;
 
 	/*
 	 * Subtotal amount of the invoice, before applying VAT. This represents the
 	 * taxable base.
 	 */
-	@AttributeOverride(name = "amount", column = @Column(name = "SUBTOTAL", precision = 19, scale = 2))
 	private Money subtotal = Money.ZERO; // cents
 
 	/*
 	 * VAT rate applied to the invoice, expressed as a percentage. Example: 21% VAT.
 	 */
-	@AttributeOverride(name = "value", column = @Column(name = "VATRATE"))
 	private Percentage vatRate = Percentage.ofPercent(21); // default to 21%
 
 	/*
 	 * VAT amount calculated from the subtotal amount. This is the tax the customer
 	 * must pay.
 	 */
-	@AttributeOverride(name = "amount", column = @Column(name = "VATAMOUNT", precision = 19, scale = 2))
 	private Money vatAmount = Money.ZERO; // cents
 
 	/*
 	 * Total amount of the invoice including VAT. This is the final amount the
 	 * customer must pay.
 	 */
-	@AttributeOverride(name = "amount", column = @Column(name = "TOTAL", precision = 19, scale = 2))
 	private Money total = Money.ZERO; // cents
 
 	private boolean usedForVoucher = false;
 
 	// Accidental attributes
-	@OneToMany(mappedBy = "invoice")
 	private Set<WorkOrder> workOrders = new HashSet<>();
-	@OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Charge> charges = new HashSet<>();
 
 	// ----------------- Constructors -------------------------------------
-	public Invoice() {
+	Invoice() {
+		// for JPA
 	}
 
 	public Invoice(long number) {
@@ -235,6 +218,26 @@ public class Invoice extends BaseEntity {
 		state = InvoiceState.PAID;
 	}
 
+	/**
+	 * Checks, without changing anything, whether the invoice can be settled with
+	 * the requested charges: it is not settled yet, the charges (rounded to cents)
+	 * sum the invoice total and every payment mean can be charged.
+	 *
+	 * @param requestedCharges A map of payment means and the amounts to charge
+	 * @return true if settle(requestedCharges) would succeed
+	 */
+	public boolean canBeSettledWith(Map<PaymentMean, Money> requestedCharges) {
+		ArgumentChecks.isNotNull(requestedCharges, "Charges cannot be null");
+		ArgumentChecks.isFalse(requestedCharges.isEmpty(), "Charges cannot be empty");
+
+		Map<PaymentMean, Money> charges = normalize(requestedCharges);
+		return !isSettled()
+				&& total.greaterThan(Money.ZERO)
+				&& chargesTotal(charges).equals(total)
+				&& charges.entrySet().stream()
+						.allMatch(e -> e.getKey().canBeCharged(e.getValue()));
+	}
+
 	public void unSettle() {
 		StateChecks.isTrue(isSettled(), "Invoice is not settled");
 
@@ -258,6 +261,15 @@ public class Invoice extends BaseEntity {
 	public void markAsUsedForVoucher() {
 		StateChecks.isTrue(canGenerateVoucher30(), "Invoice cannot generate a voucher");
 		usedForVoucher = true;
+	}
+
+	/**
+	 * @return the client owning the vehicles of the invoiced work orders
+	 * @throws IllegalStateException if the invoice has no work orders
+	 */
+	public Client getClient() {
+		StateChecks.isFalse(workOrders.isEmpty(), "Invoice has no work orders");
+		return workOrders.iterator().next().getVehicle().getClient();
 	}
 
 	// ---- Calculation ----

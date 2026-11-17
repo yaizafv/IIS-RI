@@ -22,7 +22,7 @@
             <property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.file" value="eclipselink.log"/>
 
-			<property name="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:hsql://localhost" />
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:file:../cws_database/test;files_readonly=true"/>
 <!-- 
 			<property name="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:hsql://localhost" />
  			<property name="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:file:../cws_database/test;files_readonly=true"/>
